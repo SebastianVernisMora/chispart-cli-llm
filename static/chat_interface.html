@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Interface</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        #chat { border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: scroll; }
+        #message { width: 80%; }
+        #send { width: 18%; }
+    </style>
+</head>
+<body>
+    <h1>Chat Interface</h1>
+    <div id="chat"></div>
+    <input type="text" id="message" placeholder="Type your message here...">
+    <button id="send">Send</button>
+
+    <script>
+        document.getElementById('send').onclick = function() {
+            const message = document.getElementById('message').value;
+            if (message) {
+                const chat = document.getElementById('chat');
+                chat.innerHTML += '<div>' + message + '</div>';
+                document.getElementById('message').value = '';
+
+                // Send message to server
+                fetch('/execute', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ command: message })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    chat.innerHTML += '<div><strong>Response:</strong> ' + data.stdout + '</div>';
+                })
+                .catch(error => {
+                    chat.innerHTML += '<div><strong>Error:</strong> ' + error.message + '</div>';
+                });
+            }
+        };
+    </script>
+</body>
+</html>
