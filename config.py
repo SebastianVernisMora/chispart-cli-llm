@@ -13,7 +13,7 @@ AVAILABLE_APIS = {
         "name": "BlackboxAI",
         "base_url": "https://api.blackbox.ai",
         "default_key_env": "BLACKBOX_API_KEY",
-        "default_key": "sk-qQ2aey2mBO84jenN1fx5og"
+        "default_key": ""
     },
     "openai": {
         "name": "OpenAI",

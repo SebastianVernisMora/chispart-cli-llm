@@ -4,6 +4,7 @@ Utilidades para el manejo de archivos y funciones auxiliares
 import base64
 import os
 import json
+import fitz  # PyMuPDF
 from pathlib import Path
 from typing import Optional, Dict, Any
 from datetime import datetime
@@ -60,18 +61,32 @@ def create_image_data_url(file_path: str) -> str:
     return f"data:{mime_type};base64,{base64_content}"
 
 
-def create_pdf_data_url(file_path: str) -> str:
+def extract_text_from_pdf(file_path: str) -> str:
     """
-    Crea una URL de datos para un PDF
+    Extrae el texto de un archivo PDF.
     
     Args:
-        file_path: Ruta del PDF
+        file_path: Ruta del archivo PDF.
         
     Returns:
-        URL de datos en formato data:application/pdf;base64,contenido
+        El texto extraído del PDF.
+
+    Raises:
+        FileNotFoundError: Si el archivo no existe.
+        Exception: Para otros errores relacionados con el procesamiento del PDF.
     """
-    base64_content = encode_file_to_base64(file_path)
-    return f"data:application/pdf;base64,{base64_content}"
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"El archivo {file_path} no existe")
+
+    try:
+        doc = fitz.open(file_path)
+        text = ""
+        for page in doc:
+            text += page.get_text()
+        doc.close()
+        return text
+    except Exception as e:
+        raise Exception(f"No se pudo procesar el archivo PDF {file_path}: {str(e)}")
 
 
 def is_supported_image(file_path: str) -> bool:

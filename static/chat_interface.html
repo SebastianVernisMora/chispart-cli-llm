@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CLI Universal para LLMs - Interfaz Web</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -336,6 +339,7 @@
                 <div class="tabs">
                     <div class="tab active" onclick="switchTab('chat')">Chat</div>
                     <div class="tab" onclick="switchTab('image')">Imagen</div>
+                    <div class="tab" onclick="switchTab('pdf')">PDF</div>
                     <div class="tab" onclick="switchTab('history')">Historial</div>
                 </div>
 
@@ -388,6 +392,34 @@
                     </div>
                 </div>
 
+                <!-- PDF Configuration -->
+                <div id="pdf-tab" class="tab-content">
+                    <div class="config-section">
+                        <h3>Análisis de PDF</h3>
+                        <div class="form-group">
+                            <label for="pdf-api-select">API:</label>
+                            <select id="pdf-api-select">
+                                <option value="">Cargando APIs...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="pdf-model-select">Modelo:</label>
+                            <select id="pdf-model-select">
+                                <option value="">Selecciona una API primero</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="pdf-file">Archivo PDF:</label>
+                            <input type="file" id="pdf-file" accept=".pdf">
+                        </div>
+                        <div class="form-group">
+                            <label for="pdf-prompt">Pregunta:</label>
+                            <input type="text" id="pdf-prompt" value="Resume el contenido de este documento" placeholder="¿Qué quieres saber sobre el PDF?">
+                        </div>
+                        <button class="btn" onclick="analyzePdf()">📄 Analizar PDF</button>
+                    </div>
+                </div>
+
                 <!-- History -->
                 <div id="history-tab" class="tab-content">
                     <div class="config-section">
@@ -429,6 +461,15 @@
     <script>
         let currentApis = [];
         let currentModels = {};
+        let currentHistory = [];
+
+        // Configurar Marked.js para usar Highlight.js
+        marked.setOptions({
+            highlight: function(code, lang) {
+                const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+                return hljs.highlight(code, { language }).value;
+            }
+        });
 
         // Inicializar la aplicación
         document.addEventListener('DOMContentLoaded', function() {
@@ -473,9 +514,11 @@
         function populateApiSelects(apis, defaultApi) {
             const chatApiSelect = document.getElementById('api-select');
             const imageApiSelect = document.getElementById('image-api-select');
+            const pdfApiSelect = document.getElementById('pdf-api-select');
             
             chatApiSelect.innerHTML = '';
             imageApiSelect.innerHTML = '';
+            pdfApiSelect.innerHTML = '';
 
             apis.forEach(api => {
                 const option = document.createElement('option');
@@ -489,9 +532,12 @@
 
                 chatApiSelect.appendChild(option.cloneNode(true));
                 
-                // Solo agregar APIs que soporten imágenes al selector de imágenes
                 if (api.supports_vision) {
-                    imageApiSelect.appendChild(option);
+                    imageApiSelect.appendChild(option.cloneNode(true));
+                }
+
+                if (api.supports_pdf) {
+                    pdfApiSelect.appendChild(option.cloneNode(true));
                 }
             });
 
@@ -512,9 +558,12 @@
             const modelSelect = document.getElementById('model-select');
             const imageApiSelect = document.getElementById('image-api-select');
             const imageModelSelect = document.getElementById('image-model-select');
+            const pdfApiSelect = document.getElementById('pdf-api-select');
+            const pdfModelSelect = document.getElementById('pdf-model-select');
             
             const selectedApi = apiSelect.value;
             const selectedImageApi = imageApiSelect.value;
+            const selectedPdfApi = pdfApiSelect.value;
 
             if (!selectedApi) return;
 
@@ -531,17 +580,32 @@
                 currentModels[selectedApi] = data.models;
                 populateModelSelect(modelSelect, data.models, data.default_model);
 
-                // Si hay una API de imagen seleccionada, cargar sus modelos también
-                if (selectedImageApi && selectedImageApi !== selectedApi) {
-                    const imageResponse = await fetch(`/api/models/${selectedImageApi}`);
-                    const imageData = await imageResponse.json();
-                    
-                    if (!imageData.error) {
-                        currentModels[selectedImageApi] = imageData.models;
-                        populateModelSelect(imageModelSelect, imageData.models, imageData.default_model);
+                // Cargar modelos para la API de imagen
+                if (selectedImageApi) {
+                    if (currentModels[selectedImageApi]) {
+                        populateModelSelect(imageModelSelect, currentModels[selectedImageApi], (await fetch(`/api/models/${selectedImageApi}`).then(res => res.json())).default_model);
+                    } else {
+                        const imageResponse = await fetch(`/api/models/${selectedImageApi}`);
+                        const imageData = await imageResponse.json();
+                        if (!imageData.error) {
+                            currentModels[selectedImageApi] = imageData.models;
+                            populateModelSelect(imageModelSelect, imageData.models, imageData.default_model);
+                        }
                     }
-                } else if (selectedImageApi === selectedApi) {
-                    populateModelSelect(imageModelSelect, data.models, data.default_model);
+                }
+
+                // Cargar modelos para la API de PDF
+                if (selectedPdfApi) {
+                    if (currentModels[selectedPdfApi]) {
+                        populateModelSelect(pdfModelSelect, currentModels[selectedPdfApi], (await fetch(`/api/models/${selectedPdfApi}`).then(res => res.json())).default_model);
+                    } else {
+                        const pdfResponse = await fetch(`/api/models/${selectedPdfApi}`);
+                        const pdfData = await pdfResponse.json();
+                        if (!pdfData.error) {
+                            currentModels[selectedPdfApi] = pdfData.models;
+                            populateModelSelect(pdfModelSelect, pdfData.models, pdfData.default_model);
+                        }
+                    }
                 }
 
             } catch (error) {
@@ -583,52 +647,80 @@
             const api = apiSelect.value;
             const model = modelSelect.value;
 
-            if (!message) {
-                showError('Por favor escribe un mensaje');
+            if (!message || !api) {
+                showError('Por favor escribe un mensaje y selecciona una API.');
                 return;
             }
 
-            if (!api) {
-                showError('Por favor selecciona una API');
-                return;
-            }
-
-            // Mostrar mensaje del usuario
             addMessage('user', message);
             messageInput.value = '';
+
+            // Crear burbuja de asistente vacía
+            const assistantBubble = addMessage('assistant', '<div class="spinner"></div>');
+            const contentDiv = assistantBubble.querySelector('.message-bubble');
+            contentDiv.innerHTML = ''; // Limpiar spinner inicial
+
             showLoading(true);
 
             try {
                 const response = await fetch('/api/chat', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({
                         message: message,
                         api: api,
-                        model: model
+                        model: model,
+                        stream: true // Solicitar streaming
                     })
                 });
 
-                const data = await response.json();
-                
-                if (data.error) {
-                    showError(data.error);
-                    if (data.available_models) {
-                        showError('Modelos disponibles: ' + data.available_models.join(', '));
+                if (!response.ok) {
+                    throw new Error(`Error de red: ${response.statusText}`);
+                }
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let fullResponse = '';
+
+                while (true) {
+                    const { value, done } = await reader.read();
+                    if (done) break;
+
+                    const textChunk = decoder.decode(value);
+                    const lines = textChunk.split('\n\n');
+
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            const jsonData = line.substring(6);
+                            if (jsonData) {
+                                try {
+                                    const data = JSON.parse(jsonData);
+                                    if (data.type === 'content') {
+                                        fullResponse += data.chunk;
+                                        contentDiv.innerHTML = marked.parse(fullResponse);
+                                    } else if (data.type === 'done') {
+                                        // Opcional: Actualizar info al final
+                                        return;
+                                    } else if (data.type === 'error') {
+                                        showError(data.message);
+                                        return;
+                                    }
+                                } catch (e) {
+                                    console.error('Error parseando JSON del stream:', jsonData);
+                                }
+                            }
+                        }
                     }
-                } else {
-                    addMessage('assistant', data.response, {
-                        model: data.model_used,
-                        api: data.api_used,
-                        tokens: data.usage?.total_tokens
-                    });
                 }
             } catch (error) {
                 showError('Error enviando mensaje: ' + error.message);
+                contentDiv.innerHTML = 'Error en la conexión.';
             } finally {
                 showLoading(false);
+                // Forzar resaltado de sintaxis al final del stream
+                contentDiv.querySelectorAll('pre code').forEach((block) => {
+                    hljs.highlightElement(block);
+                });
             }
         }
 
@@ -694,6 +786,69 @@
             }
         }
 
+        // Analizar PDF
+        async function analyzePdf() {
+            const fileInput = document.getElementById('pdf-file');
+            const apiSelect = document.getElementById('pdf-api-select');
+            const modelSelect = document.getElementById('pdf-model-select');
+            const promptInput = document.getElementById('pdf-prompt');
+
+            const file = fileInput.files[0];
+            const api = apiSelect.value;
+            const model = modelSelect.value;
+            const prompt = promptInput.value.trim();
+
+            if (!file) {
+                showError('Por favor selecciona un archivo PDF');
+                return;
+            }
+
+            if (file.type !== 'application/pdf') {
+                showError('El archivo seleccionado no es un PDF.');
+                return;
+            }
+
+            if (!api) {
+                showError('Por favor selecciona una API para el análisis de PDF');
+                return;
+            }
+
+            showLoading(true);
+
+            try {
+                const formData = new FormData();
+                formData.append('pdf', file);
+                formData.append('api', api);
+                formData.append('model', model);
+                formData.append('prompt', prompt);
+
+                const response = await fetch('/api/pdf', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    showError(data.error);
+                } else {
+                    switchTab('chat');
+                    document.querySelector('.tab').click();
+
+                    addMessage('user', `[PDF: ${data.filename}] ${prompt}`);
+                    addMessage('assistant', data.response, {
+                        model: data.model_used,
+                        api: data.api_used,
+                        tokens: data.usage?.total_tokens
+                    });
+                }
+            } catch (error) {
+                showError('Error analizando PDF: ' + error.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+
         // Previsualizar imagen
         function previewImage() {
             const fileInput = document.getElementById('image-file');
@@ -711,7 +866,7 @@
         // Cargar historial
         async function loadHistory() {
             try {
-                const response = await fetch('/api/history?limit=20');
+                const response = await fetch('/api/history?limit=50');
                 const data = await response.json();
                 
                 if (data.error) {
@@ -719,26 +874,59 @@
                     return;
                 }
 
+                currentHistory = data.history;
                 const historyList = document.getElementById('history-list');
                 
-                if (data.history.length === 0) {
-                    historyList.innerHTML = '<p>No hay conversaciones en el historial</p>';
+                if (currentHistory.length === 0) {
+                    historyList.innerHTML = '<p>No hay conversaciones en el historial.</p>';
                     return;
                 }
 
-                historyList.innerHTML = data.history.map(item => `
-                    <div class="history-item">
-                        <div class="timestamp">${item.timestamp}</div>
-                        <div><strong>${item.api}</strong> (${item.model})</div>
-                        <div><strong>Pregunta:</strong> ${item.message}</div>
-                        <div><strong>Respuesta:</strong> ${item.response}</div>
-                        <div><small>Tokens: ${item.tokens}</small></div>
-                    </div>
-                `).join('');
+                historyList.innerHTML = currentHistory.slice().reverse().map(conv => {
+                    const date = new Date(conv.timestamp).toLocaleString('es-ES', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+                    let title = conv.message || conv.prompt || 'Conversación';
+                    if (title.length > 35) title = title.substring(0, 32) + '...';
+
+                    return `
+                        <div class="history-item" onclick="loadConversation('${conv.request_id}')" style="cursor: pointer;">
+                            <div class="timestamp">${date}</div>
+                            <div><strong>${title}</strong></div>
+                            <small>${conv.api} - ${conv.model}</small>
+                        </div>
+                    `;
+                }).join('');
 
             } catch (error) {
                 showError('Error cargando historial: ' + error.message);
             }
+        }
+
+        function loadConversation(requestId) {
+            const conversation = currentHistory.find(c => c.request_id === requestId);
+            if (!conversation) {
+                showError('Error: No se pudo encontrar la conversación en el historial cargado.');
+                return;
+            }
+
+            const chatMessages = document.getElementById('chat-messages');
+            chatMessages.innerHTML = ''; // Limpiar chat actual
+
+            // Añadir los mensajes de la conversación cargada
+            // Funciona para web_chat, web_image, web_pdf, etc.
+            if (conversation.message || conversation.prompt) {
+                const userMessage = conversation.message || `[${conversation.type}] ${conversation.prompt}`;
+                addMessage('user', userMessage);
+            }
+            if (conversation.response) {
+                 addMessage('assistant', conversation.response, {
+                    model: conversation.model,
+                    api: conversation.api,
+                    tokens: conversation.usage?.total_tokens
+                });
+            }
+
+            // Cambiar a la pestaña de chat
+            switchTab('chat');
         }
 
         // Agregar mensaje al chat
@@ -759,14 +947,16 @@
                 };
                 reader.readAsDataURL(imageFile);
             } else {
+                const finalContent = (type === 'assistant') ? marked.parse(content) : content;
                 messageDiv.innerHTML = `
-                    <div class="message-bubble">${messageContent}</div>
+                    <div class="message-bubble">${finalContent}</div>
                     ${info ? `<div class="message-info">${info.api} - ${info.model}${info.tokens ? ` (${info.tokens} tokens)` : ''}</div>` : ''}
                 `;
             }
             
             chatMessages.appendChild(messageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
+            return messageDiv;
         }
 
         // Mostrar/ocultar loading

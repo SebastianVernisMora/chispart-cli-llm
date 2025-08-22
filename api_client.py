@@ -39,66 +39,98 @@ class UniversalAPIClient:
                 "Authorization": f"Bearer {api_key}"
             })
     
-    def chat_completions(self, messages: List[Dict[str, Any]], model: str) -> Dict[str, Any]:
+    def chat_completions(self, messages: List[Dict[str, Any]], model: str, stream: bool = False):
         """
-        Envía una solicitud de chat completion a la API
+        Envía una solicitud de chat completion a la API.
         
         Args:
-            messages: Lista de mensajes en formato OpenAI
-            model: Modelo a utilizar
+            messages: Lista de mensajes en formato OpenAI.
+            model: Modelo a utilizar.
+            stream: Si es True, devuelve un generador de chunks.
             
         Returns:
-            Respuesta de la API
+            Respuesta de la API o un generador si stream=True.
             
         Raises:
-            APIError: Si hay un error en la API
+            APIError: Si hay un error en la API.
         """
-        # Determinar endpoint según la API
+        # Determinar endpoint y payload según la API
         if self.api_name.lower() == "anthropic":
             url = f"{self.base_url}/v1/messages"
             payload = self._format_anthropic_payload(messages, model)
+            # Anthropic streaming requiere un manejo diferente, por ahora no lo implementamos aquí
+            if stream:
+                payload["stream"] = True
         else:
             url = f"{self.base_url}/chat/completions"
             payload = {
                 "model": model,
-                "messages": messages
+                "messages": messages,
+                "stream": stream
             }
-        
+
         try:
             response = self.session.post(
                 url, 
                 json=payload, 
-                timeout=REQUEST_TIMEOUT
+                timeout=REQUEST_TIMEOUT,
+                stream=stream  # Importante para streaming
             )
-            
-            if response.status_code == 200:
-                api_response = response.json()
-                # Normalizar respuesta de Anthropic al formato OpenAI
-                if self.api_name.lower() == "anthropic":
-                    return self._normalize_anthropic_response(api_response)
-                return api_response
+
+            if not stream:
+                if response.status_code == 200:
+                    api_response = response.json()
+                    if self.api_name.lower() == "anthropic":
+                        return self._normalize_anthropic_response(api_response)
+                    return api_response
+                else:
+                    self._handle_api_error(response)
             else:
-                error_msg = f"Error de API {self.api_name}: {response.status_code}"
-                try:
-                    error_data = response.json()
-                    if "error" in error_data:
-                        if isinstance(error_data["error"], dict):
-                            error_msg = error_data["error"].get("message", error_msg)
-                        else:
-                            error_msg = str(error_data["error"])
-                    elif "message" in error_data:
-                        error_msg = error_data["message"]
-                except:
-                    error_msg = f"Error de API {self.api_name}: {response.status_code} - {response.text}"
-                
-                raise APIError(error_msg, response.status_code, self.api_name)
-                
+                # Si es streaming, devolvemos el generador
+                if response.status_code == 200:
+                    return self._stream_generator(response)
+                else:
+                    self._handle_api_error(response)
+
         except requests.exceptions.Timeout:
             raise APIError(f"Timeout: La solicitud a {self.api_name} tardó demasiado tiempo", api_name=self.api_name)
         except requests.exceptions.ConnectionError:
             raise APIError(f"Error de conexión: No se pudo conectar a {self.api_name}", api_name=self.api_name)
         except requests.exceptions.RequestException as e:
             raise APIError(f"Error de solicitud a {self.api_name}: {str(e)}", api_name=self.api_name)
+
+    def _handle_api_error(self, response):
+        """Maneja los errores de la API y lanza una APIError."""
+        error_msg = f"Error de API {self.api_name}: {response.status_code}"
+        try:
+            error_data = response.json()
+            if "error" in error_data:
+                if isinstance(error_data["error"], dict):
+                    error_msg = error_data["error"].get("message", error_msg)
+                else:
+                    error_msg = str(error_data["error"])
+            elif "message" in error_data:
+                error_msg = error_data["message"]
+        except:
+            error_msg = f"Error de API {self.api_name}: {response.status_code} - {response.text}"
+
+        raise APIError(error_msg, response.status_code, self.api_name)
+
+    def _stream_generator(self, response):
+        """Generador para procesar respuestas en streaming."""
+        for line in response.iter_lines():
+            if line:
+                decoded_line = line.decode('utf-8')
+                if decoded_line.startswith('data: '):
+                    json_str = decoded_line[len('data: '):]
+                    if json_str.strip() == '[DONE]':
+                        break
+                    try:
+                        chunk = json.loads(json_str)
+                        yield chunk
+                    except json.JSONDecodeError:
+                        # Ignorar líneas que no son JSON válido
+                        continue
     
     def _format_anthropic_payload(self, messages: List[Dict[str, Any]], model: str) -> Dict[str, Any]:
         """Formatea el payload para la API de Anthropic"""

@@ -92,7 +92,7 @@ def create_pdf_message(text: str, pdf_path: str) -> dict:
         raise click.ClickException(f"Error procesando PDF: {str(e)}")
 
 
-@click.group()
+@click.group(context_settings=dict(help_option_names=['-h', '--help']))
 @click.option('--api', '-a', default=DEFAULT_API, 
               type=click.Choice(list(AVAILABLE_APIS.keys())), 
               help='API a utilizar')
@@ -104,13 +104,13 @@ def cli(ctx, api):
     
     Una herramienta de línea de comandos para enviar mensajes, imágenes y PDFs a múltiples APIs de LLM.
     """
-    # Asegurar que el contexto existe
     ctx.ensure_object(dict)
     ctx.obj['api'] = api
     
-    # Validar API key para la API seleccionada
-    config = validate_api_key(api)
-    ctx.obj['config'] = config
+    # No validar la clave para el comando 'configure'
+    if ctx.invoked_subcommand != 'configure':
+        config = validate_api_key(api)
+        ctx.obj['config'] = config
 
 
 @cli.command()
@@ -534,6 +534,49 @@ def modelos(ctx):
     # Mostrar modelo por defecto
     default_model = get_default_model(api_name)
     console.print(f"\n[dim]Modelo por defecto: {default_model}[/dim]")
+
+
+@cli.command()
+def configure():
+    """
+    Guarda interactivamente las claves de API en un archivo .env.
+    """
+    console.print(Panel("[bold green]🤖 Configuración de Claves de API[/bold green]"))
+
+    api_choices = list(AVAILABLE_APIS.keys())
+
+    api_name = Prompt.ask(
+        "Selecciona la API que quieres configurar",
+        choices=api_choices,
+        default=DEFAULT_API
+    )
+
+    api_key_var = AVAILABLE_APIS[api_name]['default_key_env']
+    api_key = Prompt.ask(f"Introduce tu clave para {AVAILABLE_APIS[api_name]['name']} ({api_key_var})")
+
+    if not api_key:
+        console.print("[red]La clave de API no puede estar vacía.[/red]")
+        return
+
+    env_file = ".env"
+    env_vars = {}
+    if os.path.exists(env_file):
+        with open(env_file, 'r') as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith('#') and '=' in line:
+                    key, value = line.split('=', 1)
+                    env_vars[key.strip()] = value.strip().strip('"')
+
+    env_vars[api_key_var] = api_key
+
+    try:
+        with open(env_file, 'w') as f:
+            for key, value in env_vars.items():
+                f.write(f'{key}="{value}"\n')
+        console.print(f"[green]✅ Clave de API para {api_name} guardada en el archivo {env_file}.[/green]")
+    except IOError as e:
+        console.print(f"[red]Error: No se pudo escribir en el archivo {env_file}: {e}[/red]")
 
 
 if __name__ == "__main__":
