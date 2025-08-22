@@ -1,0 +1,63 @@
+[
+  {
+    "type": "chat",
+    "api": "blackbox",
+    "model": "gpt-4",
+    "message": "Hola, ¿puedes presentarte brevemente en español?",
+    "response": "¡Hola! Soy ChatGPT, un modelo de inteligencia artificial desarrollado por OpenAI. Estoy diseñado para ayudarte a responder preguntas, brindarte información o simplemente tener una conversación contigo. Me puedes pedir que haga una variedad de tareas, como redactar un correo electrónico o contarte una historia. Estoy aquí para ayudarte con lo que necesites.",
+    "usage": {
+      "completion_tokens": 85,
+      "prompt_tokens": 21,
+      "total_tokens": 106,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 0,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": 0,
+        "cached_tokens": 0
+      }
+    },
+    "timestamp": "2025-08-22T05:47:53.732654"
+  },
+  {
+    "type": "chat",
+    "api": "blackbox",
+    "model": "gpt-4",
+    "message": "¿Cuál es la diferencia entre Python y JavaScript?",
+    "response": "Python y JavaScript son ambos lenguajes de programación populares, pero tienen diversas diferencias clave:\n\n1. Uso: Python es un lenguaje de programación general con una amplia variedad de usos como desarrollo web, análisis de datos, aprendizaje automático, inteligencia artificial, entre otros. JavaScript, en cambio, se utiliza principalmente del lado del cliente en el desarrollo web para agregar comportamiento interactivo a las páginas web.\n\n2. Sintaxis: Python es conocido por su sintaxis clara y simple, lo que lo hace fácil de aprender y leer. En comparación, la sintaxis de JavaScript puede ser más compleja y difícil de aprender para los principiantes. \n\n3. Ejecución: Python se ejecuta en el servidor, mientras que JavaScript se ejecuta principalmente en el navegador del cliente, aunque Node.js permite usar JavaScript en el servidor.\n\n4. Tipos de datos: JavaScript presenta un sistema de tipos más flexible, ya que permite la coerción automática de tipos. Por otro lado, Python es un lenguaje fuertemente tipado que requiere conversiones de tipo explícitas.\n\n5. Manejo de errores: Python utiliza excepciones para el manejo de errores, lo cual puede ser más fácil de entender y manejar que el sistema de \"undefined\" y \"null\" de JavaScript.\n\n6. Comunidad y bibliotecas: Python tiene una gran cantidad de bibliotecas científicas y de análisis de datos como NumPy, Pandas y SciPy. JavaScript tiene un gran ecosistema en el desarrollo web con bibliotecas y marcos como React.js, Angular.js y Vue.js. \n\n7. En resumen, Python y JavaScript tienen sus propias fortalezas dependiendo del uso y la aplicación específica.",
+    "usage": {
+      "completion_tokens": 374,
+      "prompt_tokens": 18,
+      "total_tokens": 392,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 0,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": 0,
+        "cached_tokens": 0
+      }
+    },
+    "timestamp": "2025-08-22T05:49:25.936003"
+  },
+  {
+    "type": "chat",
+    "api": "blackbox",
+    "model": "claude-3.5-sonnet",
+    "message": "Escribe un haiku sobre la programación",
+    "response": "Aquí tienes un haiku sobre programación:\n\nCódigo fluye ya\nEntre ceros y unos, paz\nBug inesperado",
+    "usage": {
+      "completion_tokens": 36,
+      "prompt_tokens": 17,
+      "total_tokens": 53,
+      "completion_tokens_details": null,
+      "prompt_tokens_details": null
+    },
+    "timestamp": "2025-08-22T05:51:10.292613"
+  }
+]
