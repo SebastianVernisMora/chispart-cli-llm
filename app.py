@@ -369,7 +369,12 @@ def analyze_image():
             )
             return jsonify({'error': 'Formato de imagen no soportado. Use: jpg, jpeg, png, webp'}), 400
         
-        temp_path = f"/tmp/{request_id}_{filename}"
+        # Usar path temporal optimizado para Termux
+        try:
+            from termux_utils import get_safe_temp_path
+            temp_path = get_safe_temp_path(f"{request_id}_{filename}")
+        except ImportError:
+            temp_path = f"/tmp/{request_id}_{filename}"
         file.save(temp_path)
         
         # Validar tamaño
@@ -641,8 +646,30 @@ if __name__ == '__main__':
     web_logger.logger.info(f"Available APIs: {list(AVAILABLE_APIS.keys())}")
     web_logger.logger.info(f"Default API: {DEFAULT_API}")
     
+    # Detectar si estamos en Termux para optimizar configuración
     try:
-        app.run(host='0.0.0.0', port=5000, debug=True)
+        from termux_utils import is_termux
+        in_termux = is_termux()
+    except ImportError:
+        in_termux = False
+    
+    if in_termux:
+        web_logger.logger.info("Detected Termux environment - applying mobile optimizations")
+        # Configuración optimizada para Termux
+        host = '0.0.0.0'  # Permitir acceso desde otros dispositivos
+        port = 5000
+        debug = False  # Desactivar debug en móviles para mejor rendimiento
+        threaded = True  # Habilitar threading para mejor rendimiento
+    else:
+        # Configuración estándar
+        host = '0.0.0.0'
+        port = 5000
+        debug = True
+        threaded = True
+    
+    try:
+        web_logger.logger.info(f"Starting server on {host}:{port} (Termux: {in_termux})")
+        app.run(host=host, port=port, debug=debug, threaded=threaded)
     except Exception as e:
-        web_logger.log_error(e, context={'component': 'flask_startup'})
+        web_logger.log_error(e, context={'component': 'flask_startup', 'termux': in_termux})
         raise

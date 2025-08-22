@@ -1,0 +1,122 @@
+#!/bin/bash
+
+# Script para mostrar el estado del sistema CLI Universal LLMs en Termux
+
+# Detectar la ubicación del script
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+if [[ "$SCRIPT_DIR" == *"/bin" ]]; then
+    PROJECT_DIR="$HOME/cli-universal-llms"
+else
+    PROJECT_DIR="$SCRIPT_DIR"
+fi
+
+cd "$PROJECT_DIR" 2>/dev/null || {
+    echo "❌ Error: No se encontró el proyecto CLI Universal LLMs"
+    exit 1
+}
+
+echo "🔍 Estado del Sistema CLI Universal LLMs"
+echo "========================================"
+echo ""
+
+# Verificar Python
+echo "🐍 Python:"
+if command -v python3 >/dev/null 2>&1; then
+    python_version=$(python3 --version 2>&1)
+    echo "   ✅ $python_version"
+elif command -v python >/dev/null 2>&1; then
+    python_version=$(python --version 2>&1)
+    echo "   ✅ $python_version"
+else
+    echo "   ❌ Python no encontrado"
+fi
+
+echo ""
+
+# Verificar dependencias críticas
+echo "📦 Dependencias críticas:"
+deps=("requests" "click" "rich" "flask" "PIL" "dotenv")
+for dep in "${deps[@]}"; do
+    if python3 -c "import $dep" 2>/dev/null; then
+        echo "   ✅ $dep"
+    else
+        echo "   ❌ $dep (faltante)"
+    fi
+done
+
+echo ""
+
+# Verificar PyMuPDF (opcional)
+echo "📄 Dependencias opcionales:"
+if python3 -c "import fitz" 2>/dev/null; then
+    echo "   ✅ PyMuPDF (análisis de PDF disponible)"
+else
+    echo "   ⚠️  PyMuPDF (análisis de PDF limitado)"
+    echo "      Instala con: pip install PyMuPDF"
+fi
+
+echo ""
+
+# Verificar archivos del proyecto
+echo "📁 Archivos del proyecto:"
+files=("blackbox_cli.py" "app.py" "config.py" "utils.py" "termux_utils.py")
+for file in "${files[@]}"; do
+    if [ -f "$file" ]; then
+        echo "   ✅ $file"
+    else
+        echo "   ❌ $file (faltante)"
+    fi
+done
+
+echo ""
+
+# Verificar configuración
+echo "🔧 Configuración:"
+if [ -f ".env" ]; then
+    echo "   ✅ Archivo .env encontrado"
+    # Contar claves configuradas (sin mostrar valores)
+    configured_keys=$(grep -c "^[A-Z_]*API_KEY=" .env 2>/dev/null || echo "0")
+    echo "   📊 $configured_keys claves API configuradas"
+else
+    echo "   ⚠️  Archivo .env no encontrado"
+    echo "      Ejecuta: llm-cli configure"
+fi
+
+echo ""
+
+# Verificar historial
+echo "📚 Historial:"
+if [ -f "chat_history.json" ]; then
+    conversations=$(python3 -c "
+import json
+try:
+    with open('chat_history.json', 'r') as f:
+        data = json.load(f)
+    print(len(data))
+except:
+    print('0')
+" 2>/dev/null)
+    echo "   📊 $conversations conversaciones guardadas"
+else
+    echo "   📊 Sin historial (archivo nuevo)"
+fi
+
+echo ""
+
+# Mostrar información específica de Termux si está disponible
+if python3 -c "from termux_utils import is_termux; exit(0 if is_termux() else 1)" 2>/dev/null; then
+    echo "📱 Estado específico de Termux:"
+    python3 -c "
+from termux_utils import print_termux_status
+print_termux_status()
+"
+else
+    echo "📱 Utilidades de Termux no disponibles"
+fi
+
+echo ""
+echo "🚀 Para empezar a usar:"
+echo "   1. llm-cli configure    (configurar API keys)"
+echo "   2. llm-cli chat 'hola'  (probar funcionamiento)"
+echo "   3. llm-web              (interfaz web)"

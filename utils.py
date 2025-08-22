@@ -1,14 +1,54 @@
 """
 Utilidades para el manejo de archivos y funciones auxiliares
+Optimizado para Termux y dispositivos móviles
 """
 import base64
 import os
 import json
-import fitz  # PyMuPDF
 from pathlib import Path
 from typing import Optional, Dict, Any
 from datetime import datetime
 from config import SUPPORTED_IMAGE_TYPES, SUPPORTED_PDF_TYPES
+
+# Importar PyMuPDF con manejo de errores para Termux
+try:
+    import fitz  # PyMuPDF
+    PYMUPDF_AVAILABLE = True
+except ImportError:
+    PYMUPDF_AVAILABLE = False
+    print("⚠️  PyMuPDF no está disponible. El análisis de PDF estará limitado.")
+    print("   Instala con: pip install PyMuPDF")
+
+# Importar utilidades de Termux
+try:
+    from termux_utils import (
+        get_safe_temp_path, ensure_directory_exists, 
+        optimize_file_size_limits, is_termux
+    )
+    TERMUX_UTILS_AVAILABLE = True
+except ImportError:
+    TERMUX_UTILS_AVAILABLE = False
+    
+    # Fallbacks si termux_utils no está disponible
+    def get_safe_temp_path(filename: str) -> str:
+        return f"/tmp/{filename}"
+    
+    def ensure_directory_exists(path: str) -> bool:
+        try:
+            os.makedirs(path, exist_ok=True)
+            return True
+        except:
+            return False
+    
+    def optimize_file_size_limits() -> Dict[str, int]:
+        return {
+            'max_image_size_mb': 20,
+            'max_pdf_size_mb': 20,
+            'max_text_chars': 100000
+        }
+    
+    def is_termux() -> bool:
+        return False
 
 
 def encode_file_to_base64(file_path: str) -> str:
@@ -64,6 +104,7 @@ def create_image_data_url(file_path: str) -> str:
 def extract_text_from_pdf(file_path: str) -> str:
     """
     Extrae el texto de un archivo PDF.
+    Optimizado para Termux con fallback cuando PyMuPDF no está disponible.
     
     Args:
         file_path: Ruta del archivo PDF.
@@ -78,12 +119,29 @@ def extract_text_from_pdf(file_path: str) -> str:
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"El archivo {file_path} no existe")
 
+    if not PYMUPDF_AVAILABLE:
+        raise Exception(
+            "PyMuPDF no está disponible. No se puede procesar archivos PDF.\n"
+            "Instala PyMuPDF con: pip install PyMuPDF\n"
+            "En Termux, puede que necesites: pkg install clang make"
+        )
+
     try:
         doc = fitz.open(file_path)
         text = ""
         for page in doc:
             text += page.get_text()
         doc.close()
+        
+        # Aplicar límites optimizados para móviles
+        limits = optimize_file_size_limits()
+        max_chars = limits['max_text_chars']
+        
+        if len(text) > max_chars:
+            text = text[:max_chars] + "\n\n[... CONTENIDO TRUNCADO PARA OPTIMIZAR RENDIMIENTO ...]"
+            if is_termux():
+                print(f"⚠️  Texto truncado a {max_chars} caracteres para optimizar rendimiento en móvil")
+        
         return text
     except Exception as e:
         raise Exception(f"No se pudo procesar el archivo PDF {file_path}: {str(e)}")
@@ -185,19 +243,32 @@ def format_file_size(size_bytes: int) -> str:
     return f"{size_bytes:.1f} TB"
 
 
-def validate_file_size(file_path: str, max_size_mb: int = 20) -> bool:
+def validate_file_size(file_path: str, max_size_mb: Optional[int] = None) -> bool:
     """
     Valida que un archivo no exceda el tamaño máximo
+    Usa límites optimizados para Termux automáticamente
     
     Args:
         file_path: Ruta del archivo
-        max_size_mb: Tamaño máximo en MB
+        max_size_mb: Tamaño máximo en MB (None para usar límites optimizados)
         
     Returns:
         True si el archivo es válido, False en caso contrario
     """
     if not os.path.exists(file_path):
         return False
+    
+    # Usar límites optimizados si no se especifica
+    if max_size_mb is None:
+        limits = optimize_file_size_limits()
+        # Determinar el tipo de archivo y usar el límite apropiado
+        file_ext = Path(file_path).suffix.lower()
+        if file_ext in SUPPORTED_IMAGE_TYPES:
+            max_size_mb = limits['max_image_size_mb']
+        elif file_ext in SUPPORTED_PDF_TYPES:
+            max_size_mb = limits['max_pdf_size_mb']
+        else:
+            max_size_mb = 20  # Fallback
     
     file_size = os.path.getsize(file_path)
     max_size_bytes = max_size_mb * 1024 * 1024

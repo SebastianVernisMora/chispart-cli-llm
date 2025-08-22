@@ -3,8 +3,16 @@ Cliente para interactuar con múltiples APIs de LLM
 """
 import requests
 import json
+import time
 from typing import List, Dict, Any, Optional
-from config import REQUEST_TIMEOUT
+from config import REQUEST_TIMEOUT, CONNECT_TIMEOUT, READ_TIMEOUT, MOBILE_NETWORK_CONFIG
+
+# Importar utilidades de Termux si están disponibles
+try:
+    from termux_utils import is_termux
+except ImportError:
+    def is_termux():
+        return False
 
 
 class APIError(Exception):
@@ -70,10 +78,16 @@ class UniversalAPIClient:
             }
 
         try:
+            # Configurar timeouts optimizados
+            if is_termux():
+                timeout = (CONNECT_TIMEOUT, READ_TIMEOUT)
+            else:
+                timeout = REQUEST_TIMEOUT
+            
             response = self.session.post(
                 url, 
                 json=payload, 
-                timeout=REQUEST_TIMEOUT,
+                timeout=timeout,
                 stream=stream  # Importante para streaming
             )
 
@@ -93,11 +107,20 @@ class UniversalAPIClient:
                     self._handle_api_error(response)
 
         except requests.exceptions.Timeout:
-            raise APIError(f"Timeout: La solicitud a {self.api_name} tardó demasiado tiempo", api_name=self.api_name)
+            error_msg = f"Timeout: La solicitud a {self.api_name} tardó demasiado tiempo"
+            if is_termux():
+                error_msg += "\n📱 Consejo: En móviles, las conexiones pueden ser más lentas. Intenta de nuevo."
+            raise APIError(error_msg, api_name=self.api_name)
         except requests.exceptions.ConnectionError:
-            raise APIError(f"Error de conexión: No se pudo conectar a {self.api_name}", api_name=self.api_name)
+            error_msg = f"Error de conexión: No se pudo conectar a {self.api_name}"
+            if is_termux():
+                error_msg += "\n📱 Verifica tu conexión a internet y que tengas datos móviles o WiFi activo."
+            raise APIError(error_msg, api_name=self.api_name)
         except requests.exceptions.RequestException as e:
-            raise APIError(f"Error de solicitud a {self.api_name}: {str(e)}", api_name=self.api_name)
+            error_msg = f"Error de solicitud a {self.api_name}: {str(e)}"
+            if is_termux():
+                error_msg += "\n📱 Si el problema persiste, intenta cambiar de red o reiniciar la aplicación."
+            raise APIError(error_msg, api_name=self.api_name)
 
     def _handle_api_error(self, response):
         """Maneja los errores de la API y lanza una APIError."""
@@ -117,8 +140,12 @@ class UniversalAPIClient:
         raise APIError(error_msg, response.status_code, self.api_name)
 
     def _stream_generator(self, response):
-        """Generador para procesar respuestas en streaming."""
-        for line in response.iter_lines():
+        """Generador para procesar respuestas en streaming.
+        Optimizado para conexiones móviles lentas.
+        """
+        chunk_size = MOBILE_NETWORK_CONFIG['chunk_size'] if is_termux() else 8192
+        
+        for line in response.iter_lines(chunk_size=chunk_size):
             if line:
                 decoded_line = line.decode('utf-8')
                 if decoded_line.startswith('data: '):
@@ -128,6 +155,11 @@ class UniversalAPIClient:
                     try:
                         chunk = json.loads(json_str)
                         yield chunk
+                        
+                        # Añadir pequeña pausa en móviles para evitar saturar la conexión
+                        if is_termux():
+                            time.sleep(0.01)
+                            
                     except json.JSONDecodeError:
                         # Ignorar líneas que no son JSON válido
                         continue

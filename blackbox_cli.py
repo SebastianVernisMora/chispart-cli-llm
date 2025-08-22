@@ -19,7 +19,7 @@ from config import (
 )
 from utils import (
     is_supported_image, is_supported_pdf, create_image_data_url, 
-    create_pdf_data_url, save_conversation_history, load_conversation_history,
+    extract_text_from_pdf, save_conversation_history, load_conversation_history,
     format_file_size, validate_file_size
 )
 
@@ -68,26 +68,19 @@ def create_image_message(text: str, image_path: str) -> dict:
 
 
 def create_pdf_message(text: str, pdf_path: str) -> dict:
-    """Crea un mensaje con PDF"""
+    """Crea un mensaje con PDF extrayendo el texto"""
     try:
-        pdf_url = create_pdf_data_url(pdf_path)
+        pdf_text = extract_text_from_pdf(pdf_path)
         filename = os.path.basename(pdf_path)
-        return {
-            "role": "user",
-            "content": [
-                {
-                    "type": "text",
-                    "text": text
-                },
-                {
-                    "type": "file",
-                    "file": {
-                        "filename": filename,
-                        "file_data": pdf_url
-                    }
-                }
-            ]
-        }
+        
+        # Limitar el texto si es muy largo
+        max_chars = 100000
+        if len(pdf_text) > max_chars:
+            pdf_text = pdf_text[:max_chars] + "\n\n[... CONTENIDO TRUNCADO ...]"
+        
+        full_prompt = f"Se ha extraído el siguiente texto de un documento PDF ('{filename}'):\n\n---\n{pdf_text}\n---\n\nPor favor, responde a la siguiente pregunta basada en el texto del documento:\n\n{text}"
+        
+        return create_text_message(full_prompt)
     except Exception as e:
         raise click.ClickException(f"Error procesando PDF: {str(e)}")
 

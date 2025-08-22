@@ -53,11 +53,17 @@ def get_api_config(api_name=None):
     config = AVAILABLE_APIS[api_name]
     api_key = os.getenv(config["default_key_env"], config["default_key"])
     
-    return {
+    # Añadir configuración de timeouts optimizada
+    result = {
         "name": config["name"],
         "base_url": config["base_url"],
-        "api_key": api_key
+        "api_key": api_key,
+        "timeout": REQUEST_TIMEOUT,
+        "connect_timeout": CONNECT_TIMEOUT,
+        "read_timeout": READ_TIMEOUT
     }
+    
+    return result
 
 # Modelos disponibles por API (actualizados con modelos reales)
 AVAILABLE_MODELS = {
@@ -132,8 +138,22 @@ def get_default_model(api_name=None):
     api_name = api_name or DEFAULT_API
     return DEFAULT_MODELS.get(api_name, DEFAULT_MODELS[DEFAULT_API])
 
-# Configuración de timeouts
-REQUEST_TIMEOUT = 30
+# Configuración de timeouts (optimizado para Termux)
+try:
+    from termux_utils import get_mobile_optimized_timeouts, is_termux
+    if is_termux():
+        timeouts = get_mobile_optimized_timeouts()
+        REQUEST_TIMEOUT = timeouts['total_timeout']
+        CONNECT_TIMEOUT = timeouts['connect_timeout']
+        READ_TIMEOUT = timeouts['read_timeout']
+    else:
+        REQUEST_TIMEOUT = 30
+        CONNECT_TIMEOUT = 5
+        READ_TIMEOUT = 30
+except ImportError:
+    REQUEST_TIMEOUT = 30
+    CONNECT_TIMEOUT = 5
+    READ_TIMEOUT = 30
 
 # Tipos de archivo soportados
 SUPPORTED_IMAGE_TYPES = ['.jpg', '.jpeg', '.png', '.webp']
@@ -144,3 +164,21 @@ VISION_SUPPORTED_APIS = ["blackbox", "openai", "anthropic"]
 
 # APIs que soportan PDFs
 PDF_SUPPORTED_APIS = ["blackbox", "openai"]
+
+# Configuración específica para Termux
+TERMUX_OPTIMIZATIONS = {
+    "max_image_size_mb": 10,  # Reducido para móviles
+    "max_pdf_size_mb": 15,    # Reducido para móviles
+    "max_text_chars": 50000,  # Reducido para mejor rendimiento
+    "console_width": 70,      # Optimizado para pantallas pequeñas
+    "enable_rich_formatting": True,
+    "use_compact_tables": True
+}
+
+# Configuración de red optimizada para móviles
+MOBILE_NETWORK_CONFIG = {
+    "retry_attempts": 3,
+    "retry_delay": 2,
+    "chunk_size": 1024,  # Tamaño de chunk más pequeño para conexiones lentas
+    "stream_timeout": 120  # Timeout más largo para streaming
+}

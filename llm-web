@@ -1,0 +1,58 @@
+#!/bin/bash
+
+# Script para iniciar la interfaz web en Termux
+# Optimizado para dispositivos móviles
+
+# Detectar la ubicación del script
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Si estamos en ~/bin, el proyecto debería estar en ~/cli-universal-llms
+if [[ "$SCRIPT_DIR" == *"/bin" ]]; then
+    PROJECT_DIR="$HOME/cli-universal-llms"
+else
+    PROJECT_DIR="$SCRIPT_DIR"
+fi
+
+# Verificar que el proyecto existe
+if [ ! -f "$PROJECT_DIR/app.py" ]; then
+    echo "❌ Error: No se encontró el proyecto CLI Universal LLMs"
+    echo "   Esperado en: $PROJECT_DIR"
+    exit 1
+fi
+
+cd "$PROJECT_DIR"
+
+# Verificar dependencias
+if ! python -c "import flask" 2>/dev/null; then
+    echo "❌ Error: Flask no está instalado"
+    echo "   Ejecuta: pip install flask"
+    exit 1
+fi
+
+# Obtener la IP local para mostrar al usuario
+LOCAL_IP=$(ip route get 1.1.1.1 | grep -oP 'src \K\S+' 2>/dev/null || echo "localhost")
+
+echo "🌐 Iniciando CLI Universal LLMs - Interfaz Web"
+echo "=============================================="
+echo ""
+echo "📱 Acceso local:"
+echo "   http://localhost:5000"
+echo "   http://127.0.0.1:5000"
+echo ""
+echo "🌍 Acceso desde otros dispositivos:"
+echo "   http://$LOCAL_IP:5000"
+echo ""
+echo "💡 Consejos para Termux:"
+echo "   • Mantén la pantalla encendida para evitar que se cierre"
+echo "   • Usa el navegador de tu teléfono para acceder"
+echo "   • Puedes acceder desde otros dispositivos en la misma red WiFi"
+echo ""
+echo "🛑 Presiona Ctrl+C para detener el servidor"
+echo ""
+
+# Configurar variables de entorno para optimizar Flask en Termux
+export FLASK_ENV=production
+export FLASK_DEBUG=false
+
+# Iniciar la aplicación web
+python app.py
