@@ -689,29 +689,39 @@
 
                     buffer += decoder.decode(value, { stream: true });
 
-                    // Procesar frames completos terminados en doble salto de línea
                     let sepIndex;
                     while ((sepIndex = buffer.indexOf('\n\n')) !== -1) {
-                        const frame = buffer.slice(0, sepIndex).trim();
+                        const rawEvent = buffer.slice(0, sepIndex);
                         buffer = buffer.slice(sepIndex + 2);
 
-                        if (!frame.startsWith('data: ')) continue;
-                        const jsonData = frame.substring(6);
+                        if (!rawEvent.startsWith('data: ')) continue;
+                        const jsonData = rawEvent.slice(6).trim();
                         if (!jsonData) continue;
 
                         try {
                             const data = JSON.parse(jsonData);
                             if (data.type === 'content') {
                                 fullResponse += data.chunk;
-                                contentDiv.innerHTML = DOMPurify.sanitize(marked.parse(fullResponse));
+                                contentDiv.innerHTML = marked.parse(fullResponse);
                             } else if (data.type === 'done') {
-                                return;
+                                // finished
                             } else if (data.type === 'error') {
                                 showError(data.message);
-                                return;
                             }
                         } catch (e) {
                             console.error('Error parseando JSON del stream:', jsonData);
+                        }
+                    }
+                }
+
+                // Process any trailing buffered complete event (optional if server always ends with \n\n)
+                if (buffer.startsWith('data: ')) {
+                    const jsonData = buffer.slice(6).trim();
+                    try {
+                        const data = JSON.parse(jsonData);
+                        if (data.type === 'error') showError(data.message);
+                    } catch {}
+                }
                         }
                     }
                 }
