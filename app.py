@@ -544,10 +544,16 @@ def analyze_pdf():
         file.save(temp_path)
 
         if not validate_file_size(temp_path, 20):
+            file_size = os.path.getsize(temp_path)
+            formatted_size = format_file_size(file_size)
             os.remove(temp_path)
-            formatted_size = format_file_size(os.path.getsize(temp_path))
-            web_logger.logger.warning(f"PDF file too large: {formatted_size}", extra={'request_id': request_id})
-            return jsonify({'error': f'Archivo demasiado grande ({formatted_size}). Máximo: 20MB'}), 400
+            web_logger.logger.warning(
+                f"PDF file too large: {formatted_size}",
+                extra={'request_id': request_id, 'file_size': file_size}
+            )
+            return jsonify(
+                {'error': f'Archivo demasiado grande ({formatted_size}). Máximo: 20MB'}
+            ), 400
 
         available_models = get_available_models(api_name)
         if not model:
