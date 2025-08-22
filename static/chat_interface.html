@@ -681,36 +681,40 @@
                 const reader = response.body.getReader();
                 const decoder = new TextDecoder();
                 let fullResponse = '';
+                let buffer = '';
 
                 while (true) {
                     const { value, done } = await reader.read();
                     if (done) break;
 
-                    const textChunk = decoder.decode(value);
-                    const lines = textChunk.split('\n\n');
+                    buffer += decoder.decode(value, { stream: true });
 
-                    for (const line of lines) {
-                        if (line.startsWith('data: ')) {
-                            const jsonData = line.substring(6);
-                            if (jsonData) {
-                                try {
-                                    const data = JSON.parse(jsonData);
-                                    if (data.type === 'content') {
-                                        fullResponse += data.chunk;
-                                        contentDiv.innerHTML = marked.parse(fullResponse);
-                                    } else if (data.type === 'done') {
-                                        // Opcional: Actualizar info al final
-                                        return;
-                                    } else if (data.type === 'error') {
-                                        showError(data.message);
-                                        return;
-                                    }
-                                } catch (e) {
-                                    console.error('Error parseando JSON del stream:', jsonData);
-                                }
+                    // Procesar frames completos terminados en doble salto de línea
+                    let sepIndex;
+                    while ((sepIndex = buffer.indexOf('\n\n')) !== -1) {
+                        const frame = buffer.slice(0, sepIndex).trim();
+                        buffer = buffer.slice(sepIndex + 2);
+
+                        if (!frame.startsWith('data: ')) continue;
+                        const jsonData = frame.substring(6);
+                        if (!jsonData) continue;
+
+                        try {
+                            const data = JSON.parse(jsonData);
+                            if (data.type === 'content') {
+                                fullResponse += data.chunk;
+                                contentDiv.innerHTML = DOMPurify.sanitize(marked.parse(fullResponse));
+                            } else if (data.type === 'done') {
+                                return;
+                            } else if (data.type === 'error') {
+                                showError(data.message);
+                                return;
                             }
+                        } catch (e) {
+                            console.error('Error parseando JSON del stream:', jsonData);
                         }
                     }
+                }
                 }
             } catch (error) {
                 showError('Error enviando mensaje: ' + error.message);
