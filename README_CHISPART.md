@@ -1,22 +1,24 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/SebastianVernis/chispart-cli/main/assets/logo.png" alt="Chispart CLI Logo" width="300">
+  <img src="https://raw.githubusercontent.com/SebastianVernis/chispart-cli/main/assets/logo.png" alt="Chispart CLI Logo" width="full">
 </p>
 
 <h1 align="center">🚀 Chispart CLI – Interfaz Conversacional con IA Híbrida </h1>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.1.0-blue.svg" alt="Version">
-  <img src="https://img.shields.io/badge/node-%3E%3D18.0.0-green.svg" alt="Node.js">
-  <img src="https://img.shields.io/badge/license-MIT-yellow.svg" alt="License">
-  <img src="https://img.shields.io/badge/status-active-success.svg" alt="Status">
-  <img src="https://img.shields.io/badge/contributions-welcome-orange.svg" alt="Contributions Welcome">
+  <img src="https://img.shields.io/badge/version-0.1.0-blue?style=for-the-badge&logo=git&logoColor=0A0A0A&labelColor=1A1A1A" alt="Version">
+  <img src="https://img.shields.io/badge/node-%3E%3D18.0.0-green?style=for-the-badge&logo=node.js&logoColor=0A0A0A&labelColor=1A1A1A" alt="Node.js">
+  <img src="https://img.shields.io/badge/license-MIT-yellow?style=for-the-badge&logo=open-source-initiative&logoColor=0A0A0A&labelColor=1A1A1A" alt="License">
+  <img src="https://img.shields.io/badge/status-active-success?style=for-the-badge&logo=statuspage&logoColor=0A0A0A&labelColor=1A1A1A" alt="Status">
+  <img src="https://img.shields.io/badge/contributions-welcome-orange?style=for-the-badge&logo=github&logoColor=0A0A0A&labelColor=1A1A1A" alt="Contributions Welcome">
 </p>
 
+<p align="center">
+  <img src="https://img.shields.io/badge/Chispart-CLI--LLM-00FF88?style=for-the-badge&logo=terminal&logoColor=0A0A0A&labelColor=1A1A1A" alt="Chispart CLI">
+  <img src="https://img.shields.io/badge/Mobile-Optimized-BB88FF?style=for-the-badge&logo=android&logoColor=0A0A0A&labelColor=1A1A1A" alt="Mobile Optimized">
+  <img src="https://img.shields.io/badge/Universal-AI--Access-FF88BB?style=for-the-badge&logo=openai&logoColor=0A0A0A&labelColor=1A1A1A" alt="Universal AI Access">
+  <img src="https://img.shields.io/badge/Style-Neon--Powered-88FFFF?style=for-the-badge&logo=lightning&logoColor=0A0A0A&labelColor=1A1A1A" alt="Neon Style">
+</p>
 
-![Chispart](https://img.shields.io/badge/Chispart-CLI--LLM-00FF88?style=for-the-badge&logo=terminal&logoColor=0A0A0A&labelColor=1A1A1A)
-![Mobile](https://img.shields.io/badge/Mobile-Optimized-BB88FF?style=for-the-badge&logo=android&logoColor=0A0A0A&labelColor=1A1A1A)
-![Universal](https://img.shields.io/badge/Universal-AI--Access-FF88BB?style=for-the-badge&logo=openai&logoColor=0A0A0A&labelColor=1A1A1A)
-![Neon](https://img.shields.io/badge/Style-Neon--Powered-88FFFF?style=for-the-badge&logo=lightning&logoColor=0A0A0A&labelColor=1A1A1A)
 
 **Chispart-CLI-LLM** es la solución definitiva para acceder a múltiples APIs de LLM desde tu dispositivo móvil. Optimizado específicamente para **Termux** en Android, ofrece una experiencia de terminal profesional con interfaz web moderna.
 
