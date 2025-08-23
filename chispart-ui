@@ -1,0 +1,332 @@
+#!/bin/bash
+
+# 🚀 Chispart-CLI-LLM - Interfaz Web Automática
+# Lanzador inteligente de interfaz web con navegador automático
+
+# Detectar la ubicación del script
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Si estamos en ~/bin, el proyecto debería estar en ~/chispart-cli-llm
+if [[ "$SCRIPT_DIR" == *"/bin" ]]; then
+    PROJECT_DIR="$HOME/chispart-cli-llm"
+else
+    PROJECT_DIR="$SCRIPT_DIR"
+fi
+
+# Verificar que el proyecto existe
+if [ ! -f "$PROJECT_DIR/app.py" ]; then
+    echo "❌ Error: No se encontró Chispart-CLI-LLM"
+    echo "   Esperado en: $PROJECT_DIR"
+    exit 1
+fi
+
+cd "$PROJECT_DIR"
+
+# Colores Neón para output (tema oscuro optimizado)
+RED='\033[38;2;255;136;136m'      # Rojo Neón
+GREEN='\033[38;2;0;255;136m'       # Verde Manzana Neón
+YELLOW='\033[38;2;255;255;136m'    # Amarillo Neón
+BLUE='\033[38;2;136;255;255m'      # Cian Neón
+PURPLE='\033[38;2;187;136;255m'    # Lila Neón
+CYAN='\033[38;2;136;255;255m'      # Cian Neón
+PINK='\033[38;2;255;136;187m'      # Rosa Neón
+NC='\033[0m' # No Color
+
+print_header() {
+    echo -e "${PURPLE}"
+    echo "╔══════════════════════════════════════════════════════════════╗"
+    echo -e "║                ${GREEN}🚀 Chispart-CLI-LLM${PURPLE} ${PINK}Web UI${PURPLE}                   ║"
+    echo -e "║            ${CYAN}Universal LLM Terminal for Mobile${PURPLE}                ║"
+    echo -e "║                    ${YELLOW}✨ Neón Powered ✨${PURPLE}                        ║"
+    echo "╚══════════════════════════════════════════════════════════════╝"
+    echo -e "${NC}"
+}
+
+print_status() {
+    echo -e "${CYAN}ℹ️ [INFO]${NC} $1"
+}
+
+print_success() {
+    echo -e "${GREEN}✅ [SUCCESS]${NC} $1"
+}
+
+print_warning() {
+    echo -e "${YELLOW}⚠️ [WARNING]${NC} $1"
+}
+
+print_error() {
+    echo -e "${RED}❌ [ERROR]${NC} $1"
+}
+
+# Función para detectar si estamos en Termux
+is_termux() {
+    [ -d "/data/data/com.termux" ] || [[ "$PREFIX" == *"com.termux"* ]]
+}
+
+# Función para obtener la IP local
+get_local_ip() {
+    if command -v ip >/dev/null 2>&1; then
+        ip route get 1.1.1.1 2>/dev/null | grep -oP 'src \K\S+' || echo "localhost"
+    elif command -v hostname >/dev/null 2>&1; then
+        hostname -I 2>/dev/null | awk '{print $1}' || echo "localhost"
+    else
+        echo "localhost"
+    fi
+}
+
+# Función para abrir el navegador automáticamente
+open_browser() {
+    local url="$1"
+    
+    if is_termux; then
+        # En Termux, usar termux-open-url si está disponible
+        if command -v termux-open-url >/dev/null 2>&1; then
+            print_status "Abriendo navegador automáticamente..."
+            termux-open-url "$url" 2>/dev/null &
+            return 0
+        fi
+    else
+        # En sistemas Linux/Unix estándar
+        if command -v xdg-open >/dev/null 2>&1; then
+            xdg-open "$url" 2>/dev/null &
+            return 0
+        elif command -v open >/dev/null 2>&1; then  # macOS
+            open "$url" 2>/dev/null &
+            return 0
+        fi
+    fi
+    
+    return 1
+}
+
+# Función para crear el servicio persistente
+create_persistent_service() {
+    if is_termux; then
+        # Crear script de servicio para Termux
+        cat > "$HOME/.chispart-ui-service.sh" << 'EOF'
+#!/bin/bash
+# Servicio persistente para Chispart-CLI-LLM UI
+
+PROJECT_DIR="$HOME/chispart-cli-llm"
+LOG_FILE="$HOME/.chispart-ui.log"
+PID_FILE="$HOME/.chispart-ui.pid"
+
+start_service() {
+    if [ -f "$PID_FILE" ] && kill -0 "$(cat "$PID_FILE")" 2>/dev/null; then
+        echo "Servicio ya está ejecutándose (PID: $(cat "$PID_FILE"))"
+        return 1
+    fi
+    
+    cd "$PROJECT_DIR"
+    nohup python3 app.py > "$LOG_FILE" 2>&1 &
+    echo $! > "$PID_FILE"
+    echo "Servicio iniciado (PID: $!)"
+    return 0
+}
+
+stop_service() {
+    if [ -f "$PID_FILE" ]; then
+        local pid=$(cat "$PID_FILE")
+        if kill -0 "$pid" 2>/dev/null; then
+            kill "$pid"
+            rm -f "$PID_FILE"
+            echo "Servicio detenido"
+        else
+            rm -f "$PID_FILE"
+            echo "Servicio no estaba ejecutándose"
+        fi
+    else
+        echo "Archivo PID no encontrado"
+    fi
+}
+
+status_service() {
+    if [ -f "$PID_FILE" ] && kill -0 "$(cat "$PID_FILE")" 2>/dev/null; then
+        echo "Servicio ejecutándose (PID: $(cat "$PID_FILE"))"
+        return 0
+    else
+        echo "Servicio no está ejecutándose"
+        return 1
+    fi
+}
+
+case "$1" in
+    start)
+        start_service
+        ;;
+    stop)
+        stop_service
+        ;;
+    restart)
+        stop_service
+        sleep 2
+        start_service
+        ;;
+    status)
+        status_service
+        ;;
+    *)
+        echo "Uso: $0 {start|stop|restart|status}"
+        exit 1
+        ;;
+esac
+EOF
+        
+        chmod +x "$HOME/.chispart-ui-service.sh"
+        print_success "Servicio persistente creado en $HOME/.chispart-ui-service.sh"
+    fi
+}
+
+# Función para verificar dependencias
+check_dependencies() {
+    print_status "Verificando dependencias..."
+    
+    if ! python3 -c "import flask" 2>/dev/null; then
+        print_error "Flask no está instalado"
+        print_status "Instalando Flask..."
+        pip install flask
+    fi
+    
+    if ! python3 -c "import requests, click, rich" 2>/dev/null; then
+        print_error "Dependencias faltantes"
+        print_status "Ejecuta: pip install -r requirements.txt"
+        return 1
+    fi
+    
+    print_success "Dependencias verificadas"
+    return 0
+}
+
+# Función principal
+main() {
+    print_header
+    
+    # Verificar dependencias
+    if ! check_dependencies; then
+        exit 1
+    fi
+    
+    # Obtener IP local
+    LOCAL_IP=$(get_local_ip)
+    PORT=5000
+    
+    # URLs de acceso
+    LOCAL_URL="http://localhost:$PORT"
+    NETWORK_URL="http://$LOCAL_IP:$PORT"
+    
+    # Mostrar información
+    echo -e "${CYAN}🌐 Configuración de Acceso:${NC}"
+    echo -e "   ${GREEN}📱 Local:${NC}    $LOCAL_URL"
+    echo -e "   ${PINK}🌍 Red:${NC}      $NETWORK_URL"
+    echo ""
+    
+    if is_termux; then
+        echo -e "${YELLOW}📱 Optimizaciones para Termux:${NC}"
+        echo -e "   ${GREEN}•${NC} Configuración optimizada para móviles"
+        echo -e "   ${GREEN}•${NC} Timeouts ajustados para conexiones lentas"
+        echo -e "   ${GREEN}•${NC} Interfaz adaptativa para pantallas pequeñas"
+        echo -e "   ${GREEN}•${NC} Colores neón para mejor visibilidad"
+        echo ""
+        
+        # Crear servicio persistente
+        create_persistent_service
+        
+        echo -e "${CYAN}🔧 Comandos de servicio disponibles:${NC}"
+        echo "   ~/.chispart-ui-service.sh start    # Iniciar servicio"
+        echo "   ~/.chispart-ui-service.sh stop     # Detener servicio"
+        echo "   ~/.chispart-ui-service.sh restart  # Reiniciar servicio"
+        echo "   ~/.chispart-ui-service.sh status   # Ver estado"
+        echo ""
+    fi
+    
+    echo -e "${GREEN}💡 Consejos:${NC}"
+    echo "   • Mantén la pantalla encendida para evitar que se cierre"
+    echo "   • Puedes acceder desde otros dispositivos en la misma red WiFi"
+    echo "   • Usa Ctrl+C para detener el servidor"
+    if is_termux; then
+        echo "   • El servicio persistente seguirá funcionando aunque cierres Termux"
+    fi
+    echo ""
+    
+    # Configurar variables de entorno para optimizar Flask
+    export FLASK_ENV=production
+    export FLASK_DEBUG=false
+    
+    # Intentar abrir el navegador automáticamente
+    if open_browser "$LOCAL_URL"; then
+        print_success "Navegador abierto automáticamente"
+    else
+        print_warning "No se pudo abrir el navegador automáticamente"
+        echo "   Abre manualmente: $LOCAL_URL"
+    fi
+    
+    echo ""
+    print_status "Iniciando servidor web..."
+    echo -e "${YELLOW}🛑 Presiona Ctrl+C para detener${NC}"
+    echo ""
+    
+    # Iniciar la aplicación web
+    python3 app.py
+}
+
+# Manejar argumentos de línea de comandos
+case "${1:-}" in
+    --help|-h)
+        echo "🚀 Chispart-CLI-LLM Web UI - Lanzador de Interfaz Web"
+        echo ""
+        echo "Uso: chispart-ui [opciones]"
+        echo ""
+        echo "Opciones:"
+        echo "  --help, -h          Mostrar esta ayuda"
+        echo "  --service-start     Iniciar como servicio persistente (solo Termux)"
+        echo "  --service-stop      Detener servicio persistente (solo Termux)"
+        echo "  --service-status    Ver estado del servicio (solo Termux)"
+        echo "  --no-browser        No abrir navegador automáticamente"
+        echo ""
+        echo "Ejemplos:"
+        echo "  chispart-ui                    # Iniciar normalmente"
+        echo "  chispart-ui --service-start    # Iniciar como servicio"
+        echo "  chispart-ui --no-browser       # Iniciar sin abrir navegador"
+        exit 0
+        ;;
+    --service-start)
+        if is_termux && [ -f "$HOME/.chispart-ui-service.sh" ]; then
+            "$HOME/.chispart-ui-service.sh" start
+        else
+            print_error "Servicio persistente solo disponible en Termux"
+            exit 1
+        fi
+        exit 0
+        ;;
+    --service-stop)
+        if is_termux && [ -f "$HOME/.chispart-ui-service.sh" ]; then
+            "$HOME/.chispart-ui-service.sh" stop
+        else
+            print_error "Servicio persistente solo disponible en Termux"
+            exit 1
+        fi
+        exit 0
+        ;;
+    --service-status)
+        if is_termux && [ -f "$HOME/.chispart-ui-service.sh" ]; then
+            "$HOME/.chispart-ui-service.sh" status
+        else
+            print_error "Servicio persistente solo disponible en Termux"
+            exit 1
+        fi
+        exit 0
+        ;;
+    --no-browser)
+        # Deshabilitar apertura automática del navegador
+        open_browser() { return 1; }
+        main
+        ;;
+    "")
+        main
+        ;;
+    *)
+        print_error "Opción desconocida: $1"
+        echo "Usa 'chispart-ui --help' para ver las opciones disponibles"
+        exit 1
+        ;;
+esac

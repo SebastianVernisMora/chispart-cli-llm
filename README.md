@@ -1,224 +1,151 @@
-# 🤖 CLI Universal para LLMs
+# 🤖 CLI Universal para LLMs (y ahora con Interfaz Web)
 
-Una aplicación de línea de comandos (CLI) para interactuar con múltiples APIs de LLM. Permite enviar mensajes de texto, analizar imágenes y procesar documentos PDF usando diferentes proveedores de IA.
+Una aplicación para interactuar con múltiples APIs de LLM. Permite enviar mensajes de texto, analizar imágenes y procesar documentos PDF usando diferentes proveedores de IA, tanto desde la línea de comandos (CLI) como desde una cómoda interfaz web.
 
 ## 🚀 Características
 
-- **Múltiples APIs**: Soporte para BlackboxAI, OpenAI, Anthropic, Groq y Together AI
-- **Chat de texto**: Envía mensajes y recibe respuestas de cualquier API
-- **Análisis de imágenes**: Sube y analiza imágenes (JPG, PNG, WebP) con APIs compatibles
-- **Procesamiento de PDFs**: Analiza documentos PDF con APIs compatibles
-- **Modo interactivo**: Chat continuo con historial de sesión
-- **Múltiples modelos**: Soporte para GPT-4, Claude, Llama, Mixtral, Gemini y más
-- **Historial**: Guarda y consulta conversaciones anteriores
-- **Interfaz rica**: Output colorido y bien formateado
-- **Configuración flexible**: Cambia entre APIs y modelos fácilmente
+### Generales
+- **Múltiples APIs**: Soporte para BlackboxAI, OpenAI, Anthropic, Groq y Together AI.
+- **Múltiples Modelos**: Soporte para GPT-4, Claude, Llama, Mixtral, Gemini y más.
+- **Configuración Flexible**: Cambia entre APIs y modelos fácilmente.
+- **Historial Centralizado**: Guarda y consulta conversaciones de ambas interfaces en `chat_history.json`.
+
+### Interfaz Web (`app.py`)
+- **Interfaz de Chat Moderna**: UI limpia e intuitiva para chatear.
+- **Análisis de Archivos**: Sube y analiza imágenes (JPG, PNG, WebP) y documentos PDF.
+- **Respuesta en Streaming**: Las respuestas del asistente aparecen palabra por palabra.
+- **Renderizado de Markdown**: Las respuestas se muestran con formato, incluyendo resaltado de sintaxis para bloques de código.
+- **Historial Interactivo**: Carga y revisa conversaciones pasadas directamente en la interfaz.
+
+### Interfaz de Línea de Comandos (`blackbox_cli.py`)
+- **Chat de Texto**: Envía mensajes y recibe respuestas desde la terminal.
+- **Análisis de Archivos**: Procesa imágenes y PDFs locales.
+- **Modo Interactivo**: Mantén una conversación continua con historial de sesión.
+- **Configuración Interactiva**: Un comando `configure` para guardar tus claves de API de forma segura.
+- **Interfaz Rica**: Output colorido y bien formateado gracias a `rich`.
 
 ## 📦 Instalación
 
-1. **Clona o descarga los archivos del proyecto**
+1.  **Clona o descarga los archivos del proyecto.**
+2.  **Instala las dependencias**:
+    ```bash
+    pip install -r requirements.txt
+    ```
+3.  **Configura tus claves de API (Recomendado)**:
+    Usa el nuevo comando interactivo para configurar tus claves de forma fácil y segura.
+    ```bash
+    python blackbox_cli.py configure
+    ```
+    Esto guardará tus claves en un archivo `.env` que la aplicación cargará automáticamente.
 
-2. **Instala las dependencias**:
-```bash
-pip install -r requirements.txt
-```
+## 🔑 Configuración Alternativa
 
-3. **Configura tu clave API**:
-   - Opción 1: Edita `config.py` y reemplaza la clave API
-   - Opción 2: Crea un archivo `.env` basado en `.env.example`
-   ```bash
-   cp .env.example .env
-   # Edita .env y agrega tu clave API
-   ```
-
-## 🔑 Configuración de API Key
-
-Tu clave API ya está configurada en `config.py`. Si quieres usar variables de entorno:
+Si prefieres no usar el comando `configure`, puedes crear manualmente un archivo `.env` a partir de `.env.example` o exportar las variables de entorno:
 
 ```bash
-export BLACKBOX_API_KEY="tu_clave_api_aqui"
+# Opción 1: Crear archivo .env
+cp .env.example .env
+# Luego edita el archivo .env con tus claves
+
+# Opción 2: Variables de entorno
+export BLACKBOX_API_KEY="tu_clave_aqui"
+export OPENAI_API_KEY="tu_clave_aqui"
+# etc.
 ```
 
 ## 📖 Uso
 
-### Comandos Básicos
-
+### Iniciar la Interfaz Web
+Para usar la interfaz web, simplemente ejecuta `app.py`:
 ```bash
-# Hacer la CLI ejecutable (Linux/Mac)
-chmod +x blackbox_cli.py
+python app.py
+```
+Luego, abre tu navegador y ve a `http://127.0.0.1:5000`.
 
-# Ver ayuda
+### Comandos de la CLI
+
+Primero, haz el script ejecutable (opcional, solo en Linux/Mac):
+```bash
+chmod +x blackbox_cli.py
+```
+
+**Configurar Claves de API (Recomendado)**
+```bash
+python blackbox_cli.py configure
+```
+
+**Ver Ayuda**
+```bash
 python blackbox_cli.py --help
 ```
 
-### 💬 Chat de Texto
-
+**Chat de Texto**
 ```bash
-# Mensaje simple
 python blackbox_cli.py chat "¿Cuál es la capital de Francia?"
-
-# Con modelo específico
-python blackbox_cli.py chat "Explica la fotosíntesis" --modelo gpt-4
-
-# Sin guardar en historial
-python blackbox_cli.py chat "Hola mundo" --no-guardar
 ```
 
-### 🖼️ Análisis de Imágenes
-
+**Análisis de Imágenes**
 ```bash
-# Analizar imagen con pregunta por defecto
-python blackbox_cli.py imagen foto.jpg
-
-# Con pregunta personalizada
-python blackbox_cli.py imagen foto.jpg --prompt "¿Qué colores predominan en esta imagen?"
-
-# Con modelo específico
-python blackbox_cli.py imagen foto.jpg --modelo gpt-4-vision
+python blackbox_cli.py imagen foto.jpg --prompt "¿Qué colores predominan?"
 ```
 
-### 📄 Procesamiento de PDFs
-
+**Análisis de PDFs**
 ```bash
-# Resumir PDF
-python blackbox_cli.py pdf documento.pdf
-
-# Con pregunta específica
-python blackbox_cli.py pdf informe.pdf --prompt "¿Cuáles son las conclusiones principales?"
-
-# Con modelo específico
-python blackbox_cli.py pdf documento.pdf --modelo gpt-4
+python blackbox_cli.py pdf documento.pdf --prompt "Resume los puntos clave."
 ```
 
-### 🔄 Modo Interactivo
-
+**Modo Interactivo**
 ```bash
-# Iniciar chat interactivo
 python blackbox_cli.py interactivo
-
-# Con modelo específico
-python blackbox_cli.py interactivo --modelo gpt-4-vision
 ```
 
-En el modo interactivo:
-- Escribe `salir`, `exit` o `quit` para terminar
-- Escribe `limpiar` o `clear` para limpiar el historial de la sesión
-- Usa `Ctrl+C` para interrumpir
-
-### 📊 Historial y Utilidades
-
+**Ver Historial y Modelos**
 ```bash
 # Ver historial de conversaciones
 python blackbox_cli.py historial
 
-# Ver últimas 5 conversaciones
-python blackbox_cli.py historial --limite 5
-
-# Listar modelos disponibles
+# Listar modelos disponibles para la API por defecto
 python blackbox_cli.py modelos
 ```
-
-## 🎯 Ejemplos Prácticos
-
-### Análisis de Código
-```bash
-python blackbox_cli.py chat "Explica este código Python: print('Hola mundo')"
-```
-
-### Análisis de Imagen
-```bash
-python blackbox_cli.py imagen screenshot.png --prompt "¿Qué aplicación se muestra en esta captura?"
-```
-
-### Resumen de Documento
-```bash
-python blackbox_cli.py pdf contrato.pdf --prompt "Resume los puntos clave de este contrato"
-```
-
-### Sesión de Programación
-```bash
-python blackbox_cli.py interactivo --modelo gpt-4
-# Luego puedes hacer preguntas como:
-# "¿Cómo creo una función en Python?"
-# "Muéstrame un ejemplo de API REST con Flask"
-```
-
-## 🔧 Configuración Avanzada
-
-### Modelos Disponibles
-
-- `gpt-4`: Modelo estándar para texto (por defecto)
-- `gpt-4-vision`: Para análisis de imágenes
-- `gpt-3.5-turbo`: Más rápido y económico
-
-### Formatos de Archivo Soportados
-
-**Imágenes**: JPG, JPEG, PNG, WebP
-**Documentos**: PDF
-
-**Límite de tamaño**: 20MB por archivo
-
-### Archivos de Configuración
-
-- `config.py`: Configuración principal
-- `.env`: Variables de entorno (opcional)
-- `chat_history.json`: Historial de conversaciones (se crea automáticamente)
 
 ## 🛠️ Estructura del Proyecto
 
 ```
-├── blackbox_cli.py      # CLI principal
-├── api_client.py        # Cliente de la API
-├── config.py           # Configuración
-├── utils.py            # Utilidades
-├── requirements.txt    # Dependencias
-├── .env.example       # Ejemplo de configuración
-├── README.md          # Este archivo
-└── chat_history.json  # Historial (se crea automáticamente)
+.
+├── app.py               # Backend de la Interfaz Web (Flask)
+├── blackbox_cli.py      # Interfaz de Línea de Comandos (Click)
+├── static/
+│   └── chat_interface.html # Frontend de la Interfaz Web
+├── tests/               # Pruebas unitarias (pytest)
+├── api_client.py        # Cliente universal para APIs de LLM
+├── config.py            # Configuración de APIs y modelos
+├── utils.py             # Funciones de utilidad
+├── requirements.txt     # Dependencias de Python
+├── .gitignore           # Archivos ignorados por Git
+├── .env.example         # Ejemplo de archivo de configuración de entorno
+└── README.md            # Este archivo
 ```
 
 ## 🐛 Solución de Problemas
 
-### Error de Clave API
-```
-Error: Clave API no configurada
-```
-**Solución**: Verifica que tu clave API esté correctamente configurada en `config.py` o como variable de entorno.
+### Error: Clave API no configurada
+**Solución**: Asegúrate de haber configurado tu clave de API. La forma más fácil es con el comando `python blackbox_cli.py configure`.
 
 ### Error de Archivo No Encontrado
-```
-El archivo imagen.jpg no existe
-```
-**Solución**: Verifica que la ruta del archivo sea correcta y que el archivo exista.
-
-### Error de Formato No Soportado
-```
-Formato de imagen no soportado
-```
-**Solución**: Usa archivos JPG, PNG, WebP para imágenes o PDF para documentos.
-
-### Error de Tamaño de Archivo
-```
-El archivo es demasiado grande
-```
-**Solución**: Reduce el tamaño del archivo a menos de 20MB.
+**Solución**: Verifica que la ruta del archivo que pasas como argumento sea correcta y que el archivo exista.
 
 ### Error de Conexión
-```
-Error de conexión: No se pudo conectar a la API
-```
-**Solución**: Verifica tu conexión a internet y que la API de BlackboxAI esté disponible.
+**Solución**: Verifica tu conexión a internet y que los servicios de la API que estás usando estén operativos.
 
-## 📝 Notas
+## 🚀 Próximos Pasos y Mejoras Futuras
 
-- Las conversaciones se guardan automáticamente en `chat_history.json`
-- El modo interactivo mantiene el contexto durante la sesión
-- Los archivos se codifican en base64 antes de enviarlos a la API
-- La aplicación muestra información de uso de tokens cuando está disponible
+Este proyecto tiene mucho potencial para seguir creciendo. Algunas ideas para futuras versiones son:
 
-## 🤝 Contribuciones
-
-Si encuentras errores o tienes sugerencias de mejora, no dudes en reportarlos.
+-   **Backend Asíncrono**: Migrar el backend de Flask a un framework completamente asíncrono como FastAPI o Quart para mejorar el rendimiento y la escalabilidad.
+-   **Mejoras en el Historial**: Unificar el guardado del historial del modo interactivo para que las sesiones completas se puedan cargar y continuar desde la interfaz web.
+-   **Soporte para Más APIs**: Añadir soporte para más proveedores de LLM (e.g., Cohere, Mistral AI).
+-   **Despliegue con Docker**: Crear un `Dockerfile` para facilitar el despliegue.
+-   **Cobertura de Pruebas Completa**: Ampliar las pruebas para cubrir los endpoints de la API y los comandos de la CLI.
 
 ## 📄 Licencia
 
