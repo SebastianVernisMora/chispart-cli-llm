@@ -53,7 +53,7 @@ cd chispart-cli-llm
 chispart-setup
 
 # 4. ¡Empezar a usar!
-cp chat "¡Hola desde mi móvil!"
+chs chat "¡Hola desde mi móvil!"
 ```
 
 ### Para otros sistemas
