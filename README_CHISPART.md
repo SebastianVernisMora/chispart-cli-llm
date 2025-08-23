@@ -1,6 +1,17 @@
-# 🚀 Chispart-CLI-LLM
+<p align="center">
+  <img src="https://raw.githubusercontent.com/SebastianVernis/chispart-cli/main/assets/logo.png" alt="Chispart CLI Logo" width="300">
+</p>
 
-> **Universal LLM Terminal for Mobile Devices**
+<h1 align="center">🚀 Chispart CLI – Interfaz Conversacional con IA Híbrida </h1>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/version-0.1.0-blue.svg" alt="Version">
+  <img src="https://img.shields.io/badge/node-%3E%3D18.0.0-green.svg" alt="Node.js">
+  <img src="https://img.shields.io/badge/license-MIT-yellow.svg" alt="License">
+  <img src="https://img.shields.io/badge/status-active-success.svg" alt="Status">
+  <img src="https://img.shields.io/badge/contributions-welcome-orange.svg" alt="Contributions Welcome">
+</p>
+
 
 ![Chispart](https://img.shields.io/badge/Chispart-CLI--LLM-00FF88?style=for-the-badge&logo=terminal&logoColor=0A0A0A&labelColor=1A1A1A)
 ![Mobile](https://img.shields.io/badge/Mobile-Optimized-BB88FF?style=for-the-badge&logo=android&logoColor=0A0A0A&labelColor=1A1A1A)
@@ -343,7 +354,7 @@ chs chat "test"
 
 ## 🤝 **Contribuir**
 
-¡Las contribuciones son bienvenidas! 
+¡Las contribuciones son bienvenidas!
 
 ### 🔧 **Desarrollo**
 ```bash
@@ -408,4 +419,11 @@ chs chat "¡Hola, Chispart!"
 [![Termux](https://img.shields.io/badge/Optimized-Termux-BB88FF?style=for-the-badge&logo=android&logoColor=0A0A0A&labelColor=1A1A1A)](https://termux.com)
 [![AI](https://img.shields.io/badge/Universal-AI--Access-FF88BB?style=for-the-badge&logo=openai&logoColor=0A0A0A&labelColor=1A1A1A)](https://openai.com)
 
+
+
+<p align="center">
+  💻 <em>Convierte tu terminal en un asistente conversacional con IA híbrida.</em><br>
+  ⭐ ¡Instala Chispart CLI y lleva tu productividad al siguiente nivel!
+</p>
+```
 </div>
