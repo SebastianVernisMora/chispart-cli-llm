@@ -1,0 +1,340 @@
+/* 🎨 Chispart-CLI-LLM - Paleta de Colores Neón y Pastel */
+
+/* ============================================
+   🌙 TEMA OSCURO - COLORES NEÓN
+   ============================================ */
+
+:root[data-theme="dark"] {
+  /* Colores Principales Neón */
+  --chispart-primary: #00FF88;        /* Verde Manzana Neón */
+  --chispart-secondary: #BB88FF;      /* Lila Neón */
+  --chispart-accent: #FF88BB;         /* Rosa Neón */
+  --chispart-info: #88FFFF;           /* Cian Neón */
+  --chispart-warning: #FFFF88;        /* Amarillo Neón */
+  --chispart-error: #FF8888;          /* Rojo Neón */
+  
+  /* Fondos Oscuros */
+  --chispart-bg-primary: #0A0A0A;     /* Negro Profundo */
+  --chispart-bg-secondary: #1A1A1A;   /* Gris Oscuro */
+  --chispart-bg-tertiary: #2A2A2A;    /* Gris Medio Oscuro */
+  
+  /* Texto */
+  --chispart-text-primary: #FFFFFF;   /* Blanco */
+  --chispart-text-secondary: #CCCCCC; /* Gris Claro */
+  --chispart-text-muted: #888888;     /* Gris Medio */
+  
+  /* Gradientes Neón */
+  --chispart-gradient-primary: linear-gradient(135deg, #00FF88 0%, #BB88FF 100%);
+  --chispart-gradient-secondary: linear-gradient(135deg, #FF88BB 0%, #88FFFF 100%);
+  --chispart-gradient-rainbow: linear-gradient(90deg, #00FF88 0%, #BB88FF 25%, #FF88BB 50%, #88FFFF 75%, #FFFF88 100%);
+  
+  /* Sombras Neón */
+  --chispart-shadow-primary: 0 0 20px rgba(0, 255, 136, 0.5);
+  --chispart-shadow-secondary: 0 0 20px rgba(187, 136, 255, 0.5);
+  --chispart-shadow-accent: 0 0 20px rgba(255, 136, 187, 0.5);
+  --chispart-shadow-info: 0 0 20px rgba(136, 255, 255, 0.5);
+}
+
+/* ============================================
+   ☀️ TEMA CLARO - COLORES PASTEL
+   ============================================ */
+
+:root[data-theme="light"], :root {
+  /* Colores Principales Pastel */
+  --chispart-primary: #88E5A3;        /* Verde Manzana Pastel */
+  --chispart-secondary: #C4A8FF;      /* Lila Pastel */
+  --chispart-accent: #FFB3D1;         /* Rosa Pastel */
+  --chispart-info: #B3F0FF;           /* Cian Pastel */
+  --chispart-warning: #FFF2B3;        /* Amarillo Pastel */
+  --chispart-error: #FFB3B3;          /* Rojo Pastel */
+  
+  /* Fondos Claros */
+  --chispart-bg-primary: #FFFFFF;     /* Blanco Puro */
+  --chispart-bg-secondary: #F8F9FA;   /* Gris Muy Claro */
+  --chispart-bg-tertiary: #E9ECEF;    /* Gris Claro */
+  
+  /* Texto */
+  --chispart-text-primary: #2A2A2A;   /* Gris Oscuro */
+  --chispart-text-secondary: #555555; /* Gris Medio */
+  --chispart-text-muted: #888888;     /* Gris Claro */
+  
+  /* Gradientes Pastel */
+  --chispart-gradient-primary: linear-gradient(135deg, #88E5A3 0%, #C4A8FF 100%);
+  --chispart-gradient-secondary: linear-gradient(135deg, #FFB3D1 0%, #B3F0FF 100%);
+  --chispart-gradient-rainbow: linear-gradient(90deg, #88E5A3 0%, #C4A8FF 25%, #FFB3D1 50%, #B3F0FF 75%, #FFF2B3 100%);
+  
+  /* Sombras Suaves */
+  --chispart-shadow-primary: 0 4px 12px rgba(136, 229, 163, 0.3);
+  --chispart-shadow-secondary: 0 4px 12px rgba(196, 168, 255, 0.3);
+  --chispart-shadow-accent: 0 4px 12px rgba(255, 179, 209, 0.3);
+  --chispart-shadow-info: 0 4px 12px rgba(179, 240, 255, 0.3);
+}
+
+/* ============================================
+   🎨 CLASES UTILITARIAS
+   ============================================ */
+
+/* Colores de Texto */
+.text-primary { color: var(--chispart-primary) !important; }
+.text-secondary { color: var(--chispart-secondary) !important; }
+.text-accent { color: var(--chispart-accent) !important; }
+.text-info { color: var(--chispart-info) !important; }
+.text-warning { color: var(--chispart-warning) !important; }
+.text-error { color: var(--chispart-error) !important; }
+
+/* Colores de Fondo */
+.bg-primary { background-color: var(--chispart-primary) !important; }
+.bg-secondary { background-color: var(--chispart-secondary) !important; }
+.bg-accent { background-color: var(--chispart-accent) !important; }
+.bg-info { background-color: var(--chispart-info) !important; }
+.bg-warning { background-color: var(--chispart-warning) !important; }
+.bg-error { background-color: var(--chispart-error) !important; }
+
+/* Gradientes */
+.gradient-primary { background: var(--chispart-gradient-primary) !important; }
+.gradient-secondary { background: var(--chispart-gradient-secondary) !important; }
+.gradient-rainbow { background: var(--chispart-gradient-rainbow) !important; }
+
+/* Sombras */
+.shadow-primary { box-shadow: var(--chispart-shadow-primary) !important; }
+.shadow-secondary { box-shadow: var(--chispart-shadow-secondary) !important; }
+.shadow-accent { box-shadow: var(--chispart-shadow-accent) !important; }
+.shadow-info { box-shadow: var(--chispart-shadow-info) !important; }
+
+/* ============================================
+   🚀 COMPONENTES ESPECÍFICOS
+   ============================================ */
+
+/* Header Principal */
+.chispart-header {
+  background: var(--chispart-gradient-primary);
+  color: var(--chispart-text-primary);
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  box-shadow: var(--chispart-shadow-primary);
+  margin-bottom: 2rem;
+}
+
+/* Botones */
+.btn-chispart-primary {
+  background: var(--chispart-primary);
+  color: var(--chispart-bg-primary);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: var(--chispart-shadow-primary);
+}
+
+.btn-chispart-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--chispart-shadow-primary), 0 8px 25px rgba(0, 255, 136, 0.3);
+}
+
+.btn-chispart-secondary {
+  background: var(--chispart-secondary);
+  color: var(--chispart-bg-primary);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: var(--chispart-shadow-secondary);
+}
+
+.btn-chispart-secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--chispart-shadow-secondary), 0 8px 25px rgba(187, 136, 255, 0.3);
+}
+
+/* Cards */
+.chispart-card {
+  background: var(--chispart-bg-secondary);
+  border: 1px solid var(--chispart-bg-tertiary);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+}
+
+.chispart-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--chispart-shadow-primary);
+}
+
+/* Input Fields */
+.chispart-input {
+  background: var(--chispart-bg-secondary);
+  border: 2px solid var(--chispart-bg-tertiary);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  color: var(--chispart-text-primary);
+  transition: all 0.3s ease;
+}
+
+.chispart-input:focus {
+  border-color: var(--chispart-primary);
+  box-shadow: var(--chispart-shadow-primary);
+  outline: none;
+}
+
+/* Chat Messages */
+.chispart-message-user {
+  background: var(--chispart-gradient-secondary);
+  color: var(--chispart-text-primary);
+  padding: 1rem;
+  border-radius: 12px 12px 4px 12px;
+  margin: 0.5rem 0;
+  margin-left: 2rem;
+  box-shadow: var(--chispart-shadow-accent);
+}
+
+.chispart-message-ai {
+  background: var(--chispart-bg-secondary);
+  color: var(--chispart-text-primary);
+  padding: 1rem;
+  border-radius: 12px 12px 12px 4px;
+  margin: 0.5rem 0;
+  margin-right: 2rem;
+  border-left: 4px solid var(--chispart-primary);
+}
+
+/* Status Indicators */
+.chispart-status-online {
+  color: var(--chispart-primary);
+  font-weight: 600;
+}
+
+.chispart-status-offline {
+  color: var(--chispart-error);
+  font-weight: 600;
+}
+
+.chispart-status-warning {
+  color: var(--chispart-warning);
+  font-weight: 600;
+}
+
+/* Loading Spinner */
+.chispart-spinner {
+  border: 3px solid var(--chispart-bg-tertiary);
+  border-top: 3px solid var(--chispart-primary);
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  animation: chispart-spin 1s linear infinite;
+}
+
+@keyframes chispart-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ============================================
+   📱 RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 768px) {
+  .chispart-header {
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .chispart-card {
+    padding: 1rem;
+  }
+  
+  .chispart-message-user,
+  .chispart-message-ai {
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+  }
+}
+
+/* ============================================
+   🌈 ANIMACIONES ESPECIALES
+   ============================================ */
+
+/* Efecto Neón Pulsante */
+.chispart-neon-pulse {
+  animation: chispart-neon-pulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes chispart-neon-pulse {
+  from {
+    box-shadow: var(--chispart-shadow-primary);
+  }
+  to {
+    box-shadow: var(--chispart-shadow-primary), 
+                0 0 40px rgba(0, 255, 136, 0.8),
+                0 0 60px rgba(0, 255, 136, 0.6);
+  }
+}
+
+/* Gradiente Animado */
+.chispart-gradient-animated {
+  background: linear-gradient(-45deg, 
+    var(--chispart-primary), 
+    var(--chispart-secondary), 
+    var(--chispart-accent), 
+    var(--chispart-info));
+  background-size: 400% 400%;
+  animation: chispart-gradient-shift 4s ease infinite;
+}
+
+@keyframes chispart-gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ============================================
+   🎯 UTILIDADES ADICIONALES
+   ============================================ */
+
+/* Texto con efecto neón */
+.chispart-text-neon {
+  text-shadow: 0 0 10px currentColor,
+               0 0 20px currentColor,
+               0 0 30px currentColor;
+}
+
+/* Bordes con gradiente */
+.chispart-border-gradient {
+  border: 2px solid transparent;
+  background: linear-gradient(var(--chispart-bg-primary), var(--chispart-bg-primary)) padding-box,
+              var(--chispart-gradient-primary) border-box;
+}
+
+/* Hover con transformación */
+.chispart-hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.chispart-hover-lift:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: var(--chispart-shadow-primary);
+}
+
+/* ============================================
+   🎨 TEMA TOGGLE
+   ============================================ */
+
+.chispart-theme-toggle {
+  background: var(--chispart-gradient-primary);
+  border: none;
+  border-radius: 50px;
+  padding: 0.5rem 1rem;
+  color: var(--chispart-text-primary);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: var(--chispart-shadow-primary);
+}
+
+.chispart-theme-toggle:hover {
+  transform: scale(1.05);
+  box-shadow: var(--chispart-shadow-primary), 
+              0 0 20px rgba(0, 255, 136, 0.5);
+}

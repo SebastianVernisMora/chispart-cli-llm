@@ -1,0 +1,79 @@
+#!/bin/bash
+
+# 🚀 Chispart-CLI-LLM - Universal LLM Terminal for Mobile
+# Script wrapper principal para Chispart en Termux
+
+# Detectar la ubicación del script
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Si estamos en ~/bin, el proyecto debería estar en ~/chispart-cli-llm
+if [[ "$SCRIPT_DIR" == *"/bin" ]]; then
+    PROJECT_DIR="$HOME/chispart-cli-llm"
+else
+    PROJECT_DIR="$SCRIPT_DIR"
+fi
+
+# Verificar que el proyecto existe
+if [ ! -f "$PROJECT_DIR/blackbox_cli.py" ]; then
+    echo "❌ Error: No se encontró Chispart-CLI-LLM"
+    echo "   Esperado en: $PROJECT_DIR"
+    echo "   Ejecuta el script de instalación primero"
+    exit 1
+fi
+
+# Cambiar al directorio del proyecto
+cd "$PROJECT_DIR"
+
+# Verificar dependencias básicas
+if ! python3 -c "import requests, click, rich" 2>/dev/null; then
+    echo "❌ Error: Dependencias faltantes"
+    echo "   Ejecuta: pip install -r requirements.txt"
+    exit 1
+fi
+
+# Mostrar banner isométrico si no hay argumentos
+if [ $# -eq 0 ]; then
+    # Mostrar banner isométrico con estilo filled
+    python3 "$PROJECT_DIR/chispart_banner.py" --style filled --no-info
+    
+    # Información adicional con colores neón
+    echo -e "\033[38;2;136;255;255m🚀 Bienvenido a Chispart-CLI-LLM\033[0m"
+    echo ""
+    echo -e "\033[38;2;0;255;136m📱 Comandos rápidos:\033[0m"
+    echo -e "  \033[38;2;255;255;136mchispart chat 'mensaje'\033[0m     - Enviar mensaje"
+    echo -e "  \033[38;2;255;255;136mchispart interactivo\033[0m        - Modo chat interactivo"
+    echo -e "  \033[38;2;255;255;136mchispart imagen foto.jpg\033[0m    - Analizar imagen"
+    echo -e "  \033[38;2;255;255;136mchispart pdf documento.pdf\033[0m  - Analizar PDF"
+    echo -e "  \033[38;2;255;255;136mchispart modelos\033[0m            - Ver modelos disponibles"
+    echo -e "  \033[38;2;255;255;136mchispart historial\033[0m          - Ver historial"
+    echo -e "  \033[38;2;255;255;136mchispart configure\033[0m          - Configurar API keys"
+    echo ""
+    echo -e "\033[38;2;187;136;255m🔧 Comandos de sistema:\033[0m"
+    echo -e "  \033[38;2;255;255;136mchispart --help\033[0m             - Ayuda completa"
+    echo -e "  \033[38;2;255;255;136mchispart-status\033[0m             - Estado del sistema"
+    echo -e "  \033[38;2;255;255;136mchispart-ui\033[0m                 - Interfaz web"
+    echo -e "  \033[38;2;255;255;136mchispart-service\033[0m            - Gestión de servicio"
+    echo ""
+    echo -e "\033[38;2;255;136;187m⚡ Comandos súper cortos:\033[0m"
+    echo -e "  \033[38;2;255;255;136mchs\033[0m                         - Comando principal"
+    echo -e "  \033[38;2;255;255;136mchs-ui\033[0m                      - Interfaz web"
+    echo -e "  \033[38;2;255;255;136mchs-start\033[0m                   - Iniciar servicio"
+    echo ""
+    echo -e "\033[38;2;136;255;255m💡 Ejemplo:\033[0m \033[38;2;0;255;136mchs chat '¿Cuál es la capital de Francia?'\033[0m"
+    echo ""
+    echo -e "\033[2m🌐 Más info: https://github.com/SebastianVernisMora/chispart-cli-llm\033[0m"
+    exit 0
+fi
+
+# Comando especial para mostrar estado del sistema
+if [ "$1" = "status" ]; then
+    echo "🔍 Verificando estado de Chispart-CLI-LLM..."
+    python3 -c "
+from termux_utils import print_termux_status
+print_termux_status()
+"
+    exit 0
+fi
+
+# Ejecutar el CLI con todos los argumentos
+python3 blackbox_cli.py "$@"
