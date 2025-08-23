@@ -123,8 +123,7 @@ python blackbox_cli.py modelos
 ├── requirements.txt     # Dependencias de Python
 ├── .gitignore           # Archivos ignorados por Git
 ├── .env.example         # Ejemplo de archivo de configuración de entorno
-└── README.md            # Este archivo
-```
+└── docs/README.md       # Este archivo
 
 ## 🐛 Solución de Problemas
 
