@@ -390,7 +390,7 @@ Este proyecto está bajo la licencia MIT. Ver [LICENSE](LICENSE) para más detal
 
 ## 📞 **Soporte**
 
-- 📧 **Email**: [tu-email@ejemplo.com]
+📧 **Email**: [tu-email@ejemplo.com](mailto:tu-email@ejemplo.com)
 - 🐛 **Issues**: [GitHub Issues](https://github.com/SebastianVernisMora/chispart-cli-llm/issues)
 - 💬 **Discusiones**: [GitHub Discussions](https://github.com/SebastianVernisMora/chispart-cli-llm/discussions)
 
