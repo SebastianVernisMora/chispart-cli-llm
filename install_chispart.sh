@@ -179,10 +179,31 @@ chmod +x ~/bin/chispart-service
 chmod +x ~/bin/chispart-setup
 chmod +x ~/bin/chispart-status
 
-print_header "Creando alias útiles..."
-cat >> ~/.bashrc << 'EOF'
+print_header "Configurando PATH y creando alias..."
 
-# 🚀 Chispart-CLI-LLM Aliases
+# Función para agregar configuración al shell de forma segura
+setup_shell_config() {
+    local shell_rc_file
+    local shell_name
+    shell_name=$(basename "$SHELL")
+
+    if [ "$shell_name" = "bash" ]; then
+        shell_rc_file="$HOME/.bashrc"
+    elif [ "$shell_name" = "zsh" ]; then
+        shell_rc_file="$HOME/.zshrc"
+    else
+        # Fallback para otros shells
+        shell_rc_file="$HOME/.profile"
+    fi
+
+    print_status "Detectado shell: $shell_name. Usando archivo de configuración: $shell_rc_file"
+
+    # Contenido a agregar
+    local config_block
+    config_block=$(cat <<'EOM'
+
+# 🚀 Chispart-CLI-LLM PATH & Aliases
+export PATH="$HOME/bin:$PATH"
 alias chs='chispart'
 alias chs-chat='chispart chat'
 alias chs-image='chispart imagen'
@@ -190,8 +211,6 @@ alias chs-pdf='chispart pdf'
 alias chs-models='chispart modelos'
 alias chs-history='chispart historial'
 alias chs-interactive='chispart interactivo'
-
-# Alias para interfaz web y servicios
 alias chs-ui='chispart-ui'
 alias chs-web='chispart-web'
 alias chs-service='chispart-service'
@@ -201,8 +220,20 @@ alias chs-restart='chispart-service restart'
 alias chs-logs='chispart-service logs'
 alias chs-status='chispart-status'
 alias chs-setup='chispart-setup'
+EOM
+)
 
-EOF
+    # Verificar si el bloque de configuración ya existe
+    if ! grep -q "# 🚀 Chispart-CLI-LLM PATH & Aliases" "$shell_rc_file" 2>/dev/null; then
+        print_status "Agregando configuración de Chispart a $shell_rc_file..."
+        echo "$config_block" >> "$shell_rc_file"
+        print_success "Configuración agregada."
+    else
+        print_warning "La configuración de Chispart ya existe en $shell_rc_file. No se realizaron cambios."
+    fi
+}
+
+setup_shell_config
 
 print_success "¡Instalación de Chispart-CLI-LLM completada!"
 echo ""
