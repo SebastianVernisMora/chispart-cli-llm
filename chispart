@@ -14,7 +14,7 @@ else
 fi
 
 # Verificar que el proyecto existe
-if [ ! -f "$PROJECT_DIR/blackbox_cli.py" ]; then
+if [ ! -f "$PROJECT_DIR/chispart_cli.py" ]; then
     echo "❌ Error: No se encontró Chispart-CLI-LLM"
     echo "   Esperado en: $PROJECT_DIR"
     echo "   Ejecuta el script de instalación primero"
@@ -76,4 +76,4 @@ print_termux_status()
 fi
 
 # Ejecutar el CLI con todos los argumentos
-python3 blackbox_cli.py "$@"
+python3 chispart_cli.py "$@"

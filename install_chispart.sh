@@ -113,7 +113,7 @@ if [ ! -d "$HOME/chispart-cli-llm" ]; then
 fi
 
 print_header "Configurando permisos..."
-chmod +x blackbox_cli.py
+chmod +x chispart_cli.py
 chmod +x app.py
 chmod +x chispart
 chmod +x chispart-ui
@@ -161,7 +161,7 @@ cat > ~/bin/chispart-setup << 'EOF'
 #!/data/data/com.termux/files/usr/bin/bash
 cd ~/chispart-cli-llm
 echo "🔧 Configurando Chispart-CLI-LLM..."
-python3 blackbox_cli.py configure
+python3 chispart_cli.py configure
 EOF
 
 # Script de estado

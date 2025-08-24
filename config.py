@@ -1,5 +1,5 @@
 """
-Configuración para la aplicación CLI de BlackboxAI
+Configuración para la aplicación Chispart-CLI-LLM
 """
 import os
 from dotenv import load_dotenv
@@ -9,8 +9,8 @@ load_dotenv()
 
 # Configuración de APIs disponibles
 AVAILABLE_APIS = {
-    "blackbox": {
-        "name": "BlackboxAI",
+    "chispart": {
+        "name": "Chispart (BlackboxAI)",
         "base_url": "https://api.blackbox.ai",
         "default_key_env": "BLACKBOX_API_KEY",
         "default_key": ""
@@ -42,7 +42,7 @@ AVAILABLE_APIS = {
 }
 
 # API por defecto
-DEFAULT_API = "blackbox"
+DEFAULT_API = "chispart"
 
 # Configuración de la API actual
 def get_api_config(api_name=None):
@@ -67,7 +67,7 @@ def get_api_config(api_name=None):
 
 # Modelos disponibles por API (actualizados con modelos reales)
 AVAILABLE_MODELS = {
-    "blackbox": {
+    "chispart": {
         "gpt-4": "blackboxai/openai/gpt-4",
         "gpt-4o": "blackboxai/openai/gpt-4o",
         "gpt-4o-mini": "blackboxai/openai/gpt-4o-mini",
@@ -123,7 +123,7 @@ AVAILABLE_MODELS = {
 
 # Modelo por defecto por API
 DEFAULT_MODELS = {
-    "blackbox": "gpt-4",
+    "chispart": "gpt-4",
     "openai": "gpt-4",
     "anthropic": "claude-3-sonnet",
     "groq": "llama-3.1-70b",
@@ -160,10 +160,10 @@ SUPPORTED_IMAGE_TYPES = ['.jpg', '.jpeg', '.png', '.webp']
 SUPPORTED_PDF_TYPES = ['.pdf']
 
 # APIs que soportan imágenes
-VISION_SUPPORTED_APIS = ["blackbox", "openai", "anthropic"]
+VISION_SUPPORTED_APIS = ["chispart", "openai", "anthropic"]
 
 # APIs que soportan PDFs
-PDF_SUPPORTED_APIS = ["blackbox", "openai"]
+PDF_SUPPORTED_APIS = ["chispart", "openai"]
 
 # Configuración específica para Termux
 TERMUX_OPTIMIZATIONS = {

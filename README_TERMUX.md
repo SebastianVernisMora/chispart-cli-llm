@@ -1,6 +1,6 @@
-# 📱 CLI Universal para LLMs - Edición Termux
+# 📱 Chispart-CLI-LLM - Edición Termux
 
-Una versión optimizada del CLI Universal para LLMs específicamente diseñada para **Termux** en dispositivos Android. Disfruta de la potencia de múltiples APIs de IA directamente desde tu móvil.
+Una versión optimizada de **Chispart-CLI-LLM** específicamente diseñada para **Termux** en dispositivos Android. Disfruta de la potencia de múltiples APIs de IA directamente desde tu móvil.
 
 ## 🚀 Instalación Rápida en Termux
 
@@ -16,20 +16,20 @@ pkg install git
 ### Paso 2: Clonar e Instalar
 ```bash
 # Clonar el repositorio
-git clone https://github.com/SebastianVernisMora/cli-universal-llms.git
-cd cli-universal-llms
+git clone https://github.com/SebastianVernisMora/chispart-cli-llm.git
+cd chispart-cli-llm
 
 # Ejecutar instalación automática para Termux
-./install_termux.sh
+./install_chispart.sh
 ```
 
 ### Paso 3: Configurar
 ```bash
 # Configurar tu primera API key
-llm-setup
+chispart-setup
 
 # Verificar que todo funciona
-llm-status
+chispart-status
 ```
 
 ## 🎯 Comandos Optimizados para Móvil
@@ -37,34 +37,36 @@ llm-status
 ### Comandos Rápidos
 ```bash
 # Chat rápido
-llm chat "¿Cuál es la capital de Francia?"
+chispart chat "¿Cuál es la capital de Francia?"
+chs chat "..."
 
 # Modo interactivo (ideal para móviles)
-llm-interactive
+chispart interactivo
+chs-interactive
 
 # Analizar imagen desde tu galería
-llm imagen ~/storage/shared/Pictures/foto.jpg
+chispart imagen ~/storage/shared/Pictures/foto.jpg
 
 # Analizar PDF desde descargas
-llm pdf ~/storage/shared/Download/documento.pdf
+chispart pdf ~/storage/shared/Download/documento.pdf
 
 # Ver modelos disponibles
-llm modelos
+chispart modelos
 
 # Ver historial de conversaciones
-llm historial
+chispart historial
 ```
 
 ### Interfaz Web Móvil
 ```bash
 # Iniciar interfaz web optimizada para móvil
-llm-web
+chispart-web
 
 # Interfaz web con navegador automático
-blackbox-ui
+chispart-ui
 
 # Servicio persistente (sigue funcionando aunque cierres Termux)
-blackbox-service start
+chispart-service start
 
 # Acceder desde el navegador:
 # http://localhost:5000
@@ -106,7 +108,7 @@ termux-setup-storage
 ### Variables de Entorno
 ```bash
 # Ver ubicaciones configuradas
-llm-status
+chispart-status
 
 # Configurar APIs manualmente (opcional)
 export OPENAI_API_KEY="tu_clave_aqui"
@@ -148,7 +150,7 @@ rm -rf ~/tmp/*
 #### Permisos de Archivos
 ```bash
 # Dar permisos de ejecución si es necesario
-chmod +x llm-cli llm-web llm-status
+chmod +x chispart chispart-web chispart-status
 
 # Verificar permisos de archivos
 ls -la ~/storage/shared/
@@ -158,16 +160,16 @@ ls -la ~/storage/shared/
 
 ```bash
 # Estado completo del sistema
-llm-status
+chispart-status
 
 # Verificar dependencias
 python -c "import requests, click, rich, flask; print('✅ Dependencias OK')"
 
 # Verificar APIs configuradas
-llm modelos
+chispart modelos
 
 # Probar conexión básica
-llm chat "test"
+chispart chat "test"
 ```
 
 ## 📊 Rendimiento en Móviles
@@ -188,40 +190,40 @@ llm chat "test"
 ### Comandos de Servicio
 ```bash
 # Iniciar servicio persistente
-blackbox-service start
+chispart-service start
 
 # Detener servicio
-blackbox-service stop
+chispart-service stop
 
 # Reiniciar servicio
-blackbox-service restart
+chispart-service restart
 
 # Ver estado del servicio
-blackbox-service status
+chispart-service status
 
 # Ver logs en tiempo real
-blackbox-service logs
+chispart-service logs
 
 # Configurar auto-inicio
-blackbox-service setup-autostart
+chispart-service setup-autostart
 
 # Iniciar monitor automático (reinicia si se cae)
-blackbox-service monitor-start
+chispart-service monitor-start
 ```
 
 ### Interfaz Web Automática
 ```bash
 # Lanzar interfaz web con navegador automático
-blackbox-ui
+chispart-ui
 
 # Lanzar como servicio persistente
-blackbox-ui --service-start
+chispart-ui --service-start
 
 # Ver estado del servicio
-blackbox-ui --service-status
+chispart-ui --service-status
 
 # Detener servicio
-blackbox-ui --service-stop
+chispart-ui --service-stop
 ```
 
 ## 🎆 Ejemplos de Uso Móvil
@@ -229,25 +231,25 @@ blackbox-ui --service-stop
 ### Análisis de Fotos
 ```bash
 # Analizar foto recién tomada
-llm imagen ~/storage/shared/DCIM/Camera/IMG_latest.jpg "¿Qué hay en esta foto?"
+chispart imagen ~/storage/shared/DCIM/Camera/IMG_latest.jpg "¿Qué hay en esta foto?"
 
 # Analizar screenshot
-llm imagen ~/storage/shared/Pictures/Screenshots/screenshot.png "Explica lo que ves"
+chispart imagen ~/storage/shared/Pictures/Screenshots/screenshot.png "Explica lo que ves"
 ```
 
 ### Trabajo con Documentos
 ```bash
 # Resumir PDF descargado
-llm pdf ~/storage/shared/Download/articulo.pdf "Resume los puntos principales"
+chispart pdf ~/storage/shared/Download/articulo.pdf "Resume los puntos principales"
 
 # Analizar documento de trabajo
-llm pdf ~/storage/shared/Documents/informe.pdf "¿Cuáles son las conclusiones?"
+chispart pdf ~/storage/shared/Documents/informe.pdf "¿Cuáles son las conclusiones?"
 ```
 
 ### Chat Productivo
 ```bash
 # Sesión de trabajo
-llm-interactive
+chispart interactivo
 
 # En la sesión:
 # > "Ayúdame a escribir un email profesional"
@@ -259,14 +261,14 @@ llm-interactive
 
 ```bash
 # Actualizar el proyecto
-cd ~/cli-universal-llms
+cd ~/chispart-cli-llm
 git pull origin main
 
 # Reinstalar dependencias si es necesario
-pip install -r requirements.txt
+pip install -r requirements_termux.txt
 
 # Verificar que todo funciona
-llm-status
+chispart-status
 ```
 
 ## 💡 Tips y Trucos
@@ -290,9 +292,9 @@ llm-status
 
 Si encuentras problemas específicos de Termux:
 
-1. **Ejecuta**: `llm-status` para diagnóstico
+1. **Ejecuta**: `chispart-status` para diagnóstico
 2. **Verifica**: Conexión a internet y permisos
-3. **Consulta**: Los logs en `~/.config/llm-cli/`
+3. **Consulta**: Los logs en `~/.config/chispart/`
 4. **Reporta**: Issues en el repositorio de GitHub
 
 ---
@@ -301,4 +303,4 @@ Si encuentras problemas específicos de Termux:
 
 Con esta optimización para Termux, tienes acceso completo a múltiples APIs de IA directamente desde tu dispositivo Android. ¡Perfecto para productividad móvil, aprendizaje, y experimentación con IA!
 
-**¿Listo para empezar?** Ejecuta `llm-setup` y comienza a chatear con IA desde tu móvil. 🚀
+**¿Listo para empezar?** Ejecuta `chispart-setup` y comienza a chatear con IA desde tu móvil. 🚀

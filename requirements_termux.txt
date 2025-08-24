@@ -13,9 +13,9 @@ Flask>=2.0.0,<3.0.0
 # Procesamiento de imágenes
 Pillow>=10.0.0,<11.0.0
 
-# PDF processing (puede fallar en algunos dispositivos)
-# Si falla, el resto de la aplicación seguirá funcionando
-PyMuPDF>=1.24.0; platform_machine != "aarch64" or python_version >= "3.8"
+# PDF processing
+# Se usa pypdf por ser una biblioteca pura de Python, compatible con Termux.
+pypdf>=6.0.0
 
 # Development & Testing (opcional)
 pytest>=8.0.0,<9.0.0
