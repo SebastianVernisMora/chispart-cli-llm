@@ -179,10 +179,11 @@ chmod +x ~/bin/chispart-service
 chmod +x ~/bin/chispart-setup
 chmod +x ~/bin/chispart-status
 
-print_header "Creando alias útiles..."
+print_header "Configurando PATH y creando alias..."
 cat >> ~/.bashrc << 'EOF'
 
-# 🚀 Chispart-CLI-LLM Aliases
+# 🚀 Chispart-CLI-LLM PATH & Aliases
+export PATH="$HOME/bin:$PATH"
 alias chs='chispart'
 alias chs-chat='chispart chat'
 alias chs-image='chispart imagen'

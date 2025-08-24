@@ -143,10 +143,11 @@ chmod +x ~/bin/llm-setup
 chmod +x ~/bin/chispart-ui
 chmod +x ~/bin/chispart-service
 
-print_status "Creando alias útiles..."
+print_status "Configurando PATH y creando alias..."
 cat >> ~/.bashrc << 'EOF'
 
-# Alias para CLI Universal LLMs
+# Alias y PATH para CLI Universal LLMs
+export PATH="$HOME/bin:$PATH"
 alias llm='llm-cli'
 alias llm-chat='llm-cli chat'
 alias llm-image='llm-cli imagen'
