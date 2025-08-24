@@ -6,7 +6,6 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/version-0.1.0-blue?style=for-the-badge&logo=git&logoColor=0A0A0A&labelColor=1A1A1A" alt="Version">
-  <img src="https://img.shields.io/badge/node-%3E%3D18.0.0-green?style=for-the-badge&logo=node.js&logoColor=0A0A0A&labelColor=1A1A1A" alt="Node.js">
   <img src="https://img.shields.io/badge/license-MIT-yellow?style=for-the-badge&logo=open-source-initiative&logoColor=0A0A0A&labelColor=1A1A1A" alt="License">
   <img src="https://img.shields.io/badge/status-active-success?style=for-the-badge&logo=statuspage&logoColor=0A0A0A&labelColor=1A1A1A" alt="Status">
   <img src="https://img.shields.io/badge/contributions-welcome-orange?style=for-the-badge&logo=github&logoColor=0A0A0A&labelColor=1A1A1A" alt="Contributions Welcome">
@@ -413,9 +412,9 @@ chs chat "¡Hola, Chispart!"
 
 <div align="center">
 
-**🚀 Chispart-CLI-LLM**
+### 🚀 Chispart-CLI-LLM
 
-*Where Mobile Meets AI, Where Terminal Meets Innovation*
+_Where Mobile Meets AI, Where Terminal Meets Innovation_
 
 [![GitHub](https://img.shields.io/badge/GitHub-Chispart--CLI--LLM-00FF88?style=for-the-badge&logo=github&logoColor=0A0A0A&labelColor=1A1A1A)](https://github.com/SebastianVernisMora/chispart-cli-llm)
 [![Termux](https://img.shields.io/badge/Optimized-Termux-BB88FF?style=for-the-badge&logo=android&logoColor=0A0A0A&labelColor=1A1A1A)](https://termux.com)
