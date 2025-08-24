@@ -51,8 +51,13 @@ def get_api_config(api_name=None):
         api_name = DEFAULT_API
     
     config = AVAILABLE_APIS[api_name]
-    api_key = os.getenv(config["default_key_env"], config["default_key"])
     
+    # Compatibilidad retro: permitir BLACKBOX_API_KEY o CHISPART_API_KEY
+    if api_name == "chispart":
+        api_key = os.getenv("CHISPART_API_KEY") or os.getenv("BLACKBOX_API_KEY") or config.get("default_key", "")
+    else:
+        api_key = os.getenv(config["default_key_env"], config.get("default_key", ""))
+
     # Añadir configuración de timeouts optimizada
     result = {
         "name": config["name"],
