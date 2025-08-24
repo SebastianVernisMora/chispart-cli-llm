@@ -69,37 +69,37 @@ Primero, haz el script ejecutable (opcional, solo en Linux/Mac):
 chmod +x chispart_cli.py
 ```
 
-#### Configurar claves de API (recomendado)
+**Configurar Claves de API (Recomendado)**
 ```bash
 python chispart_cli.py configure
 ```
 
-#### Ver ayuda
+**Ver Ayuda**
 ```bash
 python chispart_cli.py --help
 ```
 
-#### Chat de texto
+**Chat de Texto**
 ```bash
 python chispart_cli.py chat "¿Cuál es la capital de Francia?"
 ```
 
-#### Análisis de imágenes
+**Análisis de Imágenes**
 ```bash
 python chispart_cli.py imagen foto.jpg --prompt "¿Qué colores predominan?"
 ```
 
-#### Análisis de PDF
+**Análisis de PDFs**
 ```bash
 python chispart_cli.py pdf documento.pdf --prompt "Resume los puntos clave."
 ```
 
-#### Modo interactivo
+**Modo Interactivo**
 ```bash
 python chispart_cli.py interactivo
 ```
 
-#### Ver historial y modelos
+**Ver Historial y Modelos**
 ```bash
 # Ver historial de conversaciones
 python chispart_cli.py historial
@@ -110,7 +110,7 @@ python chispart_cli.py modelos
 
 ## 🛠️ Estructura del Proyecto
 
-```text
+```
 .
 ├── app.py               # Backend de la Interfaz Web (Flask)
 ├── chispart_cli.py      # Interfaz de Línea de Comandos (Click)
