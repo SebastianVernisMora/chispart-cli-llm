@@ -190,5 +190,28 @@
     },
     "timestamp": "2025-08-22T08:31:12.095028",
     "request_id": "851fd62c-43c8-4b86-b13d-9669f02a8ab4"
+  },
+  {
+    "type": "chat",
+    "api": "chispart",
+    "model": "gpt-4",
+    "message": "Hola, ¿cómo estás?",
+    "response": "¡Hola! Soy una inteligencia artificial, así que no tengo emociones, pero gracias por preguntar. ¿Cómo puedo ayudarte hoy?",
+    "usage": {
+      "completion_tokens": 30,
+      "prompt_tokens": 15,
+      "total_tokens": 45,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 0,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": 0,
+        "cached_tokens": 0
+      }
+    },
+    "timestamp": "2025-08-24T01:14:21.713899"
   }
 ]

@@ -91,7 +91,7 @@ mkdir -p ~/tmp
 mkdir -p ~/.config/llm-cli
 
 print_status "Configurando permisos..."
-chmod +x blackbox_cli.py
+chmod +x chispart_cli.py
 chmod +x app.py
 
 print_status "Creando scripts de conveniencia..."
@@ -100,7 +100,7 @@ print_status "Creando scripts de conveniencia..."
 cat > ~/bin/llm-cli << 'EOF'
 #!/data/data/com.termux/files/usr/bin/bash
 cd ~/cli-universal-llms
-python blackbox_cli.py "$@"
+python chispart_cli.py "$@"
 EOF
 
 # Script para interfaz web
@@ -119,29 +119,29 @@ cat > ~/bin/llm-setup << 'EOF'
 #!/data/data/com.termux/files/usr/bin/bash
 cd ~/cli-universal-llms
 echo "🔧 Configurando CLI Universal para LLMs..."
-python blackbox_cli.py configure
+python chispart_cli.py configure
 EOF
 
 # Script para UI automática con navegador
-cat > ~/bin/blackbox-ui << 'EOF'
+cat > ~/bin/chispart-ui << 'EOF'
 #!/data/data/com.termux/files/usr/bin/bash
 cd ~/cli-universal-llms
-./blackbox-ui "$@"
+./chispart-ui "$@"
 EOF
 
 # Script para gestión de servicio persistente
-cat > ~/bin/blackbox-service << 'EOF'
+cat > ~/bin/chispart-service << 'EOF'
 #!/data/data/com.termux/files/usr/bin/bash
 cd ~/cli-universal-llms
-./blackbox-service "$@"
+./chispart-service "$@"
 EOF
 
 # Hacer ejecutables los scripts
 chmod +x ~/bin/llm-cli
 chmod +x ~/bin/llm-web
 chmod +x ~/bin/llm-setup
-chmod +x ~/bin/blackbox-ui
-chmod +x ~/bin/blackbox-service
+chmod +x ~/bin/chispart-ui
+chmod +x ~/bin/chispart-service
 
 print_status "Creando alias útiles..."
 cat >> ~/.bashrc << 'EOF'
@@ -156,25 +156,25 @@ alias llm-history='llm-cli historial'
 alias llm-interactive='llm-cli interactivo'
 
 # Alias para interfaz web y servicios
-alias llm-ui='blackbox-ui'
-alias llm-service='blackbox-service'
-alias llm-start='blackbox-service start'
-alias llm-stop='blackbox-service stop'
-alias llm-restart='blackbox-service restart'
-alias llm-logs='blackbox-service logs'
+alias llm-ui='chispart-ui'
+alias llm-service='chispart-service'
+alias llm-start='chispart-service start'
+alias llm-stop='chispart-service stop'
+alias llm-restart='chispart-service restart'
+alias llm-logs='chispart-service logs'
 
 EOF
 
 print_success "¡Instalación completada!"
 echo ""
-echo "📱 CLI Universal para LLMs está listo para usar en Termux"
+echo "📱 Chispart-CLI-LLM está listo para usar en Termux"
 echo ""
 echo "🚀 Comandos disponibles:"
 echo "  llm-setup          - Configurar claves API"
 echo "  llm-cli --help     - Ver ayuda completa"
 echo "  llm-web            - Iniciar interfaz web"
-echo "  blackbox-ui        - Interfaz web con navegador automático"
-echo "  blackbox-service   - Gestionar servicio persistente"
+echo "  chispart-ui        - Interfaz web con navegador automático"
+echo "  chispart-service   - Gestionar servicio persistente"
 echo "  llm chat 'mensaje' - Enviar mensaje rápido"
 echo "  llm-interactive    - Modo chat interactivo"
 echo ""
@@ -182,8 +182,8 @@ echo "📚 Para empezar:"
 echo "  1. Ejecuta: llm-setup"
 echo "  2. Configura tu clave API"
 echo "  3. Prueba: llm chat 'Hola, ¿cómo estás?'"
-echo "  4. Interfaz web: blackbox-ui"
-echo "  5. Servicio persistente: blackbox-service start"
+echo "  4. Interfaz web: chispart-ui"
+echo "  5. Servicio persistente: chispart-service start"
 echo ""
 echo "💡 Reinicia tu terminal o ejecuta: source ~/.bashrc"
 echo "   para activar los nuevos alias"

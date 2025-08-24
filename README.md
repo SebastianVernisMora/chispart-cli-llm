@@ -65,7 +65,7 @@ cd chispart-cli-llm
 pip install -r requirements.txt
 
 # Configurar
-python blackbox_cli.py configure
+python chispart_cli.py configure
 ```
 
 ## 📱 **Comandos Principales**

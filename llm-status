@@ -60,7 +60,7 @@ echo ""
 
 # Verificar archivos del proyecto
 echo "📁 Archivos del proyecto:"
-files=("blackbox_cli.py" "app.py" "config.py" "utils.py" "termux_utils.py")
+files=("chispart_cli.py" "app.py" "config.py" "utils.py" "termux_utils.py")
 for file in "${files[@]}"; do
     if [ -f "$file" ]; then
         echo "   ✅ $file"

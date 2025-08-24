@@ -1,4 +1,4 @@
-# 🤖 CLI Universal para LLMs (y ahora con Interfaz Web)
+# 🤖 Chispart-CLI-LLM (y ahora con Interfaz Web)
 
 Una aplicación para interactuar con múltiples APIs de LLM. Permite enviar mensajes de texto, analizar imágenes y procesar documentos PDF usando diferentes proveedores de IA, tanto desde la línea de comandos (CLI) como desde una cómoda interfaz web.
 
@@ -17,7 +17,7 @@ Una aplicación para interactuar con múltiples APIs de LLM. Permite enviar mens
 - **Renderizado de Markdown**: Las respuestas se muestran con formato, incluyendo resaltado de sintaxis para bloques de código.
 - **Historial Interactivo**: Carga y revisa conversaciones pasadas directamente en la interfaz.
 
-### Interfaz de Línea de Comandos (`blackbox_cli.py`)
+### Interfaz de Línea de Comandos (`chispart_cli.py`)
 - **Chat de Texto**: Envía mensajes y recibe respuestas desde la terminal.
 - **Análisis de Archivos**: Procesa imágenes y PDFs locales.
 - **Modo Interactivo**: Mantén una conversación continua con historial de sesión.
@@ -34,7 +34,7 @@ Una aplicación para interactuar con múltiples APIs de LLM. Permite enviar mens
 3.  **Configura tus claves de API (Recomendado)**:
     Usa el nuevo comando interactivo para configurar tus claves de forma fácil y segura.
     ```bash
-    python blackbox_cli.py configure
+    python chispart_cli.py configure
     ```
     Esto guardará tus claves en un archivo `.env` que la aplicación cargará automáticamente.
 
@@ -66,46 +66,46 @@ Luego, abre tu navegador y ve a `http://127.0.0.1:5000`.
 
 Primero, haz el script ejecutable (opcional, solo en Linux/Mac):
 ```bash
-chmod +x blackbox_cli.py
+chmod +x chispart_cli.py
 ```
 
 **Configurar Claves de API (Recomendado)**
 ```bash
-python blackbox_cli.py configure
+python chispart_cli.py configure
 ```
 
 **Ver Ayuda**
 ```bash
-python blackbox_cli.py --help
+python chispart_cli.py --help
 ```
 
 **Chat de Texto**
 ```bash
-python blackbox_cli.py chat "¿Cuál es la capital de Francia?"
+python chispart_cli.py chat "¿Cuál es la capital de Francia?"
 ```
 
 **Análisis de Imágenes**
 ```bash
-python blackbox_cli.py imagen foto.jpg --prompt "¿Qué colores predominan?"
+python chispart_cli.py imagen foto.jpg --prompt "¿Qué colores predominan?"
 ```
 
 **Análisis de PDFs**
 ```bash
-python blackbox_cli.py pdf documento.pdf --prompt "Resume los puntos clave."
+python chispart_cli.py pdf documento.pdf --prompt "Resume los puntos clave."
 ```
 
 **Modo Interactivo**
 ```bash
-python blackbox_cli.py interactivo
+python chispart_cli.py interactivo
 ```
 
 **Ver Historial y Modelos**
 ```bash
 # Ver historial de conversaciones
-python blackbox_cli.py historial
+python chispart_cli.py historial
 
 # Listar modelos disponibles para la API por defecto
-python blackbox_cli.py modelos
+python chispart_cli.py modelos
 ```
 
 ## 🛠️ Estructura del Proyecto
@@ -113,7 +113,7 @@ python blackbox_cli.py modelos
 ```
 .
 ├── app.py               # Backend de la Interfaz Web (Flask)
-├── blackbox_cli.py      # Interfaz de Línea de Comandos (Click)
+├── chispart_cli.py      # Interfaz de Línea de Comandos (Click)
 ├── static/
 │   └── chat_interface.html # Frontend de la Interfaz Web
 ├── tests/               # Pruebas unitarias (pytest)
@@ -128,7 +128,7 @@ python blackbox_cli.py modelos
 ## 🐛 Solución de Problemas
 
 ### Error: Clave API no configurada
-**Solución**: Asegúrate de haber configurado tu clave de API. La forma más fácil es con el comando `python blackbox_cli.py configure`.
+**Solución**: Asegúrate de haber configurado tu clave de API. La forma más fácil es con el comando `python chispart_cli.py configure`.
 
 ### Error de Archivo No Encontrado
 **Solución**: Verifica que la ruta del archivo que pasas como argumento sea correcta y que el archivo exista.

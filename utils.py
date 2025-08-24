@@ -10,14 +10,24 @@ from typing import Optional, Dict, Any
 from datetime import datetime
 from config import SUPPORTED_IMAGE_TYPES, SUPPORTED_PDF_TYPES
 
-# Importar PyMuPDF con manejo de errores para Termux
+# Importar PyMuPDF (rápido, con dependencias C)
 try:
     import fitz  # PyMuPDF
     PYMUPDF_AVAILABLE = True
 except ImportError:
     PYMUPDF_AVAILABLE = False
-    print("⚠️  PyMuPDF no está disponible. El análisis de PDF estará limitado.")
-    print("   Instala con: pip install PyMuPDF")
+
+# Importar pypdf (alternativa pura de Python, ideal para Termux)
+try:
+    from pypdf import PdfReader
+    PYPDF_AVAILABLE = True
+except ImportError:
+    PYPDF_AVAILABLE = False
+
+if not PYMUPDF_AVAILABLE and not PYPDF_AVAILABLE:
+    print("⚠️  No se encontró ninguna biblioteca para procesar PDF (PyMuPDF, pypdf).")
+    print("   El análisis de PDF no estará disponible.")
+    print("   Instala una de las dos: pip install PyMuPDF | pip install pypdf")
 
 # Importar utilidades de Termux
 try:
@@ -104,7 +114,7 @@ def create_image_data_url(file_path: str) -> str:
 def extract_text_from_pdf(file_path: str) -> str:
     """
     Extrae el texto de un archivo PDF.
-    Optimizado para Termux con fallback cuando PyMuPDF no está disponible.
+    Usa PyMuPDF si está disponible (más rápido), o pypdf como alternativa (más compatible).
     
     Args:
         file_path: Ruta del archivo PDF.
@@ -114,25 +124,30 @@ def extract_text_from_pdf(file_path: str) -> str:
 
     Raises:
         FileNotFoundError: Si el archivo no existe.
-        Exception: Para otros errores relacionados con el procesamiento del PDF.
+        Exception: Si no hay bibliotecas de PDF disponibles o hay un error.
     """
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"El archivo {file_path} no existe")
 
-    if not PYMUPDF_AVAILABLE:
-        raise Exception(
-            "PyMuPDF no está disponible. No se puede procesar archivos PDF.\n"
-            "Instala PyMuPDF con: pip install PyMuPDF\n"
-            "En Termux, puede que necesites: pkg install clang make"
-        )
-
+    text = ""
     try:
-        doc = fitz.open(file_path)
-        text = ""
-        for page in doc:
-            text += page.get_text()
-        doc.close()
-        
+        if PYMUPDF_AVAILABLE:
+            # Usar PyMuPDF (fitz) - es más rápido y robusto
+            doc = fitz.open(file_path)
+            for page in doc:
+                text += page.get_text()
+            doc.close()
+        elif PYPDF_AVAILABLE:
+            # Usar pypdf - alternativa pura de Python
+            reader = PdfReader(file_path)
+            for page in reader.pages:
+                text += page.extract_text() or ""
+        else:
+            raise Exception(
+                "No hay una biblioteca de procesamiento de PDF disponible.\n"
+                "Instala una con: pip install PyMuPDF o pip install pypdf"
+            )
+
         # Aplicar límites optimizados para móviles
         limits = optimize_file_size_limits()
         max_chars = limits['max_text_chars']
