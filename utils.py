@@ -113,53 +113,44 @@ def create_image_data_url(file_path: str) -> str:
 
 def extract_text_from_pdf(file_path: str) -> str:
     """
-    Extrae el texto de un archivo PDF.
-    Usa PyMuPDF si está disponible (más rápido), o pypdf como alternativa (más compatible).
-    
-    Args:
-        file_path: Ruta del archivo PDF.
-        
-    Returns:
-        El texto extraído del PDF.
-
-    Raises:
-        FileNotFoundError: Si el archivo no existe.
-        Exception: Si no hay bibliotecas de PDF disponibles o hay un error.
+    Extrae el texto de un archivo PDF con cierre seguro de recursos.
     """
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"El archivo {file_path} no existe")
+    if not str(file_path).lower().endswith(tuple(SUPPORTED_PDF_TYPES)):
+        raise ValueError(f"Tipo de archivo no soportado para PDF: {file_path}")
 
     text = ""
-    try:
-        if PYMUPDF_AVAILABLE:
-            # Usar PyMuPDF (fitz) - es más rápido y robusto
+    if PYMUPDF_AVAILABLE:
+        doc = None
+        try:
             doc = fitz.open(file_path)
             for page in doc:
                 text += page.get_text()
-            doc.close()
-        elif PYPDF_AVAILABLE:
-            # Usar pypdf - alternativa pura de Python
+        finally:
+            if doc is not None:
+                doc.close()
+    elif PYPDF_AVAILABLE:
+        # pypdf no requiere cierre explícito cuando se pasa ruta
+        try:
             reader = PdfReader(file_path)
             for page in reader.pages:
-                text += page.extract_text() or ""
-        else:
-            raise Exception(
-                "No hay una biblioteca de procesamiento de PDF disponible.\n"
-                "Instala una con: pip install PyMuPDF o pip install pypdf"
-            )
+                extracted = page.extract_text()
+                if extracted:
+                    text += extracted
+        except Exception as e:
+            raise Exception(f"Error procesando PDF con pypdf: {e}") from e
+    else:
+        raise Exception(
+            "No hay una biblioteca de procesamiento de PDF disponible.\n"
+            "Instala una con: pip install PyMuPDF o pip install pypdf"
+        )
 
-        # Aplicar límites optimizados para móviles
-        limits = optimize_file_size_limits()
-        max_chars = limits['max_text_chars']
-        
-        if len(text) > max_chars:
-            text = text[:max_chars] + "\n\n[... CONTENIDO TRUNCADO PARA OPTIMIZAR RENDIMIENTO ...]"
-            if is_termux():
-                print(f"⚠️  Texto truncado a {max_chars} caracteres para optimizar rendimiento en móvil")
-        
-        return text
-    except Exception as e:
-        raise Exception(f"No se pudo procesar el archivo PDF {file_path}: {str(e)}")
+    limits = optimize_file_size_limits()
+    max_chars = limits['max_text_chars']
+    if len(text) > max_chars:
+        text = text[:max_chars] + "\n\n[Texto truncado por límites de dispositivo]"
+    return text
 
 
 def is_supported_image(file_path: str) -> bool:
