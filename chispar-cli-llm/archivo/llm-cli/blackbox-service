@@ -1,0 +1,471 @@
+#!/bin/bash
+
+# Script avanzado para gestión del servicio persistente BlackboxAI UI
+# Incluye auto-inicio, monitoreo y recuperación automática
+
+# Configuración
+PROJECT_DIR="$HOME/cli-universal-llms"
+SERVICE_SCRIPT="$HOME/.blackbox-ui-service.sh"
+LOG_FILE="$HOME/.blackbox-ui.log"
+PID_FILE="$HOME/.blackbox-ui.pid"
+CONFIG_FILE="$HOME/.blackbox-ui-config"
+MONITOR_PID_FILE="$HOME/.blackbox-ui-monitor.pid"
+
+# Colores
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+PURPLE='\033[0;35m'
+CYAN='\033[0;36m'
+NC='\033[0m'
+
+print_header() {
+    echo -e "${PURPLE}"
+    echo "╔══════════════════════════════════════════════════════════════╗"
+    echo "║              🔧 BlackboxAI Service Manager                   ║"
+    echo "║                Gestión de Servicio Persistente              ║"
+    echo "╚══════════════════════════════════════════════════════════════╝"
+    echo -e "${NC}"
+}
+
+print_status() {
+    echo -e "${BLUE}[INFO]${NC} $1"
+}
+
+print_success() {
+    echo -e "${GREEN}[SUCCESS]${NC} $1"
+}
+
+print_warning() {
+    echo -e "${YELLOW}[WARNING]${NC} $1"
+}
+
+print_error() {
+    echo -e "${RED}[ERROR]${NC} $1"
+}
+
+# Función para detectar si estamos en Termux
+is_termux() {
+    [ -d "/data/data/com.termux" ] || [[ "$PREFIX" == *"com.termux"* ]]
+}
+
+# Función para verificar si el servicio está ejecutándose
+is_service_running() {
+    if [ -f "$PID_FILE" ]; then
+        local pid=$(cat "$PID_FILE")
+        if kill -0 "$pid" 2>/dev/null; then
+            return 0
+        else
+            rm -f "$PID_FILE"
+            return 1
+        fi
+    fi
+    return 1
+}
+
+# Función para verificar si el monitor está ejecutándose
+is_monitor_running() {
+    if [ -f "$MONITOR_PID_FILE" ]; then
+        local pid=$(cat "$MONITOR_PID_FILE")
+        if kill -0 "$pid" 2>/dev/null; then
+            return 0
+        else
+            rm -f "$MONITOR_PID_FILE"
+            return 1
+        fi
+    fi
+    return 1
+}
+
+# Función para crear la configuración por defecto
+create_default_config() {
+    cat > "$CONFIG_FILE" << EOF
+# Configuración del servicio BlackboxAI UI
+AUTO_START=true
+AUTO_RESTART=true
+MONITOR_INTERVAL=30
+MAX_RESTART_ATTEMPTS=5
+RESTART_DELAY=10
+ENABLE_LOGGING=true
+LOG_ROTATION=true
+MAX_LOG_SIZE=10M
+EOF
+    print_success "Configuración por defecto creada en $CONFIG_FILE"
+}
+
+# Función para cargar configuración
+load_config() {
+    if [ -f "$CONFIG_FILE" ]; then
+        source "$CONFIG_FILE"
+    else
+        create_default_config
+        source "$CONFIG_FILE"
+    fi
+}
+
+# Función para iniciar el servicio
+start_service() {
+    if is_service_running; then
+        print_warning "El servicio ya está ejecutándose (PID: $(cat "$PID_FILE"))"
+        return 1
+    fi
+    
+    print_status "Iniciando servicio BlackboxAI UI..."
+    
+    # Verificar que el proyecto existe
+    if [ ! -f "$PROJECT_DIR/app.py" ]; then
+        print_error "No se encontró el proyecto en $PROJECT_DIR"
+        return 1
+    fi
+    
+    cd "$PROJECT_DIR"
+    
+    # Configurar variables de entorno
+    export FLASK_ENV=production
+    export FLASK_DEBUG=false
+    
+    # Iniciar el servicio
+    nohup python3 app.py > "$LOG_FILE" 2>&1 &
+    local pid=$!
+    echo $pid > "$PID_FILE"
+    
+    # Esperar un momento para verificar que se inició correctamente
+    sleep 3
+    
+    if is_service_running; then
+        print_success "Servicio iniciado correctamente (PID: $pid)"
+        print_status "Logs disponibles en: $LOG_FILE"
+        print_status "Acceso web: http://localhost:5000"
+        return 0
+    else
+        print_error "El servicio falló al iniciar"
+        if [ -f "$LOG_FILE" ]; then
+            print_status "Últimas líneas del log:"
+            tail -10 "$LOG_FILE"
+        fi
+        return 1
+    fi
+}
+
+# Función para detener el servicio
+stop_service() {
+    if ! is_service_running; then
+        print_warning "El servicio no está ejecutándose"
+        return 1
+    fi
+    
+    local pid=$(cat "$PID_FILE")
+    print_status "Deteniendo servicio (PID: $pid)..."
+    
+    # Intentar detener gracefully
+    kill "$pid" 2>/dev/null
+    
+    # Esperar hasta 10 segundos
+    for i in {1..10}; do
+        if ! kill -0 "$pid" 2>/dev/null; then
+            break
+        fi
+        sleep 1
+    done
+    
+    # Si aún está ejecutándose, forzar
+    if kill -0 "$pid" 2>/dev/null; then
+        print_warning "Forzando detención del servicio..."
+        kill -9 "$pid" 2>/dev/null
+    fi
+    
+    rm -f "$PID_FILE"
+    print_success "Servicio detenido"
+}
+
+# Función para reiniciar el servicio
+restart_service() {
+    print_status "Reiniciando servicio..."
+    stop_service
+    sleep 2
+    start_service
+}
+
+# Función para mostrar el estado del servicio
+show_status() {
+    print_header
+    
+    echo -e "${CYAN}📊 Estado del Servicio:${NC}"
+    if is_service_running; then
+        local pid=$(cat "$PID_FILE")
+        echo -e "   Estado: ${GREEN}✅ Ejecutándose${NC} (PID: $pid)"
+        
+        # Mostrar información adicional del proceso
+        if command -v ps >/dev/null 2>&1; then
+            local cpu_mem=$(ps -p "$pid" -o %cpu,%mem --no-headers 2>/dev/null)
+            if [ -n "$cpu_mem" ]; then
+                echo "   Recursos: CPU: $(echo $cpu_mem | awk '{print $1}')%, RAM: $(echo $cpu_mem | awk '{print $2}')%"
+            fi
+        fi
+        
+        # Tiempo de ejecución
+        if [ -f "$PID_FILE" ]; then
+            local start_time=$(stat -c %Y "$PID_FILE" 2>/dev/null)
+            if [ -n "$start_time" ]; then
+                local current_time=$(date +%s)
+                local uptime=$((current_time - start_time))
+                local hours=$((uptime / 3600))
+                local minutes=$(((uptime % 3600) / 60))
+                echo "   Tiempo activo: ${hours}h ${minutes}m"
+            fi
+        fi
+    else
+        echo -e "   Estado: ${RED}❌ Detenido${NC}"
+    fi
+    
+    echo ""
+    echo -e "${CYAN}🔍 Monitor:${NC}"
+    if is_monitor_running; then
+        echo -e "   Estado: ${GREEN}✅ Activo${NC} (PID: $(cat "$MONITOR_PID_FILE"))"
+    else
+        echo -e "   Estado: ${RED}❌ Inactivo${NC}"
+    fi
+    
+    echo ""
+    echo -e "${CYAN}📁 Archivos:${NC}"
+    echo "   Proyecto: $PROJECT_DIR"
+    echo "   Logs: $LOG_FILE"
+    echo "   PID: $PID_FILE"
+    echo "   Config: $CONFIG_FILE"
+    
+    if [ -f "$LOG_FILE" ]; then
+        local log_size=$(du -h "$LOG_FILE" 2>/dev/null | cut -f1)
+        echo "   Tamaño log: $log_size"
+    fi
+    
+    echo ""
+    echo -e "${CYAN}🌐 Acceso:${NC}"
+    echo "   Local: http://localhost:5000"
+    if command -v ip >/dev/null 2>&1; then
+        local ip=$(ip route get 1.1.1.1 2>/dev/null | grep -oP 'src \K\S+')
+        if [ -n "$ip" ]; then
+            echo "   Red: http://$ip:5000"
+        fi
+    fi
+}
+
+# Función para mostrar logs en tiempo real
+show_logs() {
+    if [ ! -f "$LOG_FILE" ]; then
+        print_error "Archivo de log no encontrado: $LOG_FILE"
+        return 1
+    fi
+    
+    print_status "Mostrando logs en tiempo real (Ctrl+C para salir)..."
+    echo ""
+    tail -f "$LOG_FILE"
+}
+
+# Función para limpiar logs
+clean_logs() {
+    if [ -f "$LOG_FILE" ]; then
+        local log_size=$(du -h "$LOG_FILE" 2>/dev/null | cut -f1)
+        print_status "Limpiando logs (tamaño actual: $log_size)..."
+        > "$LOG_FILE"
+        print_success "Logs limpiados"
+    else
+        print_warning "No hay logs para limpiar"
+    fi
+}
+
+# Función para el monitor automático
+start_monitor() {
+    if is_monitor_running; then
+        print_warning "El monitor ya está ejecutándose"
+        return 1
+    fi
+    
+    load_config
+    
+    print_status "Iniciando monitor automático..."
+    
+    # Script del monitor
+    cat > "/tmp/blackbox-monitor-$$" << 'EOF'
+#!/bin/bash
+MONITOR_PID_FILE="$HOME/.blackbox-ui-monitor.pid"
+PID_FILE="$HOME/.blackbox-ui.pid"
+LOG_FILE="$HOME/.blackbox-ui.log"
+CONFIG_FILE="$HOME/.blackbox-ui-config"
+
+# Guardar PID del monitor
+echo $$ > "$MONITOR_PID_FILE"
+
+# Cargar configuración
+source "$CONFIG_FILE" 2>/dev/null || {
+    MONITOR_INTERVAL=30
+    MAX_RESTART_ATTEMPTS=5
+    RESTART_DELAY=10
+}
+
+restart_count=0
+
+while true; do
+    if [ -f "$PID_FILE" ]; then
+        pid=$(cat "$PID_FILE")
+        if ! kill -0 "$pid" 2>/dev/null; then
+            echo "$(date): Servicio caído, reiniciando..." >> "$LOG_FILE"
+            
+            if [ $restart_count -lt $MAX_RESTART_ATTEMPTS ]; then
+                rm -f "$PID_FILE"
+                cd "$HOME/cli-universal-llms"
+                nohup python3 app.py >> "$LOG_FILE" 2>&1 &
+                echo $! > "$PID_FILE"
+                restart_count=$((restart_count + 1))
+                echo "$(date): Servicio reiniciado (intento $restart_count)" >> "$LOG_FILE"
+                sleep $RESTART_DELAY
+            else
+                echo "$(date): Máximo de reintentos alcanzado" >> "$LOG_FILE"
+                break
+            fi
+        else
+            restart_count=0
+        fi
+    fi
+    
+    sleep $MONITOR_INTERVAL
+done
+
+rm -f "$MONITOR_PID_FILE"
+EOF
+    
+    chmod +x "/tmp/blackbox-monitor-$$"
+    nohup "/tmp/blackbox-monitor-$$" >/dev/null 2>&1 &
+    
+    print_success "Monitor iniciado"
+}
+
+# Función para detener el monitor
+stop_monitor() {
+    if ! is_monitor_running; then
+        print_warning "El monitor no está ejecutándose"
+        return 1
+    fi
+    
+    local pid=$(cat "$MONITOR_PID_FILE")
+    print_status "Deteniendo monitor (PID: $pid)..."
+    kill "$pid" 2>/dev/null
+    rm -f "$MONITOR_PID_FILE"
+    print_success "Monitor detenido"
+}
+
+# Función para configurar auto-inicio en Termux
+setup_autostart() {
+    if ! is_termux; then
+        print_error "Auto-inicio solo disponible en Termux"
+        return 1
+    fi
+    
+    local bashrc="$HOME/.bashrc"
+    local autostart_line="# Auto-start BlackboxAI UI service"
+    local service_line="$HOME/.blackbox-ui-service.sh start >/dev/null 2>&1 &"
+    
+    if grep -q "$autostart_line" "$bashrc" 2>/dev/null; then
+        print_warning "Auto-inicio ya está configurado"
+        return 1
+    fi
+    
+    print_status "Configurando auto-inicio..."
+    
+    echo "" >> "$bashrc"
+    echo "$autostart_line" >> "$bashrc"
+    echo "$service_line" >> "$bashrc"
+    
+    print_success "Auto-inicio configurado"
+    print_status "El servicio se iniciará automáticamente al abrir Termux"
+}
+
+# Función para mostrar ayuda
+show_help() {
+    echo "🔧 BlackboxAI Service Manager"
+    echo ""
+    echo "Uso: blackbox-service <comando> [opciones]"
+    echo ""
+    echo "Comandos:"
+    echo "  start           Iniciar el servicio"
+    echo "  stop            Detener el servicio"
+    echo "  restart         Reiniciar el servicio"
+    echo "  status          Mostrar estado del servicio"
+    echo "  logs            Mostrar logs en tiempo real"
+    echo "  clean-logs      Limpiar archivos de log"
+    echo "  monitor-start   Iniciar monitor automático"
+    echo "  monitor-stop    Detener monitor automático"
+    echo "  setup-autostart Configurar auto-inicio (solo Termux)"
+    echo "  config          Editar configuración"
+    echo ""
+    echo "Ejemplos:"
+    echo "  blackbox-service start          # Iniciar servicio"
+    echo "  blackbox-service status         # Ver estado"
+    echo "  blackbox-service logs           # Ver logs en tiempo real"
+    echo "  blackbox-service setup-autostart # Configurar auto-inicio"
+}
+
+# Función principal
+main() {
+    case "${1:-}" in
+        start)
+            start_service
+            ;;
+        stop)
+            stop_service
+            ;;
+        restart)
+            restart_service
+            ;;
+        status)
+            show_status
+            ;;
+        logs)
+            show_logs
+            ;;
+        clean-logs)
+            clean_logs
+            ;;
+        monitor-start)
+            start_monitor
+            ;;
+        monitor-stop)
+            stop_monitor
+            ;;
+        setup-autostart)
+            setup_autostart
+            ;;
+        config)
+            if command -v nano >/dev/null 2>&1; then
+                nano "$CONFIG_FILE"
+            elif command -v vi >/dev/null 2>&1; then
+                vi "$CONFIG_FILE"
+            else
+                print_error "No se encontró editor de texto"
+                print_status "Edita manualmente: $CONFIG_FILE"
+            fi
+            ;;
+        --help|-h|help)
+            show_help
+            ;;
+        "")
+            show_help
+            ;;
+        *)
+            print_error "Comando desconocido: $1"
+            echo ""
+            show_help
+            exit 1
+            ;;
+    esac
+}
+
+# Verificar que estamos en el directorio correcto
+if [ ! -f "$PROJECT_DIR/app.py" ]; then
+    print_error "Proyecto no encontrado en $PROJECT_DIR"
+    print_status "Asegúrate de que el CLI Universal LLMs esté instalado"
+    exit 1
+fi
+
+# Ejecutar función principal
+main "$@"

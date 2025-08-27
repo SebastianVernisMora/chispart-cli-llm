@@ -1,0 +1,46 @@
+{
+  "name": "chispart-mobile",
+  "version": "1.0.0",
+  "description": "Chispart CLI LLM - Optimizado para dispositivos móviles y Termux",
+  "main": "app.py",
+  "scripts": {
+    "start": "python3 app.py",
+    "install-termux": "./install_termux.sh",
+    "build-pwa": "python3 build_pwa.py",
+    "test": "python3 -m pytest tests/",
+    "lint": "python3 -m flake8 .",
+    "dev": "FLASK_ENV=development python3 app.py"
+  },
+  "keywords": [
+    "llm",
+    "ai",
+    "cli",
+    "mobile",
+    "termux",
+    "pwa",
+    "blackbox",
+    "openai",
+    "anthropic"
+  ],
+  "author": "Sebastian Vernis Mora",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SebastianVernisMora/chispart-mobile.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SebastianVernisMora/chispart-mobile/issues"
+  },
+  "homepage": "https://github.com/SebastianVernisMora/chispart-mobile#readme",
+  "dependencies": {
+    "workbox-cli": "^7.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.0.0",
+    "prettier": "^3.0.0"
+  },
+  "engines": {
+    "python": ">=3.8",
+    "node": ">=16.0.0"
+  }
+}

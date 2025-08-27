@@ -1,0 +1,17 @@
+{
+  "version": "2.0.0",
+  "configured_apis": [],
+  "current_api": "chispart",
+  "current_theme": "neon",
+  "user_preferences": {
+    "save_history": true,
+    "stream_responses": false,
+    "show_tokens": true,
+    "auto_detect_termux": true
+  },
+  "installation": {
+    "date": "2025-08-24T19:47:07Z",
+    "environment": "linux",
+    "version": "2.0.0"
+  }
+}

@@ -1,0 +1,193 @@
+<!DOCTYPE html  >
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo App - Web Eval Agent</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="text"], input[type="email"], textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        input[type="text"]:focus, input[type="email"]:focus, textarea:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .success-message {
+            display: none;
+            background-color: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            border: 1px solid #c3e6cb;
+        }
+        .navigation {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .nav-button {
+            background-color: #28a745;
+            margin: 0 10px;
+            padding: 8px 20px;
+            font-size: 14px;
+        }
+        .nav-button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="navigation">
+            <button class="nav-button" onclick="showHome()">Inicio</button>
+            <button class="nav-button" onclick="showAbout()">Acerca de</button>
+            <button class="nav-button" onclick="showContact()">Contacto</button>
+        </div>
+
+        <div id="home-section">
+            <h1>🚀 Demo App para Web Eval Agent</h1>
+            <p>Esta es una aplicación de demostración para probar las capacidades del servidor MCP web-eval-agent.</p>
+            
+            <div class="form-group">
+                <label for="username">Nombre de usuario:</label>
+                <input type="text" id="username" placeholder="Ingresa tu nombre de usuario">
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" placeholder="tu@email.com">
+            </div>
+            
+            <div class="form-group">
+                <label for="message">Mensaje:</label>
+                <textarea id="message" rows="4" placeholder="Escribe tu mensaje aquí..."></textarea>
+            </div>
+            
+            <button onclick="submitForm()">Enviar Formulario</button>
+            
+            <div id="success-msg" class="success-message">
+                ✅ ¡Formulario enviado exitosamente!
+            </div>
+        </div>
+
+        <div id="about-section" style="display: none;">
+            <h1>📋 Acerca de esta App</h1>
+            <p>Esta aplicación fue creada para demostrar las capacidades del servidor MCP web-eval-agent de Operative.sh.</p>
+            <p>Características de la app:</p>
+            <ul>
+                <li>Formulario interactivo</li>
+                <li>Navegación entre secciones</li>
+                <li>Validación de campos</li>
+                <li>Mensajes de confirmación</li>
+                <li>Diseño responsivo</li>
+            </ul>
+        </div>
+
+        <div id="contact-section" style="display: none;">
+            <h1>📞 Información de Contacto</h1>
+            <p>Esta es la sección de contacto de la aplicación demo.</p>
+            <p><strong>Email:</strong> demo@webeval.com</p>
+            <p><strong>Teléfono:</strong> +1 (555) 123-4567</p>
+            <p><strong>Dirección:</strong> 123 Demo Street, Test City, TC 12345</p>
+        </div>
+    </div>
+
+    <script>
+        function submitForm() {
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const message = document.getElementById('message').value;
+            
+            if (!username || !email || !message) {
+                alert('Por favor, completa todos los campos');
+                return;
+            }
+            
+            if (!email.includes('@')) {
+                alert('Por favor, ingresa un email válido');
+                return;
+            }
+            
+            // Simular envío del formulario
+            console.log('Formulario enviado:', { username, email, message });
+            document.getElementById('success-msg').style.display = 'block';
+            
+            // Limpiar formulario
+            document.getElementById('username').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('message').value = '';
+        }
+        
+        function showHome() {
+            hideAllSections();
+            document.getElementById('home-section').style.display = 'block';
+        }
+        
+        function showAbout() {
+            hideAllSections();
+            document.getElementById('about-section').style.display = 'block';
+        }
+        
+        function showContact() {
+            hideAllSections();
+            document.getElementById('contact-section').style.display = 'block';
+        }
+        
+        function hideAllSections() {
+            document.getElementById('home-section').style.display = 'none';
+            document.getElementById('about-section').style.display = 'none';
+            document.getElementById('contact-section').style.display = 'none';
+            document.getElementById('success-msg').style.display = 'none';
+        }
+        
+        // Agregar algunos logs para demostrar la captura de consola
+        console.log('Demo App cargada correctamente');
+        console.log('Versión de la app: 1.0.0');
+    </script>
+</body>
+</html>

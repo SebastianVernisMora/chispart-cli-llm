@@ -1,0 +1,488 @@
+{% extends "base.html" %}
+
+{% block title %}Chispart Mobile - Terminal Universal de IA{% endblock %}
+
+{% block content %}
+<div class="home-container">
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="hero-content">
+            <div class="hero-logo">
+                <div class="logo-icon">
+                    <span class="logo-symbol">⚡</span>
+                </div>
+                <h1 class="hero-title">
+                    <span class="title-main">Chispart</span>
+                    <span class="title-sub">Mobile</span>
+                </h1>
+            </div>
+            
+            <p class="hero-subtitle">
+                Tu terminal universal de IA optimizado para dispositivos móviles
+            </p>
+            
+            <div class="hero-features">
+                <div class="feature-pill">
+                    <span class="feature-icon">🤖</span>
+                    <span>Múltiples APIs de IA</span>
+                </div>
+                <div class="feature-pill">
+                    <span class="feature-icon">📱</span>
+                    <span>Optimizado para móviles</span>
+                </div>
+                <div class="feature-pill">
+                    <span class="feature-icon">🔒</span>
+                    <span>Seguro y privado</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions-section">
+        <h2 class="section-title">🚀 Acciones Rápidas</h2>
+        
+        <div class="actions-grid">
+            <a href="/chat" class="action-card primary">
+                <div class="action-icon">💬</div>
+                <div class="action-content">
+                    <h3>Iniciar Chat</h3>
+                    <p>Comienza a chatear con IA de inmediato</p>
+                </div>
+                <div class="action-arrow">→</div>
+            </a>
+            
+            <a href="/config" class="action-card">
+                <div class="action-icon">⚙️</div>
+                <div class="action-content">
+                    <h3>Configuración</h3>
+                    <p>Configura tus API keys y preferencias</p>
+                </div>
+                <div class="action-arrow">→</div>
+            </a>
+            
+            <div class="action-card" id="install-pwa-card" style="display: none;">
+                <div class="action-icon">📱</div>
+                <div class="action-content">
+                    <h3>Instalar App</h3>
+                    <p>Instala como aplicación nativa</p>
+                </div>
+                <div class="action-arrow">→</div>
+            </div>
+            
+            <div class="action-card" id="image-analysis-card">
+                <div class="action-icon">📷</div>
+                <div class="action-content">
+                    <h3>Análisis de Imagen</h3>
+                    <p>Analiza imágenes con IA</p>
+                </div>
+                <div class="action-arrow">→</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="features-section">
+        <h2 class="section-title">✨ Características Principales</h2>
+        
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-header">
+                    <div class="feature-icon-large">🤖</div>
+                    <h3>Múltiples APIs de IA</h3>
+                </div>
+                <p>Accede a Blackbox AI, OpenAI, Claude, Groq y más desde una sola interfaz.</p>
+                <div class="feature-tags">
+                    <span class="tag">GPT-4</span>
+                    <span class="tag">Claude 3</span>
+                    <span class="tag">Blackbox</span>
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-header">
+                    <div class="feature-icon-large">📱</div>
+                    <h3>Optimizado para Móviles</h3>
+                </div>
+                <p>Diseñado específicamente para dispositivos móviles y Termux en Android.</p>
+                <div class="feature-tags">
+                    <span class="tag">PWA</span>
+                    <span class="tag">Termux</span>
+                    <span class="tag">Responsive</span>
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-header">
+                    <div class="feature-icon-large">🔒</div>
+                    <h3>Seguridad Avanzada</h3>
+                </div>
+                <p>Tus API keys se almacenan de forma segura con encriptación AES-256.</p>
+                <div class="feature-tags">
+                    <span class="tag">AES-256</span>
+                    <span class="tag">Local</span>
+                    <span class="tag">Privado</span>
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-header">
+                    <div class="feature-icon-large">📷</div>
+                    <h3>Análisis de Imágenes</h3>
+                </div>
+                <p>Analiza imágenes con modelos de visión avanzados como GPT-4V y Claude 3.</p>
+                <div class="feature-tags">
+                    <span class="tag">GPT-4V</span>
+                    <span class="tag">Claude 3</span>
+                    <span class="tag">Visión</span>
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-header">
+                    <div class="feature-icon-large">🌐</div>
+                    <h3>Modo Offline</h3>
+                </div>
+                <p>Funciona sin conexión guardando conversaciones para sincronizar después.</p>
+                <div class="feature-tags">
+                    <span class="tag">Offline</span>
+                    <span class="tag">Sync</span>
+                    <span class="tag">PWA</span>
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-header">
+                    <div class="feature-icon-large">🎨</div>
+                    <h3>Temas Personalizables</h3>
+                </div>
+                <p>Elige entre temas claro, oscuro, automático y de alto contraste.</p>
+                <div class="feature-tags">
+                    <span class="tag">Temas</span>
+                    <span class="tag">Accesible</span>
+                    <span class="tag">Personalizable</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Section -->
+    <div class="status-section">
+        <h2 class="section-title">📊 Estado del Sistema</h2>
+        
+        <div class="status-grid">
+            <div class="status-card">
+                <div class="status-header">
+                    <span class="status-icon">🔑</span>
+                    <h3>API Keys</h3>
+                </div>
+                <div class="status-content">
+                    <div class="status-value" id="api-keys-count">-</div>
+                    <div class="status-label">Configuradas</div>
+                </div>
+            </div>
+            
+            <div class="status-card">
+                <div class="status-header">
+                    <span class="status-icon">💬</span>
+                    <h3>Conversaciones</h3>
+                </div>
+                <div class="status-content">
+                    <div class="status-value" id="conversations-count">-</div>
+                    <div class="status-label">Guardadas</div>
+                </div>
+            </div>
+            
+            <div class="status-card">
+                <div class="status-header">
+                    <span class="status-icon">💾</span>
+                    <h3>Almacenamiento</h3>
+                </div>
+                <div class="status-content">
+                    <div class="status-value" id="storage-usage">-</div>
+                    <div class="status-label">KB usados</div>
+                </div>
+            </div>
+            
+            <div class="status-card">
+                <div class="status-header">
+                    <span class="status-icon">🌐</span>
+                    <h3>Conexión</h3>
+                </div>
+                <div class="status-content">
+                    <div class="status-value" id="connection-status">
+                        <span class="status-indicator online"></span>
+                    </div>
+                    <div class="status-label">En línea</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Getting Started -->
+    <div class="getting-started-section">
+        <h2 class="section-title">🎯 Primeros Pasos</h2>
+        
+        <div class="steps-container">
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>Configura tu API Key</h3>
+                    <p>Ve a <a href="/config">Configuración</a> y añade al menos una API key para comenzar.</p>
+                </div>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>Inicia tu primer chat</h3>
+                    <p>Haz clic en <a href="/chat">Iniciar Chat</a> y comienza a conversar con IA.</p>
+                </div>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3>Instala la app (opcional)</h3>
+                    <p>Para una mejor experiencia, instala Chispart Mobile como PWA.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Tips -->
+    <div class="tips-section">
+        <h2 class="section-title">💡 Consejos Rápidos</h2>
+        
+        <div class="tips-grid">
+            <div class="tip-card">
+                <div class="tip-icon">⌨️</div>
+                <div class="tip-content">
+                    <h4>Atajos de Teclado</h4>
+                    <p>Usa <kbd>Ctrl</kbd> + <kbd>Enter</kbd> para enviar mensajes rápidamente.</p>
+                </div>
+            </div>
+            
+            <div class="tip-card">
+                <div class="tip-icon">📷</div>
+                <div class="tip-content">
+                    <h4>Análisis de Imágenes</h4>
+                    <p>Arrastra y suelta imágenes directamente en el chat para analizarlas.</p>
+                </div>
+            </div>
+            
+            <div class="tip-card">
+                <div class="tip-icon">🌙</div>
+                <div class="tip-content">
+                    <h4>Modo Oscuro</h4>
+                    <p>Cambia entre temas claro y oscuro desde la configuración.</p>
+                </div>
+            </div>
+            
+            <div class="tip-card">
+                <div class="tip-icon">📱</div>
+                <div class="tip-content">
+                    <h4>Termux</h4>
+                    <p>Optimizado especialmente para funcionar en Termux en Android.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Install PWA Modal -->
+<div class="modal-overlay" id="install-modal" style="display: none;">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>📱 Instalar Chispart Mobile</h3>
+            <button class="modal-close" id="close-install-modal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p>¿Quieres instalar Chispart Mobile como una aplicación nativa?</p>
+            <div class="install-benefits">
+                <div class="benefit">
+                    <span class="benefit-icon">⚡</span>
+                    <span>Acceso más rápido</span>
+                </div>
+                <div class="benefit">
+                    <span class="benefit-icon">📱</span>
+                    <span>Experiencia nativa</span>
+                </div>
+                <div class="benefit">
+                    <span class="benefit-icon">🔔</span>
+                    <span>Notificaciones push</span>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" id="cancel-install">Ahora no</button>
+            <button class="btn btn-primary" id="confirm-install">Instalar</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Cargar estadísticas
+    loadSystemStats();
+    
+    // Configurar PWA install
+    setupPWAInstall();
+    
+    // Configurar análisis de imagen rápido
+    setupQuickImageAnalysis();
+    
+    // Actualizar estado de conexión
+    updateConnectionStatus();
+    
+    // Cargar estadísticas del sistema
+    async function loadSystemStats() {
+        try {
+            const response = await fetch('/api/stats');
+            const stats = await response.json();
+            
+            // Actualizar contadores
+            document.getElementById('api-keys-count').textContent = stats.api_keys?.total_keys || 0;
+            
+            // Calcular conversaciones desde localStorage
+            const history = JSON.parse(localStorage.getItem('chispart-chat-history') || '[]');
+            document.getElementById('conversations-count').textContent = history.length;
+            
+            // Calcular uso de almacenamiento
+            let storageSize = 0;
+            for (let key in localStorage) {
+                if (localStorage.hasOwnProperty(key) && key.startsWith('chispart')) {
+                    storageSize += localStorage[key].length;
+                }
+            }
+            document.getElementById('storage-usage').textContent = Math.round(storageSize / 1024);
+            
+        } catch (error) {
+            console.error('Error loading stats:', error);
+        }
+    }
+    
+    // Configurar instalación PWA
+    function setupPWAInstall() {
+        const installCard = document.getElementById('install-pwa-card');
+        const installModal = document.getElementById('install-modal');
+        const closeModal = document.getElementById('close-install-modal');
+        const cancelInstall = document.getElementById('cancel-install');
+        const confirmInstall = document.getElementById('confirm-install');
+        
+        // Mostrar card de instalación si está disponible
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            window.deferredPrompt = e;
+            installCard.style.display = 'block';
+        });
+        
+        // Manejar click en card de instalación
+        installCard.addEventListener('click', () => {
+            installModal.style.display = 'flex';
+        });
+        
+        // Cerrar modal
+        [closeModal, cancelInstall].forEach(btn => {
+            btn.addEventListener('click', () => {
+                installModal.style.display = 'none';
+            });
+        });
+        
+        // Confirmar instalación
+        confirmInstall.addEventListener('click', async () => {
+            if (window.deferredPrompt) {
+                window.deferredPrompt.prompt();
+                const result = await window.deferredPrompt.userChoice;
+                
+                if (result.outcome === 'accepted') {
+                    installCard.style.display = 'none';
+                }
+                
+                window.deferredPrompt = null;
+            }
+            installModal.style.display = 'none';
+        });
+        
+        // Ocultar card si ya está instalado
+        window.addEventListener('appinstalled', () => {
+            installCard.style.display = 'none';
+        });
+    }
+    
+    // Configurar análisis de imagen rápido
+    function setupQuickImageAnalysis() {
+        const imageCard = document.getElementById('image-analysis-card');
+        
+        imageCard.addEventListener('click', () => {
+            // Crear input de archivo temporal
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    // Guardar archivo en sessionStorage para el chat
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        sessionStorage.setItem('quick-image', e.target.result);
+                        sessionStorage.setItem('quick-image-name', file.name);
+                        window.location.href = '/chat';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+            
+            input.click();
+        });
+    }
+    
+    // Actualizar estado de conexión
+    function updateConnectionStatus() {
+        const statusEl = document.getElementById('connection-status');
+        const indicator = statusEl.querySelector('.status-indicator');
+        const label = statusEl.parentElement.querySelector('.status-label');
+        
+        function updateStatus() {
+            if (navigator.onLine) {
+                indicator.className = 'status-indicator online';
+                label.textContent = 'En línea';
+            } else {
+                indicator.className = 'status-indicator offline';
+                label.textContent = 'Sin conexión';
+            }
+        }
+        
+        updateStatus();
+        window.addEventListener('online', updateStatus);
+        window.addEventListener('offline', updateStatus);
+    }
+    
+    // Animaciones de entrada
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+    
+    // Observar elementos para animaciones
+    document.querySelectorAll('.feature-card, .status-card, .step, .tip-card').forEach(el => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(20px)';
+        el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        observer.observe(el);
+    });
+});
+</script>
+{% endblock %}

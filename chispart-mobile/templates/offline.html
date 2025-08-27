@@ -1,0 +1,483 @@
+{% extends "base.html" %}
+
+{% block title %}Modo Offline - Chispart Mobile{% endblock %}
+
+{% block content %}
+<div class="offline-container">
+    <!-- Offline Hero -->
+    <div class="offline-hero">
+        <div class="offline-icon">
+            <div class="offline-symbol">📡</div>
+            <div class="offline-status">
+                <span class="status-indicator offline"></span>
+            </div>
+        </div>
+        
+        <h1 class="offline-title">Modo Offline</h1>
+        <p class="offline-subtitle">
+            No hay conexión a internet disponible
+        </p>
+    </div>
+
+    <!-- Status Information -->
+    <div class="offline-status-section">
+        <div class="status-card">
+            <div class="status-header">
+                <span class="status-icon">🌐</span>
+                <h3>Estado de Conexión</h3>
+            </div>
+            <div class="status-content">
+                <div class="connection-details">
+                    <div class="detail-item">
+                        <span class="detail-label">Estado:</span>
+                        <span class="detail-value offline-text">Sin conexión</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Última conexión:</span>
+                        <span class="detail-value" id="last-online">Verificando...</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Modo:</span>
+                        <span class="detail-value">Offline PWA</span>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary" id="retry-connection">
+                    🔄 Reintentar Conexión
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Available Features -->
+    <div class="offline-features-section">
+        <h2 class="section-title">✅ Funciones Disponibles</h2>
+        
+        <div class="features-grid">
+            <div class="feature-card available">
+                <div class="feature-icon">💬</div>
+                <div class="feature-content">
+                    <h3>Chat Offline</h3>
+                    <p>Escribe mensajes que se enviarán cuando vuelvas a estar online</p>
+                </div>
+                <div class="feature-status">
+                    <span class="status-badge available">Disponible</span>
+                </div>
+            </div>
+            
+            <div class="feature-card available">
+                <div class="feature-icon">📝</div>
+                <div class="feature-content">
+                    <h3>Historial Local</h3>
+                    <p>Accede a tus conversaciones guardadas localmente</p>
+                </div>
+                <div class="feature-status">
+                    <span class="status-badge available">Disponible</span>
+                </div>
+            </div>
+            
+            <div class="feature-card available">
+                <div class="feature-icon">⚙️</div>
+                <div class="feature-content">
+                    <h3>Configuración</h3>
+                    <p>Ajusta preferencias y configuraciones locales</p>
+                </div>
+                <div class="feature-status">
+                    <span class="status-badge available">Disponible</span>
+                </div>
+            </div>
+            
+            <div class="feature-card available">
+                <div class="feature-icon">🎨</div>
+                <div class="feature-content">
+                    <h3>Temas</h3>
+                    <p>Cambia entre temas claro y oscuro</p>
+                </div>
+                <div class="feature-status">
+                    <span class="status-badge available">Disponible</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Limited Features -->
+    <div class="offline-limited-section">
+        <h2 class="section-title">⚠️ Funciones Limitadas</h2>
+        
+        <div class="features-grid">
+            <div class="feature-card limited">
+                <div class="feature-icon">🤖</div>
+                <div class="feature-content">
+                    <h3>APIs de IA</h3>
+                    <p>Requiere conexión para comunicarse con los servicios de IA</p>
+                </div>
+                <div class="feature-status">
+                    <span class="status-badge limited">Limitado</span>
+                </div>
+            </div>
+            
+            <div class="feature-card limited">
+                <div class="feature-icon">📷</div>
+                <div class="feature-content">
+                    <h3>Análisis de Imágenes</h3>
+                    <p>Las imágenes se guardarán para analizar cuando vuelvas online</p>
+                </div>
+                <div class="feature-status">
+                    <span class="status-badge limited">Limitado</span>
+                </div>
+            </div>
+            
+            <div class="feature-card limited">
+                <div class="feature-icon">🔄</div>
+                <div class="feature-content">
+                    <h3>Sincronización</h3>
+                    <p>Los datos se sincronizarán automáticamente al reconectar</p>
+                </div>
+                <div class="feature-status">
+                    <span class="status-badge limited">Limitado</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Offline Data -->
+    <div class="offline-data-section">
+        <h2 class="section-title">💾 Datos Locales</h2>
+        
+        <div class="data-grid">
+            <div class="data-card">
+                <div class="data-header">
+                    <span class="data-icon">💬</span>
+                    <h3>Conversaciones</h3>
+                </div>
+                <div class="data-content">
+                    <div class="data-value" id="offline-conversations">-</div>
+                    <div class="data-label">Guardadas localmente</div>
+                </div>
+            </div>
+            
+            <div class="data-card">
+                <div class="data-header">
+                    <span class="data-icon">📤</span>
+                    <h3>Mensajes Pendientes</h3>
+                </div>
+                <div class="data-content">
+                    <div class="data-value" id="pending-messages">-</div>
+                    <div class="data-label">Para enviar</div>
+                </div>
+            </div>
+            
+            <div class="data-card">
+                <div class="data-header">
+                    <span class="data-icon">💾</span>
+                    <h3>Almacenamiento</h3>
+                </div>
+                <div class="data-content">
+                    <div class="data-value" id="storage-used">-</div>
+                    <div class="data-label">KB utilizados</div>
+                </div>
+            </div>
+            
+            <div class="data-card">
+                <div class="data-header">
+                    <span class="data-icon">🕒</span>
+                    <h3>Última Sync</h3>
+                </div>
+                <div class="data-content">
+                    <div class="data-value" id="last-sync">-</div>
+                    <div class="data-label">Sincronización</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="offline-actions-section">
+        <h2 class="section-title">🚀 Acciones Disponibles</h2>
+        
+        <div class="actions-grid">
+            <a href="/chat" class="action-card primary">
+                <div class="action-icon">💬</div>
+                <div class="action-content">
+                    <h3>Chat Offline</h3>
+                    <p>Continúa escribiendo mensajes</p>
+                </div>
+                <div class="action-arrow">→</div>
+            </a>
+            
+            <a href="/config" class="action-card">
+                <div class="action-icon">⚙️</div>
+                <div class="action-content">
+                    <h3>Configuración</h3>
+                    <p>Ajusta tus preferencias</p>
+                </div>
+                <div class="action-arrow">→</div>
+            </a>
+            
+            <div class="action-card" id="view-history-card">
+                <div class="action-icon">📚</div>
+                <div class="action-content">
+                    <h3>Ver Historial</h3>
+                    <p>Revisa conversaciones anteriores</p>
+                </div>
+                <div class="action-arrow">→</div>
+            </div>
+            
+            <a href="/" class="action-card">
+                <div class="action-icon">🏠</div>
+                <div class="action-content">
+                    <h3>Volver al Inicio</h3>
+                    <p>Ir a la página principal</p>
+                </div>
+                <div class="action-arrow">→</div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Tips for Offline Use -->
+    <div class="offline-tips-section">
+        <h2 class="section-title">💡 Consejos para Uso Offline</h2>
+        
+        <div class="tips-grid">
+            <div class="tip-card">
+                <div class="tip-icon">✍️</div>
+                <div class="tip-content">
+                    <h4>Escribe Mensajes</h4>
+                    <p>Puedes escribir mensajes que se enviarán automáticamente cuando vuelvas a estar online.</p>
+                </div>
+            </div>
+            
+            <div class="tip-card">
+                <div class="tip-icon">📱</div>
+                <div class="tip-content">
+                    <h4>Funciona como App</h4>
+                    <p>La aplicación PWA funciona completamente offline una vez instalada.</p>
+                </div>
+            </div>
+            
+            <div class="tip-card">
+                <div class="tip-icon">🔄</div>
+                <div class="tip-content">
+                    <h4>Sincronización Automática</h4>
+                    <p>Todos los datos se sincronizarán automáticamente al recuperar la conexión.</p>
+                </div>
+            </div>
+            
+            <div class="tip-card">
+                <div class="tip-icon">💾</div>
+                <div class="tip-content">
+                    <h4>Datos Seguros</h4>
+                    <p>Tus datos están seguros y encriptados localmente mientras estás offline.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Connection Status Modal -->
+<div class="modal-overlay" id="connection-modal" style="display: none;">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>🌐 Estado de Conexión</h3>
+            <button class="modal-close" id="close-connection-modal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="connection-test-results" id="connection-results">
+                <p>Verificando conexión...</p>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" id="close-modal">Cerrar</button>
+            <button class="btn btn-primary" id="test-again">Probar de Nuevo</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Cargar datos offline
+    loadOfflineData();
+    
+    // Configurar eventos
+    setupOfflineEvents();
+    
+    // Monitorear cambios de conexión
+    monitorConnection();
+    
+    // Actualizar última vez online
+    updateLastOnlineTime();
+    
+    function loadOfflineData() {
+        try {
+            // Cargar conversaciones locales
+            const history = JSON.parse(localStorage.getItem('chispart-chat-history') || '[]');
+            document.getElementById('offline-conversations').textContent = history.length;
+            
+            // Cargar mensajes pendientes
+            const pending = JSON.parse(localStorage.getItem('chispart-pending-messages') || '[]');
+            document.getElementById('pending-messages').textContent = pending.length;
+            
+            // Calcular almacenamiento usado
+            let storageSize = 0;
+            for (let key in localStorage) {
+                if (localStorage.hasOwnProperty(key) && key.startsWith('chispart')) {
+                    storageSize += localStorage[key].length;
+                }
+            }
+            document.getElementById('storage-used').textContent = Math.round(storageSize / 1024);
+            
+            // Última sincronización
+            const lastSync = localStorage.getItem('chispart-last-sync');
+            if (lastSync) {
+                const syncDate = new Date(lastSync);
+                document.getElementById('last-sync').textContent = syncDate.toLocaleString();
+            } else {
+                document.getElementById('last-sync').textContent = 'Nunca';
+            }
+            
+        } catch (error) {
+            console.error('Error loading offline data:', error);
+        }
+    }
+    
+    function setupOfflineEvents() {
+        // Botón de reintentar conexión
+        document.getElementById('retry-connection').addEventListener('click', testConnection);
+        
+        // Ver historial
+        document.getElementById('view-history-card').addEventListener('click', () => {
+            // Mostrar historial en modal o navegar al chat
+            window.location.href = '/chat?view=history';
+        });
+        
+        // Modal de conexión
+        const connectionModal = document.getElementById('connection-modal');
+        const closeModal = document.getElementById('close-connection-modal');
+        const closeModalBtn = document.getElementById('close-modal');
+        const testAgain = document.getElementById('test-again');
+        
+        [closeModal, closeModalBtn].forEach(btn => {
+            btn.addEventListener('click', () => {
+                connectionModal.style.display = 'none';
+            });
+        });
+        
+        testAgain.addEventListener('click', testConnection);
+    }
+    
+    function monitorConnection() {
+        // Escuchar cambios de conexión
+        window.addEventListener('online', () => {
+            // Redirigir al inicio cuando vuelva la conexión
+            setTimeout(() => {
+                if (navigator.onLine) {
+                    window.location.href = '/';
+                }
+            }, 1000);
+        });
+        
+        window.addEventListener('offline', () => {
+            updateLastOnlineTime();
+        });
+    }
+    
+    function updateLastOnlineTime() {
+        const lastOnlineEl = document.getElementById('last-online');
+        const lastOnline = localStorage.getItem('chispart-last-online');
+        
+        if (lastOnline) {
+            const lastDate = new Date(lastOnline);
+            const now = new Date();
+            const diffMs = now - lastDate;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMins / 60);
+            const diffDays = Math.floor(diffHours / 24);
+            
+            let timeText;
+            if (diffMins < 1) {
+                timeText = 'Hace menos de un minuto';
+            } else if (diffMins < 60) {
+                timeText = `Hace ${diffMins} minuto${diffMins > 1 ? 's' : ''}`;
+            } else if (diffHours < 24) {
+                timeText = `Hace ${diffHours} hora${diffHours > 1 ? 's' : ''}`;
+            } else {
+                timeText = `Hace ${diffDays} día${diffDays > 1 ? 's' : ''}`;
+            }
+            
+            lastOnlineEl.textContent = timeText;
+        } else {
+            lastOnlineEl.textContent = 'Desconocido';
+        }
+        
+        // Actualizar cada minuto
+        setTimeout(updateLastOnlineTime, 60000);
+    }
+    
+    async function testConnection() {
+        const modal = document.getElementById('connection-modal');
+        const results = document.getElementById('connection-results');
+        const retryBtn = document.getElementById('retry-connection');
+        
+        // Mostrar modal
+        modal.style.display = 'flex';
+        results.innerHTML = '<p>🔄 Verificando conexión...</p>';
+        retryBtn.textContent = 'Verificando...';
+        retryBtn.disabled = true;
+        
+        const tests = [
+            { name: 'Navegador', test: () => Promise.resolve(navigator.onLine) },
+            { name: 'DNS', test: () => fetch('https://1.1.1.1', { mode: 'no-cors', cache: 'no-cache' }) },
+            { name: 'Internet', test: () => fetch('https://www.google.com', { mode: 'no-cors', cache: 'no-cache' }) },
+            { name: 'API Blackbox', test: () => fetch('https://api.blackbox.ai', { mode: 'no-cors', cache: 'no-cache' }) }
+        ];
+        
+        let resultsHtml = '<div class="connection-tests">';
+        
+        for (const test of tests) {
+            try {
+                const startTime = Date.now();
+                await test.test();
+                const endTime = Date.now();
+                const latency = endTime - startTime;
+                
+                resultsHtml += `
+                    <div class="test-result success">
+                        <span class="test-name">${test.name}:</span>
+                        <span class="test-status">✅ OK (${latency}ms)</span>
+                    </div>
+                `;
+            } catch (error) {
+                resultsHtml += `
+                    <div class="test-result error">
+                        <span class="test-name">${test.name}:</span>
+                        <span class="test-status">❌ Error</span>
+                    </div>
+                `;
+            }
+        }
+        
+        resultsHtml += '</div>';
+        
+        // Verificar si realmente hay conexión
+        const hasConnection = navigator.onLine;
+        if (hasConnection) {
+            resultsHtml += '<div class="connection-summary success">🎉 ¡Conexión restaurada! Redirigiendo...</div>';
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 2000);
+        } else {
+            resultsHtml += '<div class="connection-summary error">❌ Sin conexión a internet</div>';
+        }
+        
+        results.innerHTML = resultsHtml;
+        retryBtn.textContent = '🔄 Reintentar Conexión';
+        retryBtn.disabled = false;
+    }
+    
+    // Auto-refresh de datos cada 30 segundos
+    setInterval(loadOfflineData, 30000);
+});
+</script>
+{% endblock %}

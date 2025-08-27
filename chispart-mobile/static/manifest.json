@@ -1,0 +1,173 @@
+{
+  "name": "Chispart Mobile - Terminal Universal de IA",
+  "short_name": "Chispart Mobile",
+  "description": "Terminal universal de IA optimizado para dispositivos móviles. Accede a múltiples APIs de IA desde una sola interfaz segura.",
+  "version": "1.0.0",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#1a1a1a",
+  "background_color": "#1a1a1a",
+  "scope": "/",
+  "lang": "es",
+  "dir": "ltr",
+  "categories": ["productivity", "utilities", "developer"],
+  "screenshots": [
+    {
+      "src": "/static/icons/screenshot-mobile.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Chat interface on mobile"
+    },
+    {
+      "src": "/static/icons/screenshot-desktop.png", 
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Desktop interface"
+    }
+  ],
+  "icons": [
+    {
+      "src": "/static/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icons/icon-192x192-maskable.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/static/icons/icon-512x512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Nuevo Chat",
+      "short_name": "Chat",
+      "description": "Iniciar una nueva conversación con IA",
+      "url": "/chat",
+      "icons": [
+        {
+          "src": "/static/icons/shortcut-chat.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Configuración",
+      "short_name": "Config",
+      "description": "Configurar API keys y preferencias",
+      "url": "/config",
+      "icons": [
+        {
+          "src": "/static/icons/shortcut-config.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Análisis de Imagen",
+      "short_name": "Imagen",
+      "description": "Analizar imagen con IA",
+      "url": "/chat?action=image",
+      "icons": [
+        {
+          "src": "/static/icons/shortcut-image.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "share_target": {
+    "action": "/chat",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url",
+      "files": [
+        {
+          "name": "image",
+          "accept": ["image/*"]
+        }
+      ]
+    }
+  },
+  "protocol_handlers": [
+    {
+      "protocol": "web+chispart",
+      "url": "/chat?text=%s"
+    }
+  ],
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "iarc_rating_id": "",
+  "file_handlers": [
+    {
+      "action": "/chat",
+      "accept": {
+        "image/*": [".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".svg"],
+        "text/plain": [".txt", ".md"],
+        "application/pdf": [".pdf"]
+      }
+    }
+  ]
+}

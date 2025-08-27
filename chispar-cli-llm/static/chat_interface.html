@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CLI Universal para LLMs - Interfaz Web</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .main-content {
+            display: flex;
+            height: 70vh;
+        }
+
+        .sidebar {
+            width: 300px;
+            background: #f8f9fa;
+            border-right: 1px solid #e9ecef;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .config-section {
+            margin-bottom: 25px;
+        }
+
+        .config-section h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #495057;
+        }
+
+        select, input[type="text"], input[type="file"] {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            text-align: right;
+        }
+
+        .message.assistant {
+            text-align: left;
+        }
+
+        .message-bubble {
+            display: inline-block;
+            max-width: 70%;
+            padding: 15px 20px;
+            border-radius: 20px;
+            word-wrap: break-word;
+        }
+
+        .message.user .message-bubble {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .message.assistant .message-bubble {
+            background: white;
+            border: 1px solid #e9ecef;
+            color: #2c3e50;
+        }
+
+        .message-info {
+            font-size: 0.8em;
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+
+        .chat-input {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-group input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ced4da;
+            border-radius: 25px;
+            font-size: 16px;
+        }
+
+        .send-btn {
+            padding: 12px 25px;
+            border-radius: 25px;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .status-configured {
+            background: #28a745;
+        }
+
+        .status-not-configured {
+            background: #dc3545;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+            border: 1px solid #f5c6cb;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+            border: 1px solid #c3e6cb;
+        }
+
+        .tabs {
+            display: flex;
+            background: #e9ecef;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 8px 12px;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: background 0.3s;
+        }
+
+        .tab.active {
+            background: white;
+            color: #667eea;
+            font-weight: 500;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .history-item {
+            background: white;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+            font-size: 0.9em;
+        }
+
+        .history-item .timestamp {
+            color: #6c757d;
+            font-size: 0.8em;
+        }
+
+        .image-preview {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+                height: auto;
+            }
+            
+            .sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid #e9ecef;
+            }
+            
+            .chat-area {
+                height: 60vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 CLI Universal para LLMs</h1>
+            <p>Interfaz web para interactuar con múltiples APIs de IA</p>
+        </div>
+
+        <div class="main-content">
+            <div class="sidebar">
+                <div class="tabs">
+                    <div class="tab active" onclick="switchTab('chat')">Chat</div>
+                    <div class="tab" onclick="switchTab('image')">Imagen</div>
+                    <div class="tab" onclick="switchTab('pdf')">PDF</div>
+                    <div class="tab" onclick="switchTab('history')">Historial</div>
+                </div>
+
+                <!-- Chat Configuration -->
+                <div id="chat-tab" class="tab-content active">
+                    <div class="config-section">
+                        <h3>Configuración</h3>
+                        <div class="form-group">
+                            <label for="api-select">API:</label>
+                            <select id="api-select" onchange="loadModels()">
+                                <option value="">Cargando APIs...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="model-select">Modelo:</label>
+                            <select id="model-select">
+                                <option value="">Selecciona una API primero</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-secondary" onclick="loadModels()">🔄 Actualizar</button>
+                    </div>
+                </div>
+
+                <!-- Image Configuration -->
+                <div id="image-tab" class="tab-content">
+                    <div class="config-section">
+                        <h3>Análisis de Imagen</h3>
+                        <div class="form-group">
+                            <label for="image-api-select">API:</label>
+                            <select id="image-api-select">
+                                <option value="">Cargando APIs...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="image-model-select">Modelo:</label>
+                            <select id="image-model-select">
+                                <option value="">Selecciona una API primero</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="image-file">Imagen:</label>
+                            <input type="file" id="image-file" accept="image/*" onchange="previewImage()">
+                        </div>
+                        <div class="form-group">
+                            <label for="image-prompt">Pregunta:</label>
+                            <input type="text" id="image-prompt" value="¿Qué hay en esta imagen?" placeholder="Describe lo que quieres saber sobre la imagen">
+                        </div>
+                        <button class="btn" onclick="analyzeImage()">🔍 Analizar Imagen</button>
+                        <div id="image-preview"></div>
+                    </div>
+                </div>
+
+                <!-- PDF Configuration -->
+                <div id="pdf-tab" class="tab-content">
+                    <div class="config-section">
+                        <h3>Análisis de PDF</h3>
+                        <div class="form-group">
+                            <label for="pdf-api-select">API:</label>
+                            <select id="pdf-api-select">
+                                <option value="">Cargando APIs...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="pdf-model-select">Modelo:</label>
+                            <select id="pdf-model-select">
+                                <option value="">Selecciona una API primero</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="pdf-file">Archivo PDF:</label>
+                            <input type="file" id="pdf-file" accept=".pdf">
+                        </div>
+                        <div class="form-group">
+                            <label for="pdf-prompt">Pregunta:</label>
+                            <input type="text" id="pdf-prompt" value="Resume el contenido de este documento" placeholder="¿Qué quieres saber sobre el PDF?">
+                        </div>
+                        <button class="btn" onclick="analyzePdf()">📄 Analizar PDF</button>
+                    </div>
+                </div>
+
+                <!-- History -->
+                <div id="history-tab" class="tab-content">
+                    <div class="config-section">
+                        <h3>Historial</h3>
+                        <button class="btn btn-secondary" onclick="loadHistory()">🔄 Actualizar</button>
+                        <div id="history-list">
+                            <p>Cargando historial...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-area">
+                <div class="chat-messages" id="chat-messages">
+                    <div class="message assistant">
+                        <div class="message-bubble">
+                            ¡Hola! Soy tu asistente de IA universal. Puedo ayudarte usando diferentes APIs como BlackboxAI, OpenAI, Anthropic, Groq y Together AI. 
+                            <br><br>
+                            Selecciona una API y modelo en el panel lateral, luego escribe tu mensaje abajo.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <span>Procesando...</span>
+                </div>
+
+                <div class="chat-input">
+                    <div class="input-group">
+                        <input type="text" id="message-input" placeholder="Escribe tu mensaje aquí..." onkeypress="handleKeyPress(event)">
+                        <button class="btn send-btn" onclick="sendMessage()">📤 Enviar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentApis = [];
+        let currentModels = {};
+        let currentHistory = [];
+
+        // Configurar Marked.js para usar Highlight.js
+        marked.setOptions({
+            highlight: function(code, lang) {
+                const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+                return hljs.highlight(code, { language }).value;
+            }
+        });
+
+        // Inicializar la aplicación
+        document.addEventListener('DOMContentLoaded', function() {
+            loadApis();
+            loadHistory();
+        });
+
+        // Cambiar entre pestañas
+        function switchTab(tabName) {
+            // Ocultar todas las pestañas
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Mostrar la pestaña seleccionada
+            document.getElementById(tabName + '-tab').classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Cargar APIs disponibles
+        async function loadApis() {
+            try {
+                const response = await fetch('/api/apis');
+                const data = await response.json();
+                
+                if (data.error) {
+                    showError(data.error);
+                    return;
+                }
+
+                currentApis = data.apis;
+                populateApiSelects(data.apis, data.default_api);
+            } catch (error) {
+                showError('Error cargando APIs: ' + error.message);
+            }
+        }
+
+        // Poblar los selectores de API
+        function populateApiSelects(apis, defaultApi) {
+            const chatApiSelect = document.getElementById('api-select');
+            const imageApiSelect = document.getElementById('image-api-select');
+            const pdfApiSelect = document.getElementById('pdf-api-select');
+            
+            chatApiSelect.innerHTML = '';
+            imageApiSelect.innerHTML = '';
+            pdfApiSelect.innerHTML = '';
+
+            apis.forEach(api => {
+                const option = document.createElement('option');
+                option.value = api.key;
+                option.textContent = `${api.name} ${getStatusIndicator(api.status)}`;
+                option.disabled = api.status !== 'configured';
+                
+                if (api.key === defaultApi && api.status === 'configured') {
+                    option.selected = true;
+                }
+
+                chatApiSelect.appendChild(option.cloneNode(true));
+                
+                if (api.supports_vision) {
+                    imageApiSelect.appendChild(option.cloneNode(true));
+                }
+
+                if (api.supports_pdf) {
+                    pdfApiSelect.appendChild(option.cloneNode(true));
+                }
+            });
+
+            // Cargar modelos para la API por defecto
+            if (chatApiSelect.value) {
+                loadModels();
+            }
+        }
+
+        // Obtener indicador de estado
+        function getStatusIndicator(status) {
+            return status === 'configured' ? '✅' : '❌';
+        }
+
+        // Cargar modelos para la API seleccionada
+        async function loadModels() {
+            const apiSelect = document.getElementById('api-select');
+            const modelSelect = document.getElementById('model-select');
+            const imageApiSelect = document.getElementById('image-api-select');
+            const imageModelSelect = document.getElementById('image-model-select');
+            const pdfApiSelect = document.getElementById('pdf-api-select');
+            const pdfModelSelect = document.getElementById('pdf-model-select');
+            
+            const selectedApi = apiSelect.value;
+            const selectedImageApi = imageApiSelect.value;
+            const selectedPdfApi = pdfApiSelect.value;
+
+            if (!selectedApi) return;
+
+            try {
+                // Cargar modelos para chat
+                const response = await fetch(`/api/models/${selectedApi}`);
+                const data = await response.json();
+                
+                if (data.error) {
+                    showError(data.error);
+                    return;
+                }
+
+                currentModels[selectedApi] = data.models;
+                populateModelSelect(modelSelect, data.models, data.default_model);
+
+                // Cargar modelos para la API de imagen
+                if (selectedImageApi) {
+                    if (currentModels[selectedImageApi]) {
+                        populateModelSelect(imageModelSelect, currentModels[selectedImageApi], (await fetch(`/api/models/${selectedImageApi}`).then(res => res.json())).default_model);
+                    } else {
+                        const imageResponse = await fetch(`/api/models/${selectedImageApi}`);
+                        const imageData = await imageResponse.json();
+                        if (!imageData.error) {
+                            currentModels[selectedImageApi] = imageData.models;
+                            populateModelSelect(imageModelSelect, imageData.models, imageData.default_model);
+                        }
+                    }
+                }
+
+                // Cargar modelos para la API de PDF
+                if (selectedPdfApi) {
+                    if (currentModels[selectedPdfApi]) {
+                        populateModelSelect(pdfModelSelect, currentModels[selectedPdfApi], (await fetch(`/api/models/${selectedPdfApi}`).then(res => res.json())).default_model);
+                    } else {
+                        const pdfResponse = await fetch(`/api/models/${selectedPdfApi}`);
+                        const pdfData = await pdfResponse.json();
+                        if (!pdfData.error) {
+                            currentModels[selectedPdfApi] = pdfData.models;
+                            populateModelSelect(pdfModelSelect, pdfData.models, pdfData.default_model);
+                        }
+                    }
+                }
+
+            } catch (error) {
+                showError('Error cargando modelos: ' + error.message);
+            }
+        }
+
+        // Poblar selector de modelos
+        function populateModelSelect(selectElement, models, defaultModel) {
+            selectElement.innerHTML = '';
+            
+            Object.keys(models).forEach(modelKey => {
+                const option = document.createElement('option');
+                option.value = modelKey;
+                option.textContent = modelKey;
+                
+                if (modelKey === defaultModel) {
+                    option.selected = true;
+                }
+                
+                selectElement.appendChild(option);
+            });
+        }
+
+        // Manejar Enter en el input
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // Enviar mensaje
+        async function sendMessage() {
+            const messageInput = document.getElementById('message-input');
+            const apiSelect = document.getElementById('api-select');
+            const modelSelect = document.getElementById('model-select');
+            
+            const message = messageInput.value.trim();
+            const api = apiSelect.value;
+            const model = modelSelect.value;
+
+            if (!message || !api) {
+                showError('Por favor escribe un mensaje y selecciona una API.');
+                return;
+            }
+
+            addMessage('user', message);
+            messageInput.value = '';
+
+            // Crear burbuja de asistente vacía
+            const assistantBubble = addMessage('assistant', '<div class="spinner"></div>');
+            const contentDiv = assistantBubble.querySelector('.message-bubble');
+            contentDiv.innerHTML = ''; // Limpiar spinner inicial
+
+            showLoading(true);
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        message: message,
+                        api: api,
+                        model: model,
+                        stream: true // Solicitar streaming
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error de red: ${response.statusText}`);
+                }
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let fullResponse = '';
+                let buffer = '';
+
+                while (true) {
+                    const { value, done } = await reader.read();
+                    if (done) break;
+
+                    buffer += decoder.decode(value, { stream: true });
+
+                    let sepIndex;
+                    while ((sepIndex = buffer.indexOf('\n\n')) !== -1) {
+                        const rawEvent = buffer.slice(0, sepIndex);
+                        buffer = buffer.slice(sepIndex + 2);
+
+                        if (!rawEvent.startsWith('data: ')) continue;
+                        const jsonData = rawEvent.slice(6).trim();
+                        if (!jsonData) continue;
+
+                        try {
+                            const data = JSON.parse(jsonData);
+                            if (data.type === 'content') {
+                                fullResponse += data.chunk;
+                                contentDiv.innerHTML = marked.parse(fullResponse);
+                            } else if (data.type === 'done') {
+                                // finished
+                            } else if (data.type === 'error') {
+                                showError(data.message);
+                            }
+                        } catch (e) {
+                            console.error('Error parseando JSON del stream:', jsonData);
+                        }
+                    }
+                }
+
+                // Process any trailing buffered complete event (optional if server always ends with \n\n)
+                if (buffer.startsWith('data: ')) {
+                    const jsonData = buffer.slice(6).trim();
+                    try {
+                        const data = JSON.parse(jsonData);
+                        if (data.type === 'error') showError(data.message);
+                    } catch {}
+                }
+                        }
+                    }
+                }
+                }
+            } catch (error) {
+                showError('Error enviando mensaje: ' + error.message);
+                contentDiv.innerHTML = 'Error en la conexión.';
+            } finally {
+                showLoading(false);
+                // Forzar resaltado de sintaxis al final del stream
+                contentDiv.querySelectorAll('pre code').forEach((block) => {
+                    hljs.highlightElement(block);
+                });
+            }
+        }
+
+        // Analizar imagen
+        async function analyzeImage() {
+            const fileInput = document.getElementById('image-file');
+            const apiSelect = document.getElementById('image-api-select');
+            const modelSelect = document.getElementById('image-model-select');
+            const promptInput = document.getElementById('image-prompt');
+
+            const file = fileInput.files[0];
+            const api = apiSelect.value;
+            const model = modelSelect.value;
+            const prompt = promptInput.value.trim();
+
+            if (!file) {
+                showError('Por favor selecciona una imagen');
+                return;
+            }
+
+            if (!api) {
+                showError('Por favor selecciona una API');
+                return;
+            }
+
+            showLoading(true);
+
+            try {
+                const formData = new FormData();
+                formData.append('image', file);
+                formData.append('api', api);
+                formData.append('model', model);
+                formData.append('prompt', prompt);
+
+                const response = await fetch('/api/image', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                
+                if (data.error) {
+                    showError(data.error);
+                    if (data.supported_apis) {
+                        showError('APIs que soportan imágenes: ' + data.supported_apis.join(', '));
+                    }
+                } else {
+                    // Cambiar a la pestaña de chat para mostrar el resultado
+                    switchTab('chat');
+                    document.querySelector('.tab').click();
+                    
+                    addMessage('user', `[Imagen: ${data.filename}] ${prompt}`, null, file);
+                    addMessage('assistant', data.response, {
+                        model: data.model_used,
+                        api: data.api_used,
+                        tokens: data.usage?.total_tokens
+                    });
+                }
+            } catch (error) {
+                showError('Error analizando imagen: ' + error.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Analizar PDF
+        async function analyzePdf() {
+            const fileInput = document.getElementById('pdf-file');
+            const apiSelect = document.getElementById('pdf-api-select');
+            const modelSelect = document.getElementById('pdf-model-select');
+            const promptInput = document.getElementById('pdf-prompt');
+
+            const file = fileInput.files[0];
+            const api = apiSelect.value;
+            const model = modelSelect.value;
+            const prompt = promptInput.value.trim();
+
+            if (!file) {
+                showError('Por favor selecciona un archivo PDF');
+                return;
+            }
+
+            if (file.type !== 'application/pdf') {
+                showError('El archivo seleccionado no es un PDF.');
+                return;
+            }
+
+            if (!api) {
+                showError('Por favor selecciona una API para el análisis de PDF');
+                return;
+            }
+
+            showLoading(true);
+
+            try {
+                const formData = new FormData();
+                formData.append('pdf', file);
+                formData.append('api', api);
+                formData.append('model', model);
+                formData.append('prompt', prompt);
+
+                const response = await fetch('/api/pdf', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    showError(data.error);
+                } else {
+                    switchTab('chat');
+                    document.querySelector('.tab').click();
+
+                    addMessage('user', `[PDF: ${data.filename}] ${prompt}`);
+                    addMessage('assistant', data.response, {
+                        model: data.model_used,
+                        api: data.api_used,
+                        tokens: data.usage?.total_tokens
+                    });
+                }
+            } catch (error) {
+                showError('Error analizando PDF: ' + error.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Previsualizar imagen
+        function previewImage() {
+            const fileInput = document.getElementById('image-file');
+            const preview = document.getElementById('image-preview');
+            
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = `<img src="${e.target.result}" class="image-preview" alt="Preview">`;
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            }
+        }
+
+        // Cargar historial
+        async function loadHistory() {
+            try {
+                const response = await fetch('/api/history?limit=50');
+                const data = await response.json();
+                
+                if (data.error) {
+                    showError(data.error);
+                    return;
+                }
+
+                currentHistory = data.history;
+                const historyList = document.getElementById('history-list');
+                
+                if (currentHistory.length === 0) {
+                    historyList.innerHTML = '<p>No hay conversaciones en el historial.</p>';
+                    return;
+                }
+
+                historyList.innerHTML = currentHistory.slice().reverse().map(conv => {
+                    const date = new Date(conv.timestamp).toLocaleString('es-ES', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+                    let title = conv.message || conv.prompt || 'Conversación';
+                    if (title.length > 35) title = title.substring(0, 32) + '...';
+
+                    return `
+                        <div class="history-item" onclick="loadConversation('${conv.request_id}')" style="cursor: pointer;">
+                            <div class="timestamp">${date}</div>
+                            <div><strong>${title}</strong></div>
+                            <small>${conv.api} - ${conv.model}</small>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (error) {
+                showError('Error cargando historial: ' + error.message);
+            }
+        }
+
+        function loadConversation(requestId) {
+            const conversation = currentHistory.find(c => c.request_id === requestId);
+            if (!conversation) {
+                showError('Error: No se pudo encontrar la conversación en el historial cargado.');
+                return;
+            }
+
+            const chatMessages = document.getElementById('chat-messages');
+            chatMessages.innerHTML = ''; // Limpiar chat actual
+
+            // Añadir los mensajes de la conversación cargada
+            // Funciona para web_chat, web_image, web_pdf, etc.
+            if (conversation.message || conversation.prompt) {
+                const userMessage = conversation.message || `[${conversation.type}] ${conversation.prompt}`;
+                addMessage('user', userMessage);
+            }
+            if (conversation.response) {
+                 addMessage('assistant', conversation.response, {
+                    model: conversation.model,
+                    api: conversation.api,
+                    tokens: conversation.usage?.total_tokens
+                });
+            }
+
+            // Cambiar a la pestaña de chat
+            switchTab('chat');
+        }
+
+        // Agregar mensaje al chat
+        function addMessage(type, content, info = null, imageFile = null) {
+            const chatMessages = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            
+            let messageContent = content;
+            if (imageFile) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    messageContent = `<img src="${e.target.result}" class="image-preview" alt="Uploaded image"><br>${content}`;
+                    messageDiv.innerHTML = `
+                        <div class="message-bubble">${messageContent}</div>
+                        ${info ? `<div class="message-info">${info.api} - ${info.model}${info.tokens ? ` (${info.tokens} tokens)` : ''}</div>` : ''}
+                    `;
+                };
+                reader.readAsDataURL(imageFile);
+            } else {
+                const finalContent = (type === 'assistant') ? marked.parse(content) : content;
+                messageDiv.innerHTML = `
+                    <div class="message-bubble">${finalContent}</div>
+                    ${info ? `<div class="message-info">${info.api} - ${info.model}${info.tokens ? ` (${info.tokens} tokens)` : ''}</div>` : ''}
+                `;
+            }
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            return messageDiv;
+        }
+
+        // Mostrar/ocultar loading
+        function showLoading(show) {
+            const loading = document.getElementById('loading');
+            loading.style.display = show ? 'block' : 'none';
+        }
+
+        // Mostrar error
+        function showError(message) {
+            const chatMessages = document.getElementById('chat-messages');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error';
+            errorDiv.textContent = message;
+            chatMessages.appendChild(errorDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            // Remover el error después de 5 segundos
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

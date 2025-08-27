@@ -1,0 +1,2 @@
+Este es un archivo de prueba para simular una imagen.
+En una implementación real, aquí habría datos binarios de imagen.

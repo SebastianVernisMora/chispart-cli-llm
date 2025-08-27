@@ -1,0 +1,552 @@
+/**
+ * Chispart Mobile - Sistema de Temas Completo
+ * Temas claro, oscuro y automático con variables CSS
+ */
+
+/* Tema Oscuro (por defecto) */
+:root,
+.theme-dark {
+    /* Colores de fondo */
+    --bg-primary: #0A0A0A;
+    --bg-secondary: #1A1A1A;
+    --bg-tertiary: #2A2A2A;
+    --bg-quaternary: #3A3A3A;
+    
+    /* Colores de texto */
+    --text-primary: #FFFFFF;
+    --text-secondary: #B3B3B3;
+    --text-tertiary: #808080;
+    --text-quaternary: #4D4D4D;
+    
+    /* Colores de borde */
+    --border-color: #333333;
+    --border-color-light: #404040;
+    --border-color-dark: #262626;
+    
+    /* Colores de superficie */
+    --surface-primary: #1A1A1A;
+    --surface-secondary: #2A2A2A;
+    --surface-tertiary: #3A3A3A;
+    
+    /* Colores de overlay */
+    --overlay-light: rgba(255, 255, 255, 0.05);
+    --overlay-medium: rgba(255, 255, 255, 0.1);
+    --overlay-strong: rgba(255, 255, 255, 0.15);
+    
+    /* Colores específicos del chat */
+    --chat-bg: #0A0A0A;
+    --chat-input-bg: #1A1A1A;
+    --chat-message-user-bg: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    --chat-message-assistant-bg: #1A1A1A;
+    --chat-message-system-bg: #2A2A2A;
+    
+    /* Sombras */
+    --shadow-color: rgba(0, 0, 0, 0.5);
+    --glow-color: rgba(0, 255, 136, 0.3);
+    
+    /* Filtros */
+    --brightness-filter: brightness(1);
+    --contrast-filter: contrast(1);
+    --saturate-filter: saturate(1);
+}
+
+/* Tema Claro */
+.theme-light {
+    /* Colores de fondo */
+    --bg-primary: #FFFFFF;
+    --bg-secondary: #F8F9FA;
+    --bg-tertiary: #E9ECEF;
+    --bg-quaternary: #DEE2E6;
+    
+    /* Colores de texto */
+    --text-primary: #212529;
+    --text-secondary: #6C757D;
+    --text-tertiary: #ADB5BD;
+    --text-quaternary: #CED4DA;
+    
+    /* Colores de borde */
+    --border-color: #DEE2E6;
+    --border-color-light: #E9ECEF;
+    --border-color-dark: #CED4DA;
+    
+    /* Colores de superficie */
+    --surface-primary: #FFFFFF;
+    --surface-secondary: #F8F9FA;
+    --surface-tertiary: #E9ECEF;
+    
+    /* Colores de overlay */
+    --overlay-light: rgba(0, 0, 0, 0.05);
+    --overlay-medium: rgba(0, 0, 0, 0.1);
+    --overlay-strong: rgba(0, 0, 0, 0.15);
+    
+    /* Colores específicos del chat */
+    --chat-bg: #FFFFFF;
+    --chat-input-bg: #F8F9FA;
+    --chat-message-user-bg: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    --chat-message-assistant-bg: #F8F9FA;
+    --chat-message-system-bg: #E9ECEF;
+    
+    /* Sombras */
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --glow-color: rgba(0, 255, 136, 0.2);
+    
+    /* Filtros */
+    --brightness-filter: brightness(1);
+    --contrast-filter: contrast(1);
+    --saturate-filter: saturate(1);
+    
+    /* Ajustes específicos para tema claro */
+    --primary-color: #00CC6A;
+    --primary-dark: #00B359;
+    --accent-color: #00CC6A;
+    --accent-color-dark: #00B359;
+    --accent-color-rgb: 0, 204, 106;
+}
+
+/* Tema Automático (respeta preferencias del sistema) */
+.theme-auto {
+    /* Usar tema oscuro por defecto */
+    --bg-primary: #0A0A0A;
+    --bg-secondary: #1A1A1A;
+    --bg-tertiary: #2A2A2A;
+    --bg-quaternary: #3A3A3A;
+    --text-primary: #FFFFFF;
+    --text-secondary: #B3B3B3;
+    --text-tertiary: #808080;
+    --text-quaternary: #4D4D4D;
+    --border-color: #333333;
+    --border-color-light: #404040;
+    --border-color-dark: #262626;
+    --surface-primary: #1A1A1A;
+    --surface-secondary: #2A2A2A;
+    --surface-tertiary: #3A3A3A;
+    --overlay-light: rgba(255, 255, 255, 0.05);
+    --overlay-medium: rgba(255, 255, 255, 0.1);
+    --overlay-strong: rgba(255, 255, 255, 0.15);
+    --chat-bg: #0A0A0A;
+    --chat-input-bg: #1A1A1A;
+    --chat-message-user-bg: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    --chat-message-assistant-bg: #1A1A1A;
+    --chat-message-system-bg: #2A2A2A;
+    --shadow-color: rgba(0, 0, 0, 0.5);
+    --glow-color: rgba(0, 255, 136, 0.3);
+    --brightness-filter: brightness(1);
+    --contrast-filter: contrast(1);
+    --saturate-filter: saturate(1);
+}
+
+/* Tema automático - modo claro cuando el sistema lo prefiere */
+@media (prefers-color-scheme: light) {
+    .theme-auto {
+        --bg-primary: #FFFFFF;
+        --bg-secondary: #F8F9FA;
+        --bg-tertiary: #E9ECEF;
+        --bg-quaternary: #DEE2E6;
+        --text-primary: #212529;
+        --text-secondary: #6C757D;
+        --text-tertiary: #ADB5BD;
+        --text-quaternary: #CED4DA;
+        --border-color: #DEE2E6;
+        --border-color-light: #E9ECEF;
+        --border-color-dark: #CED4DA;
+        --surface-primary: #FFFFFF;
+        --surface-secondary: #F8F9FA;
+        --surface-tertiary: #E9ECEF;
+        --overlay-light: rgba(0, 0, 0, 0.05);
+        --overlay-medium: rgba(0, 0, 0, 0.1);
+        --overlay-strong: rgba(0, 0, 0, 0.15);
+        --chat-bg: #FFFFFF;
+        --chat-input-bg: #F8F9FA;
+        --chat-message-assistant-bg: #F8F9FA;
+        --chat-message-system-bg: #E9ECEF;
+        --shadow-color: rgba(0, 0, 0, 0.1);
+        --glow-color: rgba(0, 255, 136, 0.2);
+        --primary-color: #00CC6A;
+        --primary-dark: #00B359;
+        --accent-color: #00CC6A;
+        --accent-color-dark: #00B359;
+        --accent-color-rgb: 0, 204, 106;
+    }
+}
+
+/* Tema de Alto Contraste */
+.theme-high-contrast {
+    /* Colores de fondo */
+    --bg-primary: #000000;
+    --bg-secondary: #1A1A1A;
+    --bg-tertiary: #333333;
+    --bg-quaternary: #4D4D4D;
+    
+    /* Colores de texto */
+    --text-primary: #FFFFFF;
+    --text-secondary: #FFFF00;
+    --text-tertiary: #00FFFF;
+    --text-quaternary: #FF00FF;
+    
+    /* Colores de borde */
+    --border-color: #FFFFFF;
+    --border-color-light: #FFFF00;
+    --border-color-dark: #00FFFF;
+    
+    /* Colores específicos */
+    --primary-color: #00FF00;
+    --primary-dark: #00CC00;
+    --accent-color: #00FF00;
+    --accent-color-dark: #00CC00;
+    --accent-color-rgb: 0, 255, 0;
+    
+    /* Colores de superficie */
+    --surface-primary: #000000;
+    --surface-secondary: #1A1A1A;
+    --surface-tertiary: #333333;
+    
+    /* Sombras más pronunciadas */
+    --shadow-color: rgba(255, 255, 255, 0.3);
+    --glow-color: rgba(0, 255, 0, 0.5);
+    
+    /* Filtros para mayor contraste */
+    --brightness-filter: brightness(1.2);
+    --contrast-filter: contrast(1.5);
+    --saturate-filter: saturate(1.5);
+}
+
+/* Tema Sepia (para lectura cómoda) */
+.theme-sepia {
+    /* Colores de fondo */
+    --bg-primary: #F4F1EA;
+    --bg-secondary: #EAE4D3;
+    --bg-tertiary: #E0D7C1;
+    --bg-quaternary: #D6CAAF;
+    
+    /* Colores de texto */
+    --text-primary: #5D4E37;
+    --text-secondary: #8B7355;
+    --text-tertiary: #A0916F;
+    --text-quaternary: #B5A589;
+    
+    /* Colores de borde */
+    --border-color: #D6CAAF;
+    --border-color-light: #E0D7C1;
+    --border-color-dark: #CCC09D;
+    
+    /* Colores específicos */
+    --primary-color: #8B4513;
+    --primary-dark: #A0522D;
+    --accent-color: #8B4513;
+    --accent-color-dark: #A0522D;
+    --accent-color-rgb: 139, 69, 19;
+    
+    /* Colores de superficie */
+    --surface-primary: #F4F1EA;
+    --surface-secondary: #EAE4D3;
+    --surface-tertiary: #E0D7C1;
+    
+    /* Colores específicos del chat */
+    --chat-bg: #F4F1EA;
+    --chat-input-bg: #EAE4D3;
+    --chat-message-assistant-bg: #EAE4D3;
+    --chat-message-system-bg: #E0D7C1;
+    
+    /* Sombras */
+    --shadow-color: rgba(93, 78, 55, 0.2);
+    --glow-color: rgba(139, 69, 19, 0.3);
+    
+    /* Filtros para tono sepia */
+    --brightness-filter: brightness(0.95);
+    --contrast-filter: contrast(0.9);
+    --saturate-filter: saturate(0.8);
+}
+
+/* Aplicar filtros a elementos específicos */
+.theme-high-contrast img,
+.theme-high-contrast video {
+    filter: var(--brightness-filter) var(--contrast-filter) var(--saturate-filter);
+}
+
+.theme-sepia img,
+.theme-sepia video {
+    filter: sepia(0.3) var(--brightness-filter) var(--contrast-filter) var(--saturate-filter);
+}
+
+/* Transiciones suaves entre temas */
+* {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Estilos específicos para elementos de interfaz */
+
+/* Header con tema */
+.theme-dark header,
+.theme-auto header {
+    background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+    border-bottom-color: var(--border-color);
+}
+
+.theme-light header {
+    background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+    border-bottom-color: var(--border-color);
+    box-shadow: 0 2px 4px var(--shadow-color);
+}
+
+/* Botones con tema */
+.theme-dark .btn-secondary,
+.theme-auto .btn-secondary {
+    background-color: var(--bg-secondary);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+.theme-dark .btn-secondary:hover,
+.theme-auto .btn-secondary:hover {
+    background-color: var(--bg-tertiary);
+    border-color: var(--accent-color);
+}
+
+.theme-light .btn-secondary {
+    background-color: var(--bg-secondary);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+.theme-light .btn-secondary:hover {
+    background-color: var(--bg-tertiary);
+    border-color: var(--accent-color);
+}
+
+/* Inputs con tema */
+.theme-dark .form-input,
+.theme-dark .form-textarea,
+.theme-dark .form-select,
+.theme-auto .form-input,
+.theme-auto .form-textarea,
+.theme-auto .form-select {
+    background-color: var(--bg-secondary);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+.theme-light .form-input,
+.theme-light .form-textarea,
+.theme-light .form-select {
+    background-color: var(--bg-primary);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+/* Chat con tema */
+.theme-dark .chat-container,
+.theme-auto .chat-container {
+    background: linear-gradient(to bottom, var(--chat-bg), var(--bg-secondary));
+}
+
+.theme-light .chat-container {
+    background: linear-gradient(to bottom, var(--chat-bg), var(--bg-secondary));
+    box-shadow: 0 4px 6px var(--shadow-color);
+}
+
+.theme-dark .message-assistant,
+.theme-auto .message-assistant {
+    background-color: var(--chat-message-assistant-bg);
+    border-color: var(--border-color);
+}
+
+.theme-light .message-assistant {
+    background-color: var(--chat-message-assistant-bg);
+    border-color: var(--border-color);
+}
+
+/* Scrollbar con tema */
+.theme-dark ::-webkit-scrollbar-track,
+.theme-auto ::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+
+.theme-light ::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+
+.theme-dark ::-webkit-scrollbar-thumb,
+.theme-auto ::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+}
+
+.theme-light ::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+}
+
+/* Selector de tema */
+.theme-selector {
+    display: flex;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm);
+    background-color: var(--bg-secondary);
+    border-radius: var(--border-radius-lg);
+    border: var(--border-width) solid var(--border-color);
+}
+
+.theme-option {
+    flex: 1;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: none;
+    border-radius: var(--border-radius-md);
+    background-color: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-xs);
+}
+
+.theme-option:hover {
+    background-color: var(--overlay-light);
+    color: var(--text-primary);
+}
+
+.theme-option.active {
+    background-color: var(--accent-color);
+    color: var(--secondary-color);
+    box-shadow: 0 0 0 2px rgba(var(--accent-color-rgb), 0.3);
+}
+
+.theme-option .icon {
+    font-size: var(--font-size-base);
+}
+
+/* Indicadores de tema */
+.theme-indicator {
+    position: fixed;
+    top: var(--spacing-md);
+    right: var(--spacing-md);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background-color: var(--bg-secondary);
+    border: var(--border-width) solid var(--border-color);
+    border-radius: var(--border-radius-full);
+    font-size: var(--font-size-xs);
+    color: var(--text-secondary);
+    z-index: var(--z-toast);
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all var(--transition-normal);
+    pointer-events: none;
+}
+
+.theme-indicator.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Efectos especiales para temas */
+
+/* Glow effect para tema oscuro */
+.theme-dark .btn-primary,
+.theme-auto .btn-primary {
+    box-shadow: 0 0 20px var(--glow-color);
+}
+
+.theme-dark .btn-primary:hover,
+.theme-auto .btn-primary:hover {
+    box-shadow: 0 0 30px var(--glow-color);
+}
+
+/* Tema de alto contraste - bordes más gruesos */
+.theme-high-contrast * {
+    border-width: 2px !important;
+}
+
+.theme-high-contrast .btn,
+.theme-high-contrast .form-input,
+.theme-high-contrast .form-textarea,
+.theme-high-contrast .form-select {
+    border-width: 3px !important;
+}
+
+/* Animaciones específicas por tema */
+.theme-dark .message,
+.theme-auto .message {
+    box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+.theme-light .message {
+    box-shadow: 0 1px 3px var(--shadow-color);
+}
+
+.theme-high-contrast .message {
+    box-shadow: 0 4px 12px var(--shadow-color);
+    border: 2px solid var(--border-color) !important;
+}
+
+/* Modo de impresión */
+@media print {
+    * {
+        background: white !important;
+        color: black !important;
+        box-shadow: none !important;
+        text-shadow: none !important;
+    }
+    
+    .btn,
+    .theme-selector,
+    .theme-indicator,
+    nav,
+    footer {
+        display: none !important;
+    }
+    
+    .message {
+        border: 1px solid #ccc !important;
+        break-inside: avoid;
+    }
+}
+
+/* Accesibilidad mejorada */
+@media (prefers-reduced-motion: reduce) {
+    .theme-selector,
+    .theme-option,
+    .theme-indicator {
+        transition: none !important;
+    }
+}
+
+/* Soporte para modo de contraste alto del sistema */
+@media (prefers-contrast: high) {
+    :root {
+        --border-width: 2px;
+    }
+    
+    .btn,
+    .form-input,
+    .form-textarea,
+    .form-select {
+        border-width: 2px !important;
+    }
+}
+
+/* Soporte para transparencia reducida */
+@media (prefers-reduced-transparency: reduce) {
+    :root {
+        --overlay-light: rgba(128, 128, 128, 0.2);
+        --overlay-medium: rgba(128, 128, 128, 0.4);
+        --overlay-strong: rgba(128, 128, 128, 0.6);
+    }
+    
+    header,
+    footer {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+    }
+}
+
+/* Compatibilidad con temas legacy */
+body.light-theme {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+body.dark-theme {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+}

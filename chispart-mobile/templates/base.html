@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    
+    <!-- Title -->
+    <title>{% block title %}Chispart Mobile - Terminal Universal de IA{% endblock %}</title>
+    
+    <!-- Meta tags -->
+    <meta name="description" content="Terminal universal de IA optimizado para dispositivos móviles. Accede a múltiples APIs de IA desde una sola interfaz segura.">
+    <meta name="keywords" content="IA, AI, chat, móvil, terminal, Blackbox, OpenAI, Claude, Termux">
+    <meta name="author" content="Chispart Mobile">
+    
+    <!-- PWA Meta tags -->
+    <meta name="theme-color" content="#1a1a1a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Chispart Mobile">
+    <meta name="mobile-web-app-capable" content="yes">
+    
+    <!-- Icons -->
+    <link rel="icon" type="image/x-icon" href="/static/icons/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/icons/favicon-16x16.png">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/static/manifest.json">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/themes.css">
+    <link rel="stylesheet" href="/static/css/mobile.css">
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="/static/js/app.js" as="script">
+    <link rel="preload" href="/static/js/utils.js" as="script">
+    <link rel="preload" href="/static/js/pwa.js" as="script">
+    
+    <!-- DNS prefetch for external resources -->
+    <link rel="dns-prefetch" href="//api.blackbox.ai">
+    <link rel="dns-prefetch" href="//api.openai.com">
+    <link rel="dns-prefetch" href="//api.anthropic.com">
+</head>
+<body class="theme-dark">
+    <!-- Loading screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <div class="loading-logo">
+                <span class="logo-symbol">⚡</span>
+            </div>
+            <div class="loading-text">Cargando Chispart Mobile...</div>
+            <div class="loading-spinner"></div>
+        </div>
+    </div>
+
+    <!-- Main app container -->
+    <div class="app-container" id="app-container" style="display: none;">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <!-- Logo y título -->
+                <div class="header-left">
+                    <a href="/" class="logo-link">
+                        <div class="logo">
+                            <span class="logo-symbol">⚡</span>
+                            <span class="logo-text">
+                                <span class="logo-main">Chispart</span>
+                                <span class="logo-sub">Mobile</span>
+                            </span>
+                        </div>
+                    </a>
+                </div>
+                
+                <!-- Navegación principal -->
+                <nav class="main-nav">
+                    <a href="/" class="nav-link" data-page="home">
+                        <span class="nav-icon">🏠</span>
+                        <span class="nav-text">Inicio</span>
+                    </a>
+                    <a href="/chat" class="nav-link" data-page="chat">
+                        <span class="nav-icon">💬</span>
+                        <span class="nav-text">Chat</span>
+                    </a>
+                    <a href="/config" class="nav-link" data-page="config">
+                        <span class="nav-icon">⚙️</span>
+                        <span class="nav-text">Config</span>
+                    </a>
+                </nav>
+                
+                <!-- Controles del header -->
+                <div class="header-right">
+                    <!-- Indicador de conexión -->
+                    <div class="connection-indicator" id="connection-indicator" title="Estado de conexión">
+                        <span class="connection-dot online"></span>
+                    </div>
+                    
+                    <!-- Toggle de tema -->
+                    <button class="theme-toggle" id="theme-toggle" title="Cambiar tema">
+                        <span class="theme-icon">🌓</span>
+                    </button>
+                    
+                    <!-- Botón de instalación PWA -->
+                    <button class="install-button" id="install-button" style="display: none;" title="Instalar aplicación">
+                        <span class="install-icon">📱</span>
+                    </button>
+                    
+                    <!-- Menú móvil -->
+                    <button class="mobile-menu-toggle" id="mobile-menu-toggle">
+                        <span class="hamburger"></span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Menú móvil overlay -->
+        <div class="mobile-menu-overlay" id="mobile-menu-overlay">
+            <div class="mobile-menu">
+                <div class="mobile-menu-header">
+                    <div class="mobile-menu-logo">
+                        <span class="logo-symbol">⚡</span>
+                        <span>Chispart Mobile</span>
+                    </div>
+                    <button class="mobile-menu-close" id="mobile-menu-close">&times;</button>
+                </div>
+                
+                <nav class="mobile-menu-nav">
+                    <a href="/" class="mobile-nav-link">
+                        <span class="nav-icon">🏠</span>
+                        <span>Inicio</span>
+                    </a>
+                    <a href="/chat" class="mobile-nav-link">
+                        <span class="nav-icon">💬</span>
+                        <span>Chat</span>
+                    </a>
+                    <a href="/config" class="mobile-nav-link">
+                        <span class="nav-icon">⚙️</span>
+                        <span>Configuración</span>
+                    </a>
+                </nav>
+                
+                <div class="mobile-menu-footer">
+                    <div class="mobile-menu-actions">
+                        <button class="mobile-action-btn" id="mobile-theme-toggle">
+                            <span class="action-icon">🌓</span>
+                            <span>Cambiar tema</span>
+                        </button>
+                        <button class="mobile-action-btn" id="mobile-install-btn" style="display: none;">
+                            <span class="action-icon">📱</span>
+                            <span>Instalar app</span>
+                        </button>
+                    </div>
+                    
+                    <div class="mobile-menu-info">
+                        <div class="version-info">v1.0.0</div>
+                        <div class="platform-info" id="platform-info">{{ 'Termux' if config.is_mobile else 'Desktop' }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contenido principal -->
+        <main class="main-content" id="main-content">
+            {% block content %}{% endblock %}
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <div class="footer-content">
+                <div class="footer-left">
+                    <p>&copy; 2025 Chispart Mobile</p>
+                    <p class="footer-subtitle">Terminal Universal de IA</p>
+                </div>
+                
+                <div class="footer-right">
+                    <div class="footer-links">
+                        <a href="#" class="footer-link">Ayuda</a>
+                        <a href="#" class="footer-link">Privacidad</a>
+                        <a href="#" class="footer-link">Términos</a>
+                    </div>
+                    
+                    <div class="footer-status">
+                        <span class="status-text">Estado: </span>
+                        <span class="status-indicator" id="footer-status">
+                            <span class="status-dot online"></span>
+                            <span class="status-label">En línea</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Toast notifications container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Global modal container -->
+    <div class="modal-container" id="modal-container"></div>
+
+    <!-- Scripts -->
+    <script src="/static/js/utils.js"></script>
+    <script src="/static/js/app.js"></script>
+    <script src="/static/js/pwa.js"></script>
+    
+    <!-- Base functionality script -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Ocultar loading screen
+        setTimeout(() => {
+            document.getElementById('loading-screen').style.display = 'none';
+            document.getElementById('app-container').style.display = 'block';
+        }, 500);
+        
+        // Configurar navegación activa
+        const currentPath = window.location.pathname;
+        const navLinks = document.querySelectorAll('.nav-link, .mobile-nav-link');
+        
+        navLinks.forEach(link => {
+            const href = link.getAttribute('href');
+            if (href === currentPath || (currentPath === '/' && href === '/')) {
+                link.classList.add('active');
+            }
+        });
+        
+        // Toggle de tema
+        const themeToggle = document.getElementById('theme-toggle');
+        const mobileThemeToggle = document.getElementById('mobile-theme-toggle');
+        
+        function toggleTheme() {
+            const currentTheme = document.body.classList.contains('theme-dark') ? 'dark' : 'light';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.body.className = document.body.className.replace(/theme-\w+/g, '');
+            document.body.classList.add(`theme-${newTheme}`);
+            document.documentElement.setAttribute('data-theme', newTheme);
+            
+            localStorage.setItem('chispart-theme', newTheme);
+            
+            // Actualizar meta theme-color
+            const themeColor = newTheme === 'dark' ? '#1a1a1a' : '#ffffff';
+            document.querySelector('meta[name="theme-color"]').setAttribute('content', themeColor);
+        }
+        
+        [themeToggle, mobileThemeToggle].forEach(btn => {
+            if (btn) {
+                btn.addEventListener('click', toggleTheme);
+            }
+        });
+        
+        // Cargar tema guardado
+        const savedTheme = localStorage.getItem('chispart-theme') || 'dark';
+        document.body.className = document.body.className.replace(/theme-\w+/g, '');
+        document.body.classList.add(`theme-${savedTheme}`);
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        
+        // Menú móvil
+        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+        const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+        const mobileMenuClose = document.getElementById('mobile-menu-close');
+        
+        function openMobileMenu() {
+            mobileMenuOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeMobileMenu() {
+            mobileMenuOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        
+        mobileMenuToggle.addEventListener('click', openMobileMenu);
+        mobileMenuClose.addEventListener('click', closeMobileMenu);
+        
+        // Cerrar menú al hacer click fuera
+        mobileMenuOverlay.addEventListener('click', (e) => {
+            if (e.target === mobileMenuOverlay) {
+                closeMobileMenu();
+            }
+        });
+        
+        // Cerrar menú al navegar
+        document.querySelectorAll('.mobile-nav-link').forEach(link => {
+            link.addEventListener('click', closeMobileMenu);
+        });
+        
+        // Estado de conexión
+        function updateConnectionStatus() {
+            const indicators = document.querySelectorAll('.connection-dot, .status-dot');
+            const labels = document.querySelectorAll('.status-label');
+            
+            if (navigator.onLine) {
+                indicators.forEach(dot => {
+                    dot.className = dot.className.replace(/offline|unknown/g, '');
+                    if (!dot.classList.contains('online')) {
+                        dot.classList.add('online');
+                    }
+                });
+                labels.forEach(label => {
+                    if (label) label.textContent = 'En línea';
+                });
+            } else {
+                indicators.forEach(dot => {
+                    dot.className = dot.className.replace(/online|unknown/g, '');
+                    if (!dot.classList.contains('offline')) {
+                        dot.classList.add('offline');
+                    }
+                });
+                labels.forEach(label => {
+                    if (label) label.textContent = 'Sin conexión';
+                });
+            }
+        }
+        
+        updateConnectionStatus();
+        window.addEventListener('online', updateConnectionStatus);
+        window.addEventListener('offline', updateConnectionStatus);
+        
+        // PWA Install
+        const installButton = document.getElementById('install-button');
+        const mobileInstallBtn = document.getElementById('mobile-install-btn');
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            window.deferredPrompt = e;
+            
+            [installButton, mobileInstallBtn].forEach(btn => {
+                if (btn) btn.style.display = 'block';
+            });
+        });
+        
+        function handleInstall() {
+            if (window.deferredPrompt) {
+                window.deferredPrompt.prompt();
+                window.deferredPrompt.userChoice.then((result) => {
+                    if (result.outcome === 'accepted') {
+                        [installButton, mobileInstallBtn].forEach(btn => {
+                            if (btn) btn.style.display = 'none';
+                        });
+                    }
+                    window.deferredPrompt = null;
+                });
+            }
+        }
+        
+        [installButton, mobileInstallBtn].forEach(btn => {
+            if (btn) {
+                btn.addEventListener('click', handleInstall);
+            }
+        });
+        
+        // Ocultar botón de instalación si ya está instalado
+        window.addEventListener('appinstalled', () => {
+            [installButton, mobileInstallBtn].forEach(btn => {
+                if (btn) btn.style.display = 'none';
+            });
+        });
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Ctrl/Cmd + K para ir al chat
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                window.location.href = '/chat';
+            }
+            
+            // Ctrl/Cmd + , para ir a configuración
+            if ((e.ctrlKey || e.metaKey) && e.key === ',') {
+                e.preventDefault();
+                window.location.href = '/config';
+            }
+            
+            // Escape para cerrar menú móvil
+            if (e.key === 'Escape') {
+                closeMobileMenu();
+            }
+        });
+        
+        // Inicializar utilidades globales si están disponibles
+        if (window.ChispartUtils) {
+            window.ChispartUtils.init();
+        }
+        
+        // Inicializar PWA si está disponible
+        if (window.ChispartPWA) {
+            window.ChispartPWA.init();
+        }
+    });
+    </script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>

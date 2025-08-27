@@ -1,0 +1,4 @@
+#!/bin/bash
+# Chispart CLI Modern - Migración desde legacy
+cd "$(dirname "$0")"
+python3 migrate_to_modern.py

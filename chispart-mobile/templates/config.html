@@ -1,0 +1,559 @@
+{% extends "base.html" %}
+
+{% block title %}Configuración - Chispart Mobile{% endblock %}
+
+{% block content %}
+<div class="config-container">
+    <!-- Header de configuración -->
+    <div class="config-header">
+        <h2>⚙️ Configuración</h2>
+        <p class="config-subtitle">Personaliza tu experiencia con Chispart Mobile</p>
+    </div>
+
+    <!-- Navegación de secciones -->
+    <div class="config-nav">
+        <button class="config-nav-btn active" data-section="api-keys">
+            🔑 API Keys
+        </button>
+        <button class="config-nav-btn" data-section="appearance">
+            🎨 Apariencia
+        </button>
+        <button class="config-nav-btn" data-section="behavior">
+            ⚡ Comportamiento
+        </button>
+        <button class="config-nav-btn" data-section="advanced">
+            🔧 Avanzado
+        </button>
+    </div>
+
+    <!-- Sección API Keys -->
+    <div class="config-section active" id="api-keys-section">
+        <div class="section-header">
+            <h3>🔑 Gestión de API Keys</h3>
+            <p>Configura las claves de API para acceder a diferentes servicios de IA</p>
+        </div>
+
+        <!-- Estado de API Keys -->
+        <div class="api-status-grid" id="api-status-grid">
+            <div class="api-card" data-api="blackbox">
+                <div class="api-card-header">
+                    <div class="api-info">
+                        <span class="api-icon">⚫</span>
+                        <div>
+                            <h4>Blackbox AI</h4>
+                            <p>Modelo principal recomendado</p>
+                        </div>
+                    </div>
+                    <div class="api-status" id="blackbox-status">
+                        <span class="status-indicator unknown"></span>
+                        <span class="status-text">No configurado</span>
+                    </div>
+                </div>
+                <div class="api-card-body">
+                    <div class="form-group">
+                        <input type="password" class="form-input api-key-input" 
+                               data-api="blackbox" placeholder="Ingresa tu API key de Blackbox">
+                        <button class="btn btn-sm btn-primary save-api-key" data-api="blackbox">
+                            Guardar
+                        </button>
+                    </div>
+                    <div class="api-features">
+                        <span class="feature-tag">💬 Chat</span>
+                        <span class="feature-tag">📷 Imágenes</span>
+                        <span class="feature-tag">📄 PDF</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="api-card" data-api="openai">
+                <div class="api-card-header">
+                    <div class="api-info">
+                        <span class="api-icon">🤖</span>
+                        <div>
+                            <h4>OpenAI</h4>
+                            <p>GPT-3.5, GPT-4 y más</p>
+                        </div>
+                    </div>
+                    <div class="api-status" id="openai-status">
+                        <span class="status-indicator unknown"></span>
+                        <span class="status-text">No configurado</span>
+                    </div>
+                </div>
+                <div class="api-card-body">
+                    <div class="form-group">
+                        <input type="password" class="form-input api-key-input" 
+                               data-api="openai" placeholder="sk-...">
+                        <button class="btn btn-sm btn-primary save-api-key" data-api="openai">
+                            Guardar
+                        </button>
+                    </div>
+                    <div class="api-features">
+                        <span class="feature-tag">💬 Chat</span>
+                        <span class="feature-tag">📷 Imágenes</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="api-card" data-api="anthropic">
+                <div class="api-card-header">
+                    <div class="api-info">
+                        <span class="api-icon">🧠</span>
+                        <div>
+                            <h4>Anthropic Claude</h4>
+                            <p>Claude 3 Haiku, Sonnet, Opus</p>
+                        </div>
+                    </div>
+                    <div class="api-status" id="anthropic-status">
+                        <span class="status-indicator unknown"></span>
+                        <span class="status-text">No configurado</span>
+                    </div>
+                </div>
+                <div class="api-card-body">
+                    <div class="form-group">
+                        <input type="password" class="form-input api-key-input" 
+                               data-api="anthropic" placeholder="sk-ant-...">
+                        <button class="btn btn-sm btn-primary save-api-key" data-api="anthropic">
+                            Guardar
+                        </button>
+                    </div>
+                    <div class="api-features">
+                        <span class="feature-tag">💬 Chat</span>
+                        <span class="feature-tag">📷 Imágenes</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="api-card" data-api="groq">
+                <div class="api-card-header">
+                    <div class="api-info">
+                        <span class="api-icon">⚡</span>
+                        <div>
+                            <h4>Groq</h4>
+                            <p>Inferencia ultra-rápida</p>
+                        </div>
+                    </div>
+                    <div class="api-status" id="groq-status">
+                        <span class="status-indicator unknown"></span>
+                        <span class="status-text">No configurado</span>
+                    </div>
+                </div>
+                <div class="api-card-body">
+                    <div class="form-group">
+                        <input type="password" class="form-input api-key-input" 
+                               data-api="groq" placeholder="gsk_...">
+                        <button class="btn btn-sm btn-primary save-api-key" data-api="groq">
+                            Guardar
+                        </button>
+                    </div>
+                    <div class="api-features">
+                        <span class="feature-tag">💬 Chat</span>
+                        <span class="feature-tag">⚡ Rápido</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Acciones de API Keys -->
+        <div class="api-actions">
+            <button class="btn btn-secondary" id="validate-all-keys">
+                🔍 Validar Todas las Keys
+            </button>
+            <button class="btn btn-outline" id="export-config">
+                📤 Exportar Configuración
+            </button>
+        </div>
+    </div>
+
+    <!-- Sección Apariencia -->
+    <div class="config-section" id="appearance-section">
+        <div class="section-header">
+            <h3>🎨 Personalización de Apariencia</h3>
+            <p>Ajusta el tema y la interfaz según tus preferencias</p>
+        </div>
+
+        <div class="config-grid">
+            <!-- Selector de tema -->
+            <div class="config-card">
+                <h4>🌓 Tema</h4>
+                <div class="theme-selector">
+                    <button class="theme-option active" data-theme="dark">
+                        <span class="icon">🌙</span>
+                        <span>Oscuro</span>
+                    </button>
+                    <button class="theme-option" data-theme="light">
+                        <span class="icon">☀️</span>
+                        <span>Claro</span>
+                    </button>
+                    <button class="theme-option" data-theme="auto">
+                        <span class="icon">🔄</span>
+                        <span>Auto</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Configuración de fuente -->
+            <div class="config-card">
+                <h4>📝 Tipografía</h4>
+                <div class="form-group">
+                    <label class="form-label">Tamaño de fuente:</label>
+                    <select class="form-select" id="font-size">
+                        <option value="small">Pequeña</option>
+                        <option value="medium" selected>Mediana</option>
+                        <option value="large">Grande</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="compact-mode">
+                        <span class="checkmark"></span>
+                        Modo compacto
+                    </label>
+                </div>
+            </div>
+
+            <!-- Animaciones -->
+            <div class="config-card">
+                <h4>✨ Efectos Visuales</h4>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="animations-enabled" checked>
+                        <span class="checkmark"></span>
+                        Animaciones habilitadas
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="show-token-usage" checked>
+                        <span class="checkmark"></span>
+                        Mostrar uso de tokens
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sección Comportamiento -->
+    <div class="config-section" id="behavior-section">
+        <div class="section-header">
+            <h3>⚡ Configuración de Comportamiento</h3>
+            <p>Personaliza cómo funciona la aplicación</p>
+        </div>
+
+        <div class="config-grid">
+            <!-- API por defecto -->
+            <div class="config-card">
+                <h4>🤖 API Predeterminada</h4>
+                <div class="form-group">
+                    <select class="form-select" id="default-api">
+                        <option value="blackbox">Blackbox AI</option>
+                        <option value="openai">OpenAI</option>
+                        <option value="anthropic">Anthropic Claude</option>
+                        <option value="groq">Groq</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Modelo por defecto -->
+            <div class="config-card">
+                <h4>🧠 Modelo Predeterminado</h4>
+                <div class="form-group">
+                    <select class="form-select" id="default-model">
+                        <option value="blackboxai/openai/gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                        <option value="blackboxai/openai/gpt-4">GPT-4</option>
+                        <option value="claude-3-haiku-20240307">Claude 3 Haiku</option>
+                        <option value="claude-3-sonnet-20240229">Claude 3 Sonnet</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Configuraciones de chat -->
+            <div class="config-card">
+                <h4>💬 Configuración de Chat</h4>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="auto-scroll" checked>
+                        <span class="checkmark"></span>
+                        Auto-scroll en mensajes
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="save-history" checked>
+                        <span class="checkmark"></span>
+                        Guardar historial localmente
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sección Avanzado -->
+    <div class="config-section" id="advanced-section">
+        <div class="section-header">
+            <h3>🔧 Configuración Avanzada</h3>
+            <p>Opciones para usuarios avanzados</p>
+        </div>
+
+        <div class="config-grid">
+            <!-- PWA Settings -->
+            <div class="config-card">
+                <h4>📱 Progressive Web App</h4>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="notifications-enabled" checked>
+                        <span class="checkmark"></span>
+                        Notificaciones push
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="offline-mode">
+                        <span class="checkmark"></span>
+                        Modo offline
+                    </label>
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-outline" id="clear-cache">
+                        🗑️ Limpiar caché
+                    </button>
+                </div>
+            </div>
+
+            <!-- Datos y privacidad -->
+            <div class="config-card">
+                <h4>🔒 Datos y Privacidad</h4>
+                <div class="form-group">
+                    <button class="btn btn-outline" id="export-data">
+                        📤 Exportar datos
+                    </button>
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-danger" id="clear-all-data">
+                        🗑️ Borrar todos los datos
+                    </button>
+                </div>
+            </div>
+
+            <!-- Información del sistema -->
+            <div class="config-card">
+                <h4>ℹ️ Información del Sistema</h4>
+                <div class="system-info">
+                    <div class="info-item">
+                        <span class="info-label">Versión:</span>
+                        <span class="info-value">1.0.0</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Plataforma:</span>
+                        <span class="info-value" id="platform-info">{{ 'Termux' if config.is_mobile else 'Desktop' }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Almacenamiento usado:</span>
+                        <span class="info-value" id="storage-usage">Calculando...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botones de acción globales -->
+    <div class="config-actions">
+        <button class="btn btn-secondary" id="reset-config">
+            🔄 Restaurar valores por defecto
+        </button>
+        <button class="btn btn-primary" id="save-all-config">
+            💾 Guardar toda la configuración
+        </button>
+    </div>
+</div>
+
+<!-- Loading overlay -->
+<div class="loading-overlay" id="config-loading" style="display: none;">
+    <div class="loading-content">
+        <div class="loading-spinner"></div>
+        <p>Guardando configuración...</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Navegación entre secciones
+    const navButtons = document.querySelectorAll('.config-nav-btn');
+    const sections = document.querySelectorAll('.config-section');
+    
+    navButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const sectionId = btn.dataset.section + '-section';
+            
+            // Actualizar navegación
+            navButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            // Mostrar sección
+            sections.forEach(s => s.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+        });
+    });
+    
+    // Selector de tema
+    const themeOptions = document.querySelectorAll('.theme-option');
+    themeOptions.forEach(option => {
+        option.addEventListener('click', () => {
+            themeOptions.forEach(o => o.classList.remove('active'));
+            option.classList.add('active');
+            
+            const theme = option.dataset.theme;
+            document.body.className = document.body.className.replace(/theme-\w+/g, '');
+            document.body.classList.add(`theme-${theme}`);
+            
+            // Guardar en localStorage
+            localStorage.setItem('chispart-theme', theme);
+        });
+    });
+    
+    // Guardar API keys
+    const saveButtons = document.querySelectorAll('.save-api-key');
+    saveButtons.forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const api = btn.dataset.api;
+            const input = document.querySelector(`input[data-api="${api}"]`);
+            const apiKey = input.value.trim();
+            
+            if (!apiKey) {
+                alert('Por favor ingresa una API key válida');
+                return;
+            }
+            
+            try {
+                btn.textContent = 'Guardando...';
+                btn.disabled = true;
+                
+                const response = await fetch('/api/api-keys', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ provider: api, api_key: apiKey })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    updateAPIStatus(api, 'valid', 'Configurado correctamente');
+                    input.value = '';
+                    
+                    if (window.ChispartUtils) {
+                        window.ChispartUtils.UI.showToast(`API key de ${api} guardada`, 'success');
+                    }
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                btn.textContent = 'Guardar';
+                btn.disabled = false;
+            }
+        });
+    });
+    
+    // Validar todas las keys
+    document.getElementById('validate-all-keys').addEventListener('click', async () => {
+        const btn = document.getElementById('validate-all-keys');
+        btn.textContent = 'Validando...';
+        btn.disabled = true;
+        
+        try {
+            const response = await fetch('/api/validate-keys', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            
+            const result = await response.json();
+            
+            Object.entries(result.validation).forEach(([api, validation]) => {
+                updateAPIStatus(api, validation.valid ? 'valid' : 'invalid', 
+                              validation.valid ? 'Válida' : validation.error);
+            });
+            
+            if (window.ChispartUtils) {
+                window.ChispartUtils.UI.showToast('Validación completada', 'info');
+            }
+        } catch (error) {
+            alert('Error validando keys: ' + error.message);
+        } finally {
+            btn.textContent = '🔍 Validar Todas las Keys';
+            btn.disabled = false;
+        }
+    });
+    
+    // Función para actualizar estado de API
+    function updateAPIStatus(api, status, message) {
+        const statusEl = document.getElementById(`${api}-status`);
+        if (statusEl) {
+            const indicator = statusEl.querySelector('.status-indicator');
+            const text = statusEl.querySelector('.status-text');
+            
+            indicator.className = `status-indicator ${status}`;
+            text.textContent = message;
+        }
+    }
+    
+    // Cargar configuración inicial
+    loadCurrentConfig();
+    
+    async function loadCurrentConfig() {
+        try {
+            const response = await fetch('/api/config');
+            const data = await response.json();
+            
+            // Aplicar configuración a la UI
+            if (data.config) {
+                const config = data.config;
+                
+                // Tema
+                const currentTheme = config.theme || 'dark';
+                document.querySelector(`[data-theme="${currentTheme}"]`).classList.add('active');
+                
+                // Otros controles
+                document.getElementById('compact-mode').checked = config.compact_mode || false;
+                document.getElementById('animations-enabled').checked = config.animations_enabled !== false;
+                document.getElementById('show-token-usage').checked = config.show_token_usage !== false;
+                document.getElementById('default-api').value = config.default_api || 'blackbox';
+                document.getElementById('default-model').value = config.default_model || 'blackboxai/openai/gpt-3.5-turbo';
+                document.getElementById('notifications-enabled').checked = config.notifications_enabled !== false;
+                document.getElementById('offline-mode').checked = config.offline_mode || false;
+            }
+            
+            // Cargar estado de API keys
+            if (data.api_providers) {
+                data.api_providers.forEach(provider => {
+                    updateAPIStatus(provider.id, 
+                                  provider.configured ? (provider.status === 'valid' ? 'valid' : 'invalid') : 'unknown',
+                                  provider.configured ? (provider.status === 'valid' ? 'Configurado' : 'Error') : 'No configurado');
+                });
+            }
+        } catch (error) {
+            console.error('Error cargando configuración:', error);
+        }
+    }
+    
+    // Calcular uso de almacenamiento
+    function calculateStorageUsage() {
+        let total = 0;
+        for (let key in localStorage) {
+            if (localStorage.hasOwnProperty(key)) {
+                total += localStorage[key].length;
+            }
+        }
+        
+        const usageEl = document.getElementById('storage-usage');
+        if (usageEl) {
+            const kb = (total / 1024).toFixed(2);
+            usageEl.textContent = `${kb} KB`;
+        }
+    }
+    
+    calculateStorageUsage();
+});
+</script>
+{% endblock %}

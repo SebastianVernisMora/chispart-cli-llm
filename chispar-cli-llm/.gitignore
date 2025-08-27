@@ -1,0 +1,99 @@
+# =============================================================================
+# 🚀 Chispart Dev Agent v3.0 - Git Ignore
+# =============================================================================
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/*.log
+
+# Configuration files with secrets
+.env.local
+.env.production
+config.local.py
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
+
+# Data files
+*.json.bak
+*.db
+*.sqlite
+*.sqlite3
+
+# Teams and sessions data (keep structure, ignore content)
+teams.json
+atc_sessions.json
+chat_history.json
+
+# Test coverage
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Documentation builds
+docs/_build/
+site/
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# Archive directory (keep structure)
+archive/*
+!archive/.gitkeep

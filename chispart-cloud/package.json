@@ -1,0 +1,55 @@
+{
+  "name": "chispart-cloud",
+  "version": "1.0.0",
+  "description": "Chispart CLI LLM - Optimizado para PC, servidores y despliegue en la nube",
+  "main": "app.py",
+  "scripts": {
+    "start": "python3 app.py",
+    "start:prod": "gunicorn -w 4 -b 0.0.0.0:5000 app:app",
+    "build-pwa": "python3 build_pwa.py",
+    "test": "python3 -m pytest tests/",
+    "lint": "python3 -m flake8 .",
+    "dev": "FLASK_ENV=development python3 app.py",
+    "docker:build": "docker build -t chispart-cloud .",
+    "docker:run": "docker run -p 5000:5000 chispart-cloud",
+    "deploy:heroku": "git push heroku main",
+    "deploy:vercel": "vercel --prod"
+  },
+  "keywords": [
+    "llm",
+    "ai",
+    "cli",
+    "cloud",
+    "server",
+    "pwa",
+    "blackbox",
+    "openai",
+    "anthropic",
+    "docker",
+    "kubernetes"
+  ],
+  "author": "Sebastian Vernis Mora",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SebastianVernisMora/chispart-cloud.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SebastianVernisMora/chispart-cloud/issues"
+  },
+  "homepage": "https://github.com/SebastianVernisMora/chispart-cloud#readme",
+  "dependencies": {
+    "workbox-cli": "^7.0.0",
+    "@vercel/node": "^3.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.0.0",
+    "prettier": "^3.0.0",
+    "webpack": "^5.0.0",
+    "webpack-cli": "^5.0.0"
+  },
+  "engines": {
+    "python": ">=3.8",
+    "node": ">=16.0.0"
+  }
+}
