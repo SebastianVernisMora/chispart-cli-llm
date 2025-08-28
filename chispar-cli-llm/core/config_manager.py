@@ -46,6 +46,7 @@ class ConfigManager:
         return {
             "version": "2.0.0",
             "default_api": DEFAULT_API,
+            "plan": "free",
             "theme": "chispart_neon",
             "ui_preferences": {
                 "show_banners": True,
@@ -181,6 +182,10 @@ class ConfigManager:
         """Establece tema"""
         self.user_config["theme"] = theme_name
         return self.save_user_config()
+
+    def get_user_plan(self) -> str:
+        """Obtiene el plan del usuario"""
+        return self.user_config.get("plan", "free")
     
     def get_ui_preference(self, key: str, default: Any = None) -> Any:
         """Obtiene preferencia de UI"""

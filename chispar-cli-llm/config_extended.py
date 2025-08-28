@@ -315,35 +315,63 @@ MOBILE_NETWORK_CONFIG = {
 }
 
 # Configuración de seguridad
-SECURITY_CONFIG = {
-    "whitelist_enabled": True,
-    "allowed_commands": [
-        # Comandos básicos del sistema
-        "ls", "pwd", "cd", "cat", "grep", "find", "which", "echo", "date", "whoami",
-        # Comandos de desarrollo
-        "git", "npm", "pip", "python", "python3", "node", "yarn", "docker", "kubectl",
-        # Comandos de archivos
-        "mkdir", "rmdir", "touch", "cp", "mv", "rm", "chmod", "chown",
-        # Comandos de red
-        "curl", "wget", "ping", "ssh", "scp",
-        # Comandos de texto
-        "vim", "nano", "code", "less", "more", "head", "tail", "sort", "uniq", "wc"
-    ],
-    "blocked_commands": [
-        # Comandos peligrosos
-        "sudo", "su", "passwd", "useradd", "userdel", "usermod",
-        "systemctl", "service", "mount", "umount", "fdisk", "mkfs",
-        "iptables", "ufw", "firewall-cmd", "setenforce",
-        "crontab", "at", "batch",
-        # Comandos de red peligrosos
-        "nc", "netcat", "nmap", "tcpdump", "wireshark",
-        # Comandos de eliminación peligrosos
-        "rm -rf"
-    ],
-    "require_confirmation": [
-        "rm", "rmdir", "mv", "cp", "chmod", "chown", "git push", "docker run"
-    ]
+PLAN_BASED_SECURITY_CONFIG = {
+    "free": {
+        "whitelist_enabled": True,
+        "allowed_commands": [
+            "ls", "pwd", "cd", "cat", "grep", "find", "which", "echo", "date", "whoami",
+            "python", "python3", "node", "pip"
+        ],
+        "blocked_commands": [
+            "sudo", "su", "passwd", "useradd", "userdel", "usermod", "systemctl", "service",
+            "mount", "umount", "fdisk", "mkfs", "iptables", "ufw", "firewall-cmd", "setenforce",
+            "crontab", "at", "batch", "nc", "netcat", "nmap", "tcpdump", "wireshark", "rm -rf"
+        ],
+        "require_confirmation": ["rm", "rmdir", "mv", "cp"]
+    },
+    "basic": {
+        "whitelist_enabled": True,
+        "allowed_commands": [
+            "ls", "pwd", "cd", "cat", "grep", "find", "which", "echo", "date", "whoami",
+            "python", "python3", "node", "pip", "git", "npm", "yarn",
+            "mkdir", "rmdir", "touch", "cp", "mv", "rm"
+        ],
+        "blocked_commands": [
+            "sudo", "su", "passwd", "useradd", "userdel", "usermod", "systemctl", "service",
+            "mount", "umount", "fdisk", "mkfs", "iptables", "ufw", "firewall-cmd", "setenforce",
+            "crontab", "at", "batch", "nc", "netcat", "nmap", "tcpdump", "wireshark", "rm -rf"
+        ],
+        "require_confirmation": ["rm", "rmdir", "mv", "cp", "git push"]
+    },
+    "pro": {
+        "whitelist_enabled": True,
+        "allowed_commands": [
+            "ls", "pwd", "cd", "cat", "grep", "find", "which", "echo", "date", "whoami",
+            "python", "python3", "node", "pip", "git", "npm", "yarn", "docker", "kubectl",
+            "mkdir", "rmdir", "touch", "cp", "mv", "rm", "chmod", "chown",
+            "curl", "wget", "ping", "ssh", "scp",
+            "vim", "nano", "code", "less", "more", "head", "tail", "sort", "uniq", "wc"
+        ],
+        "blocked_commands": [
+            "sudo", "su", "passwd", "useradd", "userdel", "usermod", "systemctl", "service",
+            "mount", "umount", "fdisk", "mkfs", "iptables", "ufw", "firewall-cmd", "setenforce",
+            "crontab", "at", "batch", "nc", "netcat", "nmap", "tcpdump", "wireshark", "rm -rf"
+        ],
+        "require_confirmation": ["rm", "rmdir", "mv", "cp", "chmod", "chown", "git push", "docker run"]
+    }
 }
+
+def get_security_config(plan: str) -> dict:
+    """
+    Obtiene la configuración de seguridad para un plan específico.
+
+    Args:
+        plan: El plan del usuario (free, basic, pro)
+
+    Returns:
+        Diccionario con la configuración de seguridad.
+    """
+    return PLAN_BASED_SECURITY_CONFIG.get(plan, PLAN_BASED_SECURITY_CONFIG["free"])
 
 # Configuración de split chat
 SPLIT_CHAT_CONFIG = {

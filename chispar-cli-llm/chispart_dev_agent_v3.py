@@ -636,6 +636,7 @@ def security(interactive):
     security_info = Panel(
         f"[bold cyan]🛡️ Estado de Seguridad[/bold cyan]\n\n"
         f"[bold green]Sistema habilitado:[/bold green] {'✅ Sí' if status['enabled'] else '❌ No'}\n"
+        f"[bold yellow]Plan de usuario:[/bold yellow] {status['plan'].capitalize()}\n"
         f"[bold yellow]Comandos permitidos:[/bold yellow] {status['whitelist_count']}\n"
         f"[bold red]Comandos bloqueados:[/bold red] {status['blacklist_count']}\n"
         f"[bold blue]Requieren confirmación:[/bold blue] {status['confirmation_required_count']}\n\n"

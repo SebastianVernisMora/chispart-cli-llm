@@ -2,6 +2,7 @@
   "version": "2.0.0",
   "configured_apis": [],
   "current_api": "chispart",
+  "plan": "free",
   "current_theme": "neon",
   "user_preferences": {
     "save_history": true,
