@@ -8,12 +8,13 @@ import os
 import sys
 import json
 import asyncio
+import queue
 from datetime import datetime
 from typing import Dict, List, Optional, Any
 from pathlib import Path
 
 # Flask y extensiones
-from flask import Flask, request, jsonify, render_template, send_from_directory, redirect, url_for
+from flask import Flask, request, jsonify, render_template, send_from_directory, redirect, url_for, Response, stream_with_context
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 
@@ -38,6 +39,9 @@ from config_extended import (
 from core.shell import InteractiveShell
 from core.analyzer import DirectoryAnalyzer
 
+# Global queue for log streaming
+log_queue = queue.Queue()
+
 class ChispartMobileApp:
     """
     Aplicación principal de Chispart Mobile con arquitectura modular avanzada
@@ -55,7 +59,7 @@ class ChispartMobileApp:
         self.api_manager = api_key_manager
         self.pwa_manager = pwa_manager
         self.config_manager = config_manager
-        self.interactive_shell = InteractiveShell()
+        self.interactive_shell = InteractiveShell(log_queue=log_queue)
         
         # Configurar PWA con la app Flask
         self.pwa_manager.init_app(self.app)
@@ -141,6 +145,13 @@ class ChispartMobileApp:
                                  config=self._get_client_config(),
                                  api_providers=self._get_api_providers_info())
         
+        @self.app.route('/console')
+        def console_page():
+            """Página de la consola interactiva"""
+            return render_template('console.html',
+                                 is_mobile=self.is_mobile,
+                                 config=self._get_client_config())
+
         # API Routes
         @self.app.route('/api/chat', methods=['POST'])
         def api_chat():
@@ -460,6 +471,26 @@ class ChispartMobileApp:
                 
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
+
+        @self.app.route('/api/console/stream')
+        def console_stream():
+            """Endpoint para streaming de logs de la consola."""
+            def generate():
+                # Bucle para mantener la conexión y enviar datos
+                while True:
+                    try:
+                        # Esperar un mensaje de la cola
+                        message = log_queue.get(timeout=20)
+                        if message is None:  # Señal para cerrar la conexión
+                            break
+                        # Formatear como Server-Sent Event
+                        yield f"data: {json.dumps(message)}\n\n"
+                    except queue.Empty:
+                        # Enviar un comentario para mantener la conexión viva
+                        yield ": keep-alive\n\n"
+
+            # Devolver una respuesta de streaming
+            return Response(stream_with_context(generate()), mimetype='text/event-stream')
 
         @self.app.route('/api/interactive', methods=['POST'])
         def api_interactive():

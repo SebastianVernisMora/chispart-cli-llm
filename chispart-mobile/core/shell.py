@@ -12,7 +12,7 @@ COMMAND_WHITELIST = [
 ]
 
 class InteractiveShell:
-    def __init__(self, histmax: int = 300):
+    def __init__(self, histmax: int = 300, log_queue=None):
         self.current_path = Path.cwd()
         self.history = deque(maxlen=histmax)
         self.session_vars = {
@@ -20,6 +20,7 @@ class InteractiveShell:
             "outmax": 10000,
             "histmax": histmax
         }
+        self.log_queue = log_queue
 
     def execute(self, user_input: str) -> Dict[str, str]:
         """
@@ -46,15 +47,24 @@ class InteractiveShell:
         # Si no es un comando especial, se tratará como chat o análisis
         return {"status": "passthrough", "output": user_input}
 
+    def _log(self, message: Dict):
+        if self.log_queue:
+            self.log_queue.put(message)
+
     def _handle_shell_command(self, command: str) -> Dict[str, str]:
         """Maneja comandos que empiezan con '!'."""
+        self._log({"type": "command", "command": command})
         if command == '!!':
             if len(self.history) > 1:
                 # El comando más reciente es '!!', el anterior es el que queremos
                 last_command = self.history[-2]
                 self.history.append(last_command) # Añadir el comando re-ejecutado
                 return self.execute(last_command)
-            return {"status": "error", "output": "No hay comandos en el historial para re-ejecutar."}
+
+            error_message = "No hay comandos en el historial para re-ejecutar."
+            result = {"status": "error", "output": error_message}
+            self._log({"type": "output", "status": "error", "output": error_message})
+            return result
 
         elif command.startswith('!run '):
             try:
@@ -64,14 +74,24 @@ class InteractiveShell:
                     run_command = list(self.history)[index-1]
                     self.history.append(run_command)
                     return self.execute(run_command)
-                return {"status": "error", "output": f"Índice de historial inválido: {index}"}
+
+                error_message = f"Índice de historial inválido: {index}"
+                result = {"status": "error", "output": error_message}
+                self._log({"type": "output", "status": "error", "output": error_message})
+                return result
             except (ValueError, IndexError):
-                return {"status": "error", "output": "Uso: !run <número_de_historial>"}
+                error_message = "Uso: !run <número_de_historial>"
+                result = {"status": "error", "output": error_message}
+                self._log({"type": "output", "status": "error", "output": error_message})
+                return result
 
         elif command.startswith('!?'):
             match = re.match(r'!\?\s*/(.*?)/(i?)\s*$', command)
             if not match:
-                return {"status": "error", "output": "Formato de búsqueda inválido. Uso: !? /regex/i"}
+                error_message = "Formato de búsqueda inválido. Uso: !? /regex/i"
+                result = {"status": "error", "output": error_message}
+                self._log({"type": "output", "status": "error", "output": error_message})
+                return result
 
             pattern, flags_str = match.groups()
             flags = re.IGNORECASE if 'i' in flags_str else 0
@@ -82,9 +102,16 @@ class InteractiveShell:
                     if re.search(pattern, cmd, flags):
                         self.history.append(cmd)
                         return self.execute(cmd)
-                return {"status": "error", "output": f"No se encontró comando que coincida con /{pattern}/"}
+
+                error_message = f"No se encontró comando que coincida con /{pattern}/"
+                result = {"status": "error", "output": error_message}
+                self._log({"type": "output", "status": "error", "output": error_message})
+                return result
             except re.error as e:
-                return {"status": "error", "output": f"Error en la expresión regular: {e}"}
+                error_message = f"Error en la expresión regular: {e}"
+                result = {"status": "error", "output": error_message}
+                self._log({"type": "output", "status": "error", "output": error_message})
+                return result
 
         # Comando normal: !comando
         actual_command = command[1:]
@@ -92,10 +119,14 @@ class InteractiveShell:
 
     def _run_subprocess(self, command: str) -> Dict[str, str]:
         """Ejecuta un comando en un subproceso de forma segura."""
+        self._log({"type": "command", "command": command})
         # Validar contra la whitelist
         command_to_run = command.strip()
         if not any(command_to_run.startswith(prefix) for prefix in COMMAND_WHITELIST):
-            return {"status": "error", "output": f"Comando no permitido: '{command_to_run}'. Solo se permiten comandos en la lista blanca."}
+            error_message = f"Comando no permitido: '{command_to_run}'. Solo se permiten comandos en la lista blanca."
+            result = {"status": "error", "output": error_message}
+            self._log({"type": "output", "status": "error", "output": error_message})
+            return result
 
         try:
             process = subprocess.run(
@@ -114,20 +145,31 @@ class InteractiveShell:
             if len(output) > self.session_vars["outmax"]:
                 output = output[:self.session_vars["outmax"]] + "\n\n[... SALIDA TRUNCADA ...]"
 
-            return {"status": "ok", "output": output}
+            result = {"status": "ok", "output": output}
+            self._log({"type": "output", "status": "ok", "output": output})
+            return result
 
         except subprocess.TimeoutExpired:
-            return {"status": "error", "output": f"Comando '{command_to_run}' excedió el tiempo límite de {self.session_vars['timeout']}s."}
+            error_message = f"Comando '{command_to_run}' excedió el tiempo límite de {self.session_vars['timeout']}s."
+            result = {"status": "error", "output": error_message}
+            self._log({"type": "output", "status": "error", "output": error_message})
+            return result
         except Exception as e:
-            return {"status": "error", "output": f"Error ejecutando comando: {e}"}
+            error_message = f"Error ejecutando comando: {e}"
+            result = {"status": "error", "output": error_message}
+            self._log({"type": "output", "status": "error", "output": error_message})
+            return result
 
     def _handle_cd(self, command: str) -> Dict[str, str]:
         """Maneja el comando 'cd'."""
+        self._log({"type": "command", "command": command})
         parts = command.strip().split(' ', 1)
         if len(parts) == 1:
             # 'cd' sin argumentos, ir al home del repo (o donde se inició)
             self.current_path = Path.cwd()
-            return {"status": "ok", "output": f"Directorio actual: {self.current_path}"}
+            result = {"status": "ok", "output": f"Directorio actual: {self.current_path}"}
+            self._log({"type": "output", "status": "ok", "output": result["output"]})
+            return result
 
         path_str = parts[1]
         try:
@@ -135,14 +177,23 @@ class InteractiveShell:
 
             if new_path.is_dir():
                 self.current_path = new_path.resolve()
-                return {"status": "ok", "output": f"Directorio actual: {self.current_path}"}
+                result = {"status": "ok", "output": f"Directorio actual: {self.current_path}"}
+                self._log({"type": "output", "status": "ok", "output": result["output"]})
+                return result
             else:
-                return {"status": "error", "output": f"Directorio no encontrado: {new_path}"}
+                error_message = f"Directorio no encontrado: {new_path}"
+                result = {"status": "error", "output": error_message}
+                self._log({"type": "output", "status": "error", "output": error_message})
+                return result
         except Exception as e:
-            return {"status": "error", "output": f"Error en cd: {e}"}
+            error_message = f"Error en cd: {e}"
+            result = {"status": "error", "output": error_message}
+            self._log({"type": "output", "status": "error", "output": error_message})
+            return result
 
     def _handle_history(self, command: str) -> Dict[str, str]:
         """Maneja el comando 'history'."""
+        self._log({"type": "command", "command": command})
         parts = command.split()
 
         limit = None
@@ -154,7 +205,10 @@ class InteractiveShell:
                 limit_index = parts.index('-n') + 1
                 limit = int(parts[limit_index])
             except (ValueError, IndexError):
-                return {"status": "error", "output": "Uso: history -n <número>"}
+                error_message = "Uso: history -n <número>"
+                result = {"status": "error", "output": error_message}
+                self._log({"type": "output", "status": "error", "output": error_message})
+                return result
 
         for part in parts:
             if part.startswith('/') and part.endswith('/'):
@@ -168,17 +222,23 @@ class InteractiveShell:
             try:
                 history_list = [cmd for cmd in history_list if re.search(pattern, cmd)]
             except re.error:
-                return {"status": "error", "output": "Expresión regular inválida."}
+                error_message = "Expresión regular inválida."
+                result = {"status": "error", "output": error_message}
+                self._log({"type": "output", "status": "error", "output": error_message})
+                return result
 
         if limit:
             history_list = history_list[-limit:]
 
         # Formatear salida
         output = [f"{i+1}: {cmd}" for i, cmd in enumerate(history_list)]
-        return {"status": "ok", "output": "\n".join(output)}
+        result = {"status": "ok", "output": "\n".join(output)}
+        self._log({"type": "output", "status": "ok", "output": result["output"]})
+        return result
 
     def _handle_set(self, command: str) -> Dict[str, str]:
         """Maneja el comando 'set'."""
+        self._log({"type": "command", "command": command})
         try:
             _, var, value_str = command.split()
             value = int(value_str)
@@ -186,7 +246,16 @@ class InteractiveShell:
                 self.session_vars[var] = value
                 if var == 'histmax':
                     self.history = deque(self.history, maxlen=value)
-                return {"status": "ok", "output": f"{var} actualizado a {value}."}
-            return {"status": "error", "output": f"Variable desconocida: {var}"}
+                result = {"status": "ok", "output": f"{var} actualizado a {value}."}
+                self._log({"type": "output", "status": "ok", "output": result["output"]})
+                return result
+
+            error_message = f"Variable desconocida: {var}"
+            result = {"status": "error", "output": error_message}
+            self._log({"type": "output", "status": "error", "output": error_message})
+            return result
         except (ValueError, IndexError):
-            return {"status": "error", "output": "Uso: set <variable> <valor_numérico>"}
+            error_message = "Uso: set <variable> <valor_numérico>"
+            result = {"status": "error", "output": error_message}
+            self._log({"type": "output", "status": "error", "output": error_message})
+            return result

@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %}Console - Chispart Mobile{% endblock %}
+
+{% block content %}
+<div class="console-container">
+    <div class="console-header">
+        <h2>🖥️ Console</h2>
+    </div>
+
+    <div class="console-output" id="console-output">
+        <div class="welcome-message">
+            <p>Welcome to the Chispart Mobile Console.</p>
+            <p>Enter a command below and press Enter to execute it.</p>
+        </div>
+    </div>
+
+    <div class="console-input-container">
+        <form id="console-form" class="console-form">
+            <div class="input-group">
+                <span class="prompt-icon">&gt;</span>
+                <input
+                    id="command-input"
+                    class="command-input"
+                    placeholder="Enter command..."
+                    rows="1"
+                    autocomplete="off"
+                />
+                <button type="submit" class="send-button" id="send-button" title="Execute command">
+                    ➤
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const consoleForm = document.getElementById('console-form');
+    const commandInput = document.getElementById('command-input');
+    const consoleOutput = document.getElementById('console-output');
+
+    // Function to add a log message to the console
+    function addLog(message) {
+        const logElement = document.createElement('div');
+        logElement.classList.add('console-log');
+
+        if (message.type === 'command') {
+            logElement.classList.add('command');
+            logElement.textContent = `> ${message.command}`;
+        } else if (message.type === 'output') {
+            logElement.classList.add(message.status);
+            // Linkify URLs
+            const urlRegex = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+            const linkedText = message.output.replace(urlRegex, function(url) {
+                return '<a href="' + url + '" target="_blank">' + url + '</a>';
+            });
+            logElement.innerHTML = linkedText;
+        } else {
+            logElement.textContent = JSON.stringify(message);
+        }
+
+        consoleOutput.appendChild(logElement);
+        // Scroll to bottom
+        consoleOutput.scrollTop = consoleOutput.scrollHeight;
+    }
+
+    // Connect to the SSE stream
+    const eventSource = new EventSource('/api/console/stream');
+
+    eventSource.onmessage = function(event) {
+        const message = JSON.parse(event.data);
+        addLog(message);
+    };
+
+    eventSource.onerror = function(err) {
+        console.error("EventSource failed:", err);
+        const errorElement = document.createElement('div');
+        errorElement.classList.add('console-log', 'error');
+        errorElement.textContent = 'Connection to server lost. Please refresh the page.';
+        consoleOutput.appendChild(errorElement);
+        eventSource.close();
+    };
+
+
+    // Handle command submission
+    consoleForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const command = commandInput.value.trim();
+        if (!command) {
+            return;
+        }
+
+        // Clear input
+        commandInput.value = '';
+
+        // Send command to backend
+        try {
+            await fetch('/api/interactive', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ input: command })
+            });
+
+        } catch (error) {
+            const errorElement = document.createElement('div');
+            errorElement.classList.add('console-log', 'error');
+            errorElement.textContent = `Error sending command: ${error.message}`;
+            consoleOutput.appendChild(errorElement);
+        }
+    });
+
+    // Focus on input
+    commandInput.focus();
+});
+</script>
+{% endblock %}
