@@ -35,6 +35,9 @@ from config_extended import (
     AVAILABLE_APIS, DEFAULT_API, get_vision_supported_apis, get_pdf_supported_apis,
     validate_api_model_combination, get_api_statistics
 )
+from core.shell import InteractiveShell
+from core.analyzer import DirectoryAnalyzer
+
 class ChispartMobileApp:
     """
     Aplicación principal de Chispart Mobile con arquitectura modular avanzada
@@ -52,6 +55,7 @@ class ChispartMobileApp:
         self.api_manager = api_key_manager
         self.pwa_manager = pwa_manager
         self.config_manager = config_manager
+        self.interactive_shell = InteractiveShell()
         
         # Configurar PWA con la app Flask
         self.pwa_manager.init_app(self.app)
@@ -160,7 +164,7 @@ class ChispartMobileApp:
                     }), 400
                 
                 # Validar API key si es necesario
-                validation = await self.api_manager.validate_api_key(api_name)
+                validation = asyncio.run(self.api_manager.validate_api_key(api_name))
                 if not validation['valid']:
                     return jsonify({
                         'error': f'API key inválida para {api_name}: {validation["error"]}',
@@ -403,11 +407,11 @@ class ChispartMobileApp:
                 
                 if provider:
                     # Validar proveedor específico
-                    result = self.api_manager.validate_api_key_sync(provider, force_refresh=True)
+                    result = asyncio.run(self.api_manager.validate_api_key(provider, force_refresh=True))
                     return jsonify({'validation': {provider: result}})
                 else:
                     # Validar todas las keys
-                    results = self.api_manager.validate_all_keys_sync()
+                    results = asyncio.run(self.api_manager.validate_all_keys())
                     return jsonify({'validation': results})
                     
             except Exception as e:
@@ -456,6 +460,52 @@ class ChispartMobileApp:
                 
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
+
+        @self.app.route('/api/interactive', methods=['POST'])
+        def api_interactive():
+            """Endpoint para shell interactivo y análisis de directorios."""
+            data = request.json
+            if not data or 'input' not in data:
+                return jsonify({"error": "Invalid input"}), 400
+
+            user_input = data['input'].strip()
+
+            # Router de comandos
+            if user_input.startswith('@analizar'):
+                parts = user_input.split(' ', 1)
+                if len(parts) < 2:
+                    return jsonify({"status": "error", "output": "Uso: @analizar <directorio>"}), 400
+
+                target_dir = parts[1]
+                try:
+                    analysis_path = self.interactive_shell.current_path / target_dir
+                    analyzer = DirectoryAnalyzer(str(analysis_path))
+                    analysis_result = analyzer.analyze()
+
+                    output = ""
+                    if analysis_result.get("documentation_summary"):
+                        output += "--- Documentación Detectada ---\n"
+                        output += analysis_result["documentation_summary"]
+                    if analysis_result.get("content_samples"):
+                        output += "\n--- Fragmentos de Archivos ---\n"
+                        output += analysis_result["content_samples"]
+
+                    if not output:
+                        output = "Análisis completado. No se encontró documentación prioritaria ni archivos para muestrear."
+
+                    return jsonify({"status": "ok", "output": output.strip()})
+                except Exception as e:
+                    return jsonify({"status": "error", "output": str(e)})
+            else:
+                result = self.interactive_shell.execute(user_input)
+
+                if result["status"] == "passthrough":
+                    # En la app móvil, passthrough significa que es un chat normal.
+                    # Podríamos redirigirlo al endpoint de chat, pero por ahora lo marcamos.
+                    result["output"] = f"Comando no reconocido o chat: {result['output']}"
+                    result["status"] = "ok_passthrough"
+
+                return jsonify(result)
     
     def _setup_error_handlers(self):
         """Configura manejadores de errores"""
@@ -525,15 +575,14 @@ class ChispartMobileApp:
         """Obtiene esquemas de configuración para el cliente"""
         schemas = []
         for schema in config_manager.list_schemas():
-            if not schema.sensitive:  # No exponer esquemas sensibles al cliente
-                schemas.append({
-                    'key': schema.key,
-                    'type': schema.type.__name__,
-                    'default': schema.default,
-                    'required': schema.required,
-                    'description': schema.description,
-                    'scope': schema.scope.value
-                })
+            schemas.append({
+                'key': schema.key,
+                'type': schema.type.__name__,
+                'default': schema.default,
+                'required': schema.required,
+                'description': schema.description,
+                'scope': schema.scope.value
+            })
         return schemas
     
     def _get_api_base_url(self, api_name: str) -> str:
