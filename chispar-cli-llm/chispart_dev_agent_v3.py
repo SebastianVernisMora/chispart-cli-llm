@@ -1176,7 +1176,7 @@ def version():
         f"• Qwen AI - Modelos especializados\n"
         f"• Google Gemini - Multimodal\n"
         f"• Mistral Codestral - Código\n\n"
-        f"[bold blue]Desarrollado por:[/bold blue] Equipo BLACKBOX\n"
+        f"[bold blue]Desarrollado por:[/bold blue] Sebastian Vernis | Soluciones Digitales\n"
         f"[bold magenta]Licencia:[/bold magenta] MIT",
         title="📋 Información del Sistema",
         border_style="blue"

@@ -373,7 +373,7 @@ alias ca="./chispart atc"
 
 ---
 
-**Desarrollado con ❤️ por el Equipo BLACKBOX**
+**Desarrollado con ❤️ por Sebastian Vernis | Soluciones Digitales**
 
 [🏠 Inicio](README.md) | [📖 Documentación](docs/) | [🆘 Soporte](docs/TROUBLESHOOTING.md)
 

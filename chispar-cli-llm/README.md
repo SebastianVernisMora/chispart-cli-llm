@@ -264,7 +264,7 @@ Este proyecto está bajo la licencia MIT. Ver [LICENSE](LICENSE) para más detal
 
 ## 🙏 Agradecimientos
 
-- **Equipo BLACKBOX**: Desarrollo y arquitectura
+- **Sebastian Vernis | Soluciones Digitales**: Desarrollo y arquitectura
 - **Comunidad Open Source**: Librerías y herramientas
 - **APIs de IA**: OpenAI, Anthropic, Google, Mistral, Qwen
 
@@ -281,6 +281,6 @@ cd chispar-cli-llm
 ./chispart chat "¡Hola, Chispart!"
 ```
 
-**Desarrollado con ❤️ por el Equipo BLACKBOX**
+**Desarrollado con ❤️ por Sebastian Vernis | Soluciones Digitales**
 
 </div>

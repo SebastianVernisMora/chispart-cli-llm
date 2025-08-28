@@ -278,4 +278,4 @@ python3 chispart_dev_agent_v3.py ayuda "problema" --interactivo
 
 ---
 
-*Desarrollado por el Equipo BLACKBOX - Donde la IA se encuentra con la Innovación*
+*Desarrollado por Sebastian Vernis | Soluciones Digitales - Donde la IA se encuentra con la Innovación*

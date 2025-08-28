@@ -160,4 +160,4 @@ El sistema **Chispart Dev Agent v3.0** está completamente validado y listo para
 **Versión**: Chispart Dev Agent v3.0
 **Estado Final**: ✅ **COMPLETAMENTE FUNCIONAL Y VALIDADO**
 **Testing**: ✅ **EXHAUSTIVO COMPLETADO**
-**Desarrollado por**: Equipo BLACKBOX
+**Desarrollado por**: Sebastian Vernis | Soluciones Digitales

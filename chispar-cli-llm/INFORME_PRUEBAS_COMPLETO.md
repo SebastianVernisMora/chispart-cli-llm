@@ -180,4 +180,4 @@ def interactivo(ctx, modelo, api):
 **Fecha de Validación**: $(date)
 **Versión**: Chispart Dev Agent v3.0
 **Estado**: ✅ COMPLETAMENTE FUNCIONAL
-**Desarrollado por**: Equipo BLACKBOX
+**Desarrollado por**: Sebastian Vernis | Soluciones Digitales
