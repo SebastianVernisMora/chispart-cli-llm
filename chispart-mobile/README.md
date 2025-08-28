@@ -122,16 +122,6 @@ Para proteger tus claves API, Chispart Mobile utiliza dos métodos:
 
 Esta dualidad asegura que la aplicación se pueda instalar fácilmente en Termux (donde `cryptography` puede dar problemas) sin sacrificar la seguridad en plataformas que sí lo soportan.
 
-## 🔒 Seguridad de las Claves API
-
-Para proteger tus claves API, Chispart Mobile utiliza dos métodos:
-
-1.  **Encriptación Fuerte (Recomendado)**: Si tienes la librería `cryptography` instalada (`pip install cryptography`), tus claves se guardarán en un archivo local (`api_keys.enc`) encriptadas con el algoritmo AES-256. Esta es la opción más segura.
-
-2.  **Ofuscación Básica (Por defecto en Termux)**: Si `cryptography` no está instalada, la aplicación funcionará igualmente. En este caso, las claves se guardarán en un archivo (`api_keys.json.b64`) codificado en Base64. Esto no es una encriptación real, pero evita que las claves sean legibles a simple vista en el archivo.
-
-Esta dualidad asegura que la aplicación se pueda instalar fácilmente en Termux (donde `cryptography` puede dar problemas) sin sacrificar la seguridad en plataformas que sí lo soportan.
-
 ## 🚀 Uso
 
 ### Inicio Rápido

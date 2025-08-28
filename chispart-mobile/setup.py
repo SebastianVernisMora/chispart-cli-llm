@@ -4,9 +4,17 @@ Guides the user through initial configuration.
 """
 import asyncio
 import os
+import sys
 from getpass import getpass
+import subprocess
 
-from core.api_key_manager import api_key_manager
+from core.api_key_manager import api_key_manager, ENCRYPTION_AVAILABLE
+
+
+def is_termux():
+    """Check if running in Termux environment."""
+    return 'com.termux' in os.environ.get('PREFIX', '')
+
 from core.config_manager import config_manager
 
 
@@ -15,6 +23,22 @@ async def main():
     print("🚀 Welcome to Chispart Mobile Setup!")
     print("This script will help you configure your API keys.")
     print("-" * 40)
+
+    if not ENCRYPTION_AVAILABLE:
+        print("⚠️  ADVERTENCIA: La librería 'cryptography' no está instalada.")
+        print("   Tus claves API se guardarán de forma ofuscada (Base64), no encriptada.")
+        if not is_termux():
+            try:
+                install = input("   ¿Quieres instalar 'cryptography' ahora para mayor seguridad? [S/n]: ").lower().strip()
+                if install == '' or install == 's':
+                    print("   Instalando 'cryptography'...")
+                    subprocess.run([sys.executable, '-m', 'pip', 'install', 'cryptography'], check=True)
+                    print("\n   ¡Por favor, reinicia el script de setup para usar la encriptación!")
+                    return
+            except (subprocess.CalledProcessError, FileNotFoundError) as e:
+                print(f"   ❌ Error instalando 'cryptography': {e}")
+                print("   Por favor, instálala manualmente con: pip install cryptography")
+
 
     # --- Configure Blackbox (required) ---
     print("\n1. Blackbox AI API Key (Required)")

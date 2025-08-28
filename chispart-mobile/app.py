@@ -437,28 +437,48 @@ class ChispartMobileApp:
         def api_stats():
             """Endpoint para estadísticas de la aplicación"""
             try:
-                # Obtener límites de archivos móviles
+                print("DEBUG: Entrando a /api/stats")
                 file_limits = get_mobile_file_limits()
+                print("DEBUG: get_mobile_file_limits OK")
                 
-                return jsonify({
+                api_keys_stats = self.api_manager.get_statistics()
+                print("DEBUG: api_manager.get_statistics OK")
+
+                config_stats = config_manager.get_stats()
+                print("DEBUG: config_manager.get_stats OK")
+
+                pwa_stats = self.pwa_manager.get_cache_stats()
+                print("DEBUG: pwa_manager.get_cache_stats OK")
+
+                apis_stats = get_api_statistics()
+                print("DEBUG: get_api_statistics OK")
+
+                supported_features = {
+                    'vision_apis': get_vision_supported_apis(),
+                    'pdf_apis': get_pdf_supported_apis(),
+                    'total_models': sum(len(get_available_models(api)) for api in AVAILABLE_APIS.keys())
+                }
+                print("DEBUG: supported_features OK")
+
+                response_data = {
                     'app': {
                         'version': '1.0.0',
                         'is_mobile': self.is_mobile,
                         'platform': 'Termux' if self.is_mobile else 'Desktop'
                     },
-                    'api_keys': self.api_manager.get_statistics(),
-                    'config': config_manager.get_stats(),
-                    'pwa': self.pwa_manager.get_cache_stats(),
-                    'apis': get_api_statistics(),
+                    'api_keys': api_keys_stats,
+                    'config': config_stats,
+                    'pwa': pwa_stats,
+                    'apis': apis_stats,
                     'file_limits': file_limits,
-                    'supported_features': {
-                        'vision_apis': get_vision_supported_apis(),
-                        'pdf_apis': get_pdf_supported_apis(),
-                        'total_models': sum(len(get_available_models(api)) for api in AVAILABLE_APIS.keys())
-                    }
-                })
+                    'supported_features': supported_features
+                }
+                print("DEBUG: Creación de response_data OK")
+
+                return jsonify(response_data)
                 
             except Exception as e:
+                print(f"ERROR en /api/stats: {e}")
                 return jsonify({'error': str(e)}), 500
 
         @self.app.route('/api/interactive', methods=['POST'])
@@ -604,7 +624,8 @@ class ChispartMobileApp:
             print(f"📲 Acceso desde otros dispositivos: http://[tu-ip]:{port}")
             print("💡 Mantén la pantalla encendida para evitar que se cierre")
         
-        self.app.run(host=host, port=port, debug=debug, threaded=True)
+        # El reloader se desactiva para preservar el estado del shell interactivo
+        self.app.run(host=host, port=port, debug=debug, use_reloader=False, threaded=True)
 
 # Crear instancia de la aplicación
 app_instance = ChispartMobileApp()
