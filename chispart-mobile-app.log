@@ -1,0 +1,14 @@
+⚠️  Advertencia: La librería 'cryptography' no está instalada.
+   Las claves API se guardarán ofuscadas en base64 en lugar de encriptadas.
+   Para mayor seguridad, instala 'cryptography' con: pip install cryptography
+🚀 Chispart Mobile inicializado (Desktop)
+🌐 Iniciando Chispart Mobile en http://0.0.0.0:5001
+📱 Modo: Desktop
+🔧 Debug: Desactivado
+ * Serving Flask app 'app'
+ * Debug mode: off
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://192.168.0.2:5001
+[33mPress CTRL+C to quit[0m

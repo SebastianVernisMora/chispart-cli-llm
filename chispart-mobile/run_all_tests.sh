@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Cambiar al directorio del script para que se pueda ejecutar desde cualquier lugar
+cd "$(dirname "$0")"
+
 # Script para ejecutar todos los tests de Chispart Mobile
 
 # Colores

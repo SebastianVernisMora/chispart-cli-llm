@@ -364,5 +364,85 @@ class APIKeyManager:
 
             return result
 
+    async def validate_all_keys(self) -> Dict[str, Dict]:
+        """
+        Valida todas las claves API configuradas
+        """
+        tasks = []
+        providers = list(self._api_keys.keys())
+
+        for provider in providers:
+            task = self.validate_api_key(provider, force_refresh=True)
+            tasks.append((provider, task))
+
+        results = {}
+        for provider, task in tasks:
+            try:
+                result = await task
+                results[provider] = result
+            except Exception as e:
+                results[provider] = {
+                    "valid": False,
+                    "error": str(e),
+                    "provider": provider,
+                }
+
+        return results
+
+    def export_keys(self, include_keys: bool = False) -> Dict:
+        """
+        Exporta configuración de claves (sin las claves reales por defecto)
+        """
+        export_data = {"exported_at": datetime.now().isoformat(), "providers": {}}
+
+        for provider, key_entry in self._api_keys.items():
+            provider_data = {
+                "created_at": key_entry.get("created_at"),
+                "last_validated": key_entry.get("last_validated"),
+                "validation_status": key_entry.get("validation_status"),
+                "usage_count": key_entry.get("usage_count", 0),
+                "metadata": key_entry.get("metadata", {}),
+            }
+
+            if include_keys:
+                provider_data["key"] = key_entry["key"]
+            else:
+                provider_data["key_preview"] = (
+                    key_entry["key"][:8] + "..." + key_entry["key"][-4:]
+                    if len(key_entry["key"]) > 12
+                    else "***"
+                )
+
+            export_data["providers"][provider] = provider_data
+
+        return export_data
+
+    def get_statistics(self) -> Dict:
+        """
+        Obtiene estadísticas de uso de las API Keys
+        """
+        total_keys = len(self._api_keys)
+        valid_keys = sum(
+            1
+            for entry in self._api_keys.values()
+            if entry.get("validation_status") == "valid"
+        )
+        total_usage = sum(
+            entry.get("usage_count", 0) for entry in self._api_keys.values()
+        )
+
+        return {
+            "total_keys": total_keys,
+            "valid_keys": valid_keys,
+            "invalid_keys": total_keys - valid_keys,
+            "total_usage": total_usage,
+            "providers": list(self._api_keys.keys()),
+            "storage_path": self.storage_path,
+            "last_updated": max(
+                (entry.get("created_at", "") for entry in self._api_keys.values()),
+                default=None,
+            ),
+        }
+
 # Instancia global para uso en la aplicación
 api_key_manager = APIKeyManager()
