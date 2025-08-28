@@ -1,0 +1,7 @@
+Flask
+Flask-SocketIO
+python-socketio
+PyJWT
+requests
+python-socketio[client]
+pypdf
