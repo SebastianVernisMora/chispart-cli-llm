@@ -314,6 +314,15 @@ MOBILE_NETWORK_CONFIG = {
     "stream_timeout": 120  # Timeout más largo para streaming
 }
 
+# Configuración de logging en S3/MinIO
+S3_LOGGING_CONFIG = {
+    "enabled": os.getenv("S3_LOGGING_ENABLED", "false").lower() == "true",
+    "endpoint_url": os.getenv("S3_ENDPOINT_URL"),
+    "access_key": os.getenv("S3_ACCESS_KEY_ID"),
+    "secret_key": os.getenv("S3_SECRET_ACCESS_KEY"),
+    "bucket_name": os.getenv("S3_BUCKET_NAME")
+}
+
 # Configuración de seguridad
 PLAN_BASED_SECURITY_CONFIG = {
     "free": {

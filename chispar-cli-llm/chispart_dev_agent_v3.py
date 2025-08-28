@@ -34,7 +34,7 @@ from api_client import UniversalAPIClient, APIError
 from utils import (
     is_supported_image, is_supported_pdf, create_image_data_url,
     extract_text_from_pdf, save_conversation_history, load_conversation_history,
-    format_file_size, validate_file_size
+    format_file_size, validate_file_size, log_to_s3
 )
 
 # Core modules
@@ -68,17 +68,17 @@ class SecureAPIConfig(dict):
 def validate_api_key(api_name):
     """
     Valida que la clave API esté configurada para la API especificada
-    y sanitiza la clave para prevenir problemas de seguridad
+    y sanitiza la clave para prevenir problemas de seguridad.
+    Lanza APIError si la validación falla.
     """
     config = get_api_config(api_name)
     
     # Verificar si la clave API está configurada
     if not config["api_key"] or config["api_key"] == "your_api_key_here":
-        console.print(f"[red]❌ Error: Clave API no configurada para {config['name']}.[/red]")
-        console.print(f"[yellow]💡 Configura tu clave API como variable de entorno {AVAILABLE_APIS[api_name]['default_key_env']}[/yellow]")
-        console.print(f"[dim]Ejemplo: export {AVAILABLE_APIS[api_name]['default_key_env']}='tu_clave_aqui'[/dim]")
-        sys.exit(1)
-    
+        error_msg = f"Clave API no configurada para {config['name']}.\n" \
+                    f"💡 Configura tu clave API como variable de entorno {AVAILABLE_APIS[api_name]['default_key_env']}"
+        raise APIError(error_msg, api_name=config['name'])
+
     # Sanitizar la clave API para prevenir problemas de seguridad
     api_key = config["api_key"]
     
@@ -88,8 +88,8 @@ def validate_api_key(api_name):
     
     # Verificar longitud mínima para claves API válidas
     if len(api_key) < 8:
-        console.print(f"[red]❌ Error: Clave API para {config['name']} parece inválida (demasiado corta).[/red]")
-        sys.exit(1)
+        error_msg = f"Clave API para {config['name']} parece inválida (demasiado corta)."
+        raise APIError(error_msg, api_name=config['name'])
     
     # Crear configuración segura
     sanitized_config = SecureAPIConfig(config)
@@ -190,99 +190,98 @@ def chat(ctx, mensaje, profile, modelo, api, guardar):
     # Usar API del contexto o la especificada
     api_name = api or ctx.obj['api']
     
-    # Validar API
-    config = validate_api_key(api_name)
-    available_models = get_available_models(api_name)
-    
-    # Aplicar perfil si se especifica
-    if profile:
-        if profile not in profile_manager.profiles:
-            console.print(f"[red]❌ Perfil no encontrado: {profile}[/red]")
-            console.print(f"[yellow]Perfiles disponibles: {', '.join(profile_manager.profiles.keys())}[/yellow]")
-            sys.exit(1)
-        
-        profile_info = profile_manager.get_profile(profile)
-        console.print(f"[cyan]📋 Usando perfil: {profile_info.name}[/cyan]")
-        
-        # Usar modelo preferido del perfil si no se especifica otro
-        if not modelo and hasattr(profile_info, 'preferred_models') and profile_info.preferred_models:
-            for preferred in profile_info.preferred_models:
-                if preferred in available_models:
-                    modelo = preferred
-                    break
-    
-    # Determinar modelo
-    if not modelo:
-        modelo = get_default_model(api_name)
-    elif modelo not in available_models:
-        console.print(f"[red]❌ Modelo '{modelo}' no disponible para {config['name']}[/red]")
-        console.print(f"[yellow]Modelos disponibles: {', '.join(list(available_models.keys())[:10])}...[/yellow]")
-        sys.exit(1)
-    
-    # Mostrar información del chat
-    chat_info = Panel(
-        f"[bold cyan]API:[/bold cyan] {config['name']}\n"
-        f"[bold green]Modelo:[/bold green] {modelo}\n"
-        f"[bold yellow]Perfil:[/bold yellow] {profile or 'Ninguno'}\n"
-        f"[bold blue]Mensaje:[/bold blue] {mensaje}",
-        title="📤 Chat",
-        border_style="blue"
-    )
-    console.print(chat_info)
-    
-    # Preparar mensaje con contexto de perfil
-    if profile:
-        profile_info = profile_manager.get_profile(profile)
-        system_prompt = getattr(profile_info, 'system_prompt', '') if hasattr(profile_info, 'system_prompt') else ''
-        full_message = f"{system_prompt}\n\nUsuario: {mensaje}"
-    else:
-        full_message = mensaje
-    
-    # Crear cliente y enviar mensaje
-    client = UniversalAPIClient(config["api_key"], config["base_url"], config["name"])
-    
+    # --- Lógica de envío con fallback ---
+    response = None
+    client = None
+    final_config = {}
+    full_message = mensaje
+
+    # --- Primer intento con la API seleccionada ---
     try:
-        with console.status(f"[bold green]Enviando mensaje a {config['name']}..."):
-            messages = [create_text_message(full_message)]
-            model_name = available_models[modelo]
-            response = client.chat_completions(messages, model_name)
+        config = validate_api_key(api_name)
+        available_models = get_available_models(api_name)
+
+        if profile:
+            if profile not in profile_manager.profiles:
+                console.print(f"[red]❌ Perfil no encontrado: {profile}[/red]")
+                sys.exit(1)
+            profile_info = profile_manager.get_profile(profile)
+            console.print(f"[cyan]📋 Usando perfil: {profile_info.name}[/cyan]")
+            if not modelo and hasattr(profile_info, 'preferred_models') and profile_info.preferred_models:
+                for preferred in profile_info.preferred_models:
+                    if preferred in available_models:
+                        modelo = preferred
+                        break
+
+        if not modelo:
+            modelo = get_default_model(api_name)
+        elif modelo not in available_models:
+            console.print(f"[red]❌ Modelo '{modelo}' no disponible para {config['name']}[/red]")
+            sys.exit(1)
+
+        console.print(Panel(f"[bold cyan]API:[/bold cyan] {config['name']}\n[bold green]Modelo:[/bold green] {modelo}\n[bold yellow]Perfil:[/bold yellow] {profile or 'Ninguno'}", title="📤 Intento Principal", border_style="blue"))
         
-        # Mostrar respuesta
-        content = client.extract_response_content(response)
+        if profile:
+            full_message = f"{profile_manager.get_profile(profile).system_prompt}\n\nUsuario: {mensaje}"
         
-        console.print(Panel(
-            Markdown(content),
-            title=f"[bold blue]🤖 Respuesta de {config['name']}[/bold blue]",
-            border_style="green"
-        ))
+        client = UniversalAPIClient(config["api_key"], config["base_url"], config["name"])
+        with console.status(f"Enviando a {config['name']}..."):
+            response = client.chat_completions([create_text_message(full_message)], available_models[modelo])
         
-        # Mostrar información de uso
-        usage = client.get_usage_info(response)
-        if usage:
-            console.print(f"\n[dim]💰 Tokens utilizados: {usage.get('total_tokens', 'N/A')}[/dim]")
-        
-        # Guardar en historial
-        if guardar:
-            conversation = {
-                "type": "chat",
-                "api": api_name,
-                "model": modelo,
-                "profile": profile,
-                "message": mensaje,
-                "response": content,
-                "usage": usage,
-                "timestamp": datetime.now().isoformat()
-            }
-            save_conversation_history(conversation)
-            
+        final_config = config
+
     except APIError as e:
-        console.print(f"[red]❌ Error de {e.api_name}: {e.message}[/red]")
-        if e.status_code:
-            console.print(f"[red]Código de estado: {e.status_code}[/red]")
-        sys.exit(1)
+        if api_name != DEFAULT_API:
+            console.print(f"[yellow]⚠️  La API '{api_name}' falló: {e.message}[/yellow]")
+            console.print(f"[yellow]🔄  Intentando con la API de respaldo ({DEFAULT_API})...[/yellow]")
+
+            # --- Intento con API de respaldo ---
+            try:
+                api_name = DEFAULT_API
+                config = validate_api_key(api_name)
+                available_models = get_available_models(api_name)
+                modelo = get_default_model(api_name)
+
+                console.print(Panel(f"[bold cyan]API:[/bold cyan] {config['name']} (Respaldo)\n[bold green]Modelo:[/bold green] {modelo}\n[bold yellow]Perfil:[/bold yellow] {profile or 'Ninguno'}", title="📤 Intento de Respaldo", border_style="yellow"))
+
+                if profile:
+                    full_message = f"{profile_manager.get_profile(profile).system_prompt}\n\nUsuario: {mensaje}"
+
+                client = UniversalAPIClient(config["api_key"], config["base_url"], config["name"])
+                with console.status(f"Enviando a {config['name']}..."):
+                    response = client.chat_completions([create_text_message(full_message)], available_models[modelo])
+
+                final_config = config
+
+            except (APIError, Exception) as fallback_e:
+                console.print(f"[red]❌ El intento de respaldo también falló: {fallback_e}[/red]")
+                sys.exit(1)
+        else:
+            console.print(f"[red]❌ Error con la API por defecto '{api_name}': {e.message}[/red]")
+            sys.exit(1)
     except Exception as e:
         console.print(f"[red]❌ Error inesperado: {str(e)}[/red]")
         sys.exit(1)
+
+
+    # --- Procesar respuesta (si existe) ---
+    if response and client and final_config:
+        content = client.extract_response_content(response)
+        console.print(Panel(Markdown(content), title=f"🤖 Respuesta de {final_config['name']}", border_style="green"))
+        
+        usage = client.get_usage_info(response)
+        if usage:
+            console.print(f"\n[dim]💰 Tokens: {usage.get('total_tokens', 'N/A')}[/dim]")
+        
+        if guardar:
+            conversation = {
+                "type": "chat", "id": response.get("id"), "api": api_name,
+                "model_alias": modelo, "model": response.get("model"),
+                "profile": profile, "message": mensaje, "response": content,
+                "usage": usage, "timestamp": datetime.now().isoformat()
+            }
+            save_conversation_history(conversation)
+            log_to_s3(conversation)
 
 @cli.command(context_settings=dict(
     ignore_unknown_options=True,
