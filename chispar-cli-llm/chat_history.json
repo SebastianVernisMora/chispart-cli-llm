@@ -1861,5 +1861,45 @@
       "total_tokens": 30
     },
     "timestamp": "2025-08-27T20:09:49.445176"
+  },
+  {
+    "type": "chat",
+    "id": null,
+    "api": "chispart",
+    "model_alias": "gpt-4",
+    "model": null,
+    "profile": null,
+    "message": "Hola",
+    "response": "Test response",
+    "usage": {
+      "total_tokens": 30
+    },
+    "timestamp": "2025-08-28T23:02:53.900770"
+  },
+  {
+    "type": "chat",
+    "id": "gen-1756422282-4PrFDPC9l1GRLg517JBS",
+    "api": "chispart",
+    "model_alias": "gpt-4",
+    "model": "openai/gpt-4",
+    "profile": null,
+    "message": "hello",
+    "response": "Hello! How can I assist you today?",
+    "usage": {
+      "completion_tokens": 9,
+      "prompt_tokens": 8,
+      "total_tokens": 17,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 0,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": 0,
+        "cached_tokens": 0
+      }
+    },
+    "timestamp": "2025-08-28T23:04:44.055549"
   }
 ]

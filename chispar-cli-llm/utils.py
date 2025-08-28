@@ -8,7 +8,11 @@ import json
 from pathlib import Path
 from typing import Optional, Dict, Any
 from datetime import datetime
-from config_extended import SUPPORTED_IMAGE_TYPES, SUPPORTED_PDF_TYPES
+
+import boto3
+from botocore.exceptions import NoCredentialsError, PartialCredentialsError, ClientError
+
+from config_extended import SUPPORTED_IMAGE_TYPES, SUPPORTED_PDF_TYPES, S3_LOGGING_CONFIG
 
 # Importar PyMuPDF (rápido, con dependencias C)
 try:
@@ -280,3 +284,59 @@ def validate_file_size(file_path: str, max_size_mb: Optional[int] = None) -> boo
     max_size_bytes = max_size_mb * 1024 * 1024
     
     return file_size <= max_size_bytes
+
+
+def log_to_s3(conversation: Dict[str, Any]):
+    """
+    Sube un artefacto de conversación a un bucket de S3/MinIO.
+
+    Args:
+        conversation: Diccionario con los datos de la conversación.
+    """
+    if not S3_LOGGING_CONFIG.get("enabled"):
+        return
+
+    # Validar configuración esencial
+    required_keys = ["endpoint_url", "access_key", "secret_key", "bucket_name"]
+    if not all(S3_LOGGING_CONFIG.get(key) for key in required_keys):
+        print("Advertencia: Logging a S3 está habilitado pero la configuración es incompleta. No se guardará el log.")
+        return
+
+    try:
+        s3_client = boto3.client(
+            's3',
+            endpoint_url=S3_LOGGING_CONFIG["endpoint_url"],
+            aws_access_key_id=S3_LOGGING_CONFIG["access_key"],
+            aws_secret_access_key=S3_LOGGING_CONFIG["secret_key"]
+        )
+    except (NoCredentialsError, PartialCredentialsError):
+        print("Advertencia: Credenciales de S3 no configuradas correctamente. No se guardará el log.")
+        return
+    except Exception as e:
+        print(f"Advertencia: Error al inicializar el cliente de S3: {e}")
+        return
+
+    # Generar nombre del objeto
+    conversation_id = conversation.get("id", "no-id")
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    object_name = f"chats/{timestamp}_{conversation_id}.json"
+
+    try:
+        # Convertir diccionario a JSON string
+        log_content = json.dumps(conversation, ensure_ascii=False, indent=2)
+
+        # Subir el objeto
+        s3_client.put_object(
+            Bucket=S3_LOGGING_CONFIG["bucket_name"],
+            Key=object_name,
+            Body=log_content,
+            ContentType='application/json'
+        )
+        print(f"\n[dim]📄 Log de conversación guardado en S3: {object_name}[/dim]")
+
+    except ClientError as e:
+        # Errores específicos del cliente de S3 (ej: bucket no encontrado, acceso denegado)
+        error_code = e.response.get("Error", {}).get("Code")
+        print(f"Advertencia: Error al subir log a S3 ({error_code}). Verifique la configuración del bucket y los permisos.")
+    except Exception as e:
+        print(f"Advertencia: Falla inesperada al subir log a S3: {e}")

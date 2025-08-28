@@ -14,7 +14,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from config_extended import (
     get_api_config, get_available_models, get_default_model,
     AVAILABLE_APIS, DEFAULT_API, AVAILABLE_MODELS, DEFAULT_MODELS,
-    VISION_SUPPORTED_APIS, PDF_SUPPORTED_APIS, SECURITY_CONFIG
+    VISION_SUPPORTED_APIS, PDF_SUPPORTED_APIS, get_security_config
 )
 
 
@@ -194,10 +194,15 @@ class TestSupportedFeatures:
 class TestSecurityConfiguration:
     """Tests para configuración de seguridad"""
     
+    @pytest.fixture
+    def security_config(self):
+        """Fixture para obtener la configuración de seguridad del plan 'pro' para testing."""
+        return get_security_config('pro')
+
     @pytest.mark.unit
-    def test_security_config_structure(self):
+    def test_security_config_structure(self, security_config):
         """Test estructura de configuración de seguridad"""
-        assert isinstance(SECURITY_CONFIG, dict)
+        assert isinstance(security_config, dict)
         
         required_keys = [
             'whitelist_enabled', 'allowed_commands', 
@@ -205,12 +210,12 @@ class TestSecurityConfiguration:
         ]
         
         for key in required_keys:
-            assert key in SECURITY_CONFIG
+            assert key in security_config
     
     @pytest.mark.unit
-    def test_allowed_commands_comprehensive(self):
+    def test_allowed_commands_comprehensive(self, security_config):
         """Test que los comandos permitidos son comprehensivos"""
-        allowed_commands = SECURITY_CONFIG['allowed_commands']
+        allowed_commands = security_config['allowed_commands']
         
         assert isinstance(allowed_commands, list)
         assert len(allowed_commands) > 0
@@ -228,9 +233,9 @@ class TestSecurityConfiguration:
                 assert cmd in allowed_commands, f"Comando {cmd} no está en permitidos"
     
     @pytest.mark.unit
-    def test_blocked_commands_security(self):
+    def test_blocked_commands_security(self, security_config):
         """Test que los comandos bloqueados son de seguridad"""
-        blocked_commands = SECURITY_CONFIG['blocked_commands']
+        blocked_commands = security_config['blocked_commands']
         
         assert isinstance(blocked_commands, list)
         assert len(blocked_commands) > 0
@@ -244,9 +249,9 @@ class TestSecurityConfiguration:
             assert is_blocked, f"Comando peligroso {cmd} no está bloqueado"
     
     @pytest.mark.unit
-    def test_require_confirmation_commands(self):
+    def test_require_confirmation_commands(self, security_config):
         """Test comandos que requieren confirmación"""
-        confirmation_commands = SECURITY_CONFIG['require_confirmation']
+        confirmation_commands = security_config['require_confirmation']
         
         assert isinstance(confirmation_commands, list)
         assert len(confirmation_commands) > 0
