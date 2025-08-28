@@ -9,7 +9,8 @@ import subprocess
 import shlex
 from typing import List, Dict, Tuple, Optional
 from dataclasses import dataclass
-from config_extended import SECURITY_CONFIG
+from config_extended import get_security_config
+from core.config_manager import get_config_manager
 
 @dataclass
 class CommandValidation:
@@ -23,10 +24,14 @@ class SecurityManager:
     """Gestor de seguridad para comandos del sistema"""
     
     def __init__(self):
-        self.whitelist = set(SECURITY_CONFIG['allowed_commands'])
-        self.blacklist = set(SECURITY_CONFIG['blocked_commands'])
-        self.confirmation_required = set(SECURITY_CONFIG['require_confirmation'])
-        self.enabled = SECURITY_CONFIG['whitelist_enabled']
+        config_manager = get_config_manager()
+        self.plan = config_manager.get_user_plan()
+        security_config = get_security_config(self.plan)
+
+        self.whitelist = set(security_config.get('allowed_commands', []))
+        self.blacklist = set(security_config.get('blocked_commands', []))
+        self.confirmation_required = set(security_config.get('require_confirmation', []))
+        self.enabled = security_config.get('whitelist_enabled', True)
     
     def validate_command(self, command: str) -> CommandValidation:
         """Valida si un comando es seguro para ejecutar"""
@@ -234,6 +239,7 @@ class SecurityManager:
         """Obtiene el estado actual de la seguridad"""
         return {
             'enabled': self.enabled,
+            'plan': self.plan,
             'whitelist_count': len(self.whitelist),
             'blacklist_count': len(self.blacklist),
             'confirmation_required_count': len(self.confirmation_required),
