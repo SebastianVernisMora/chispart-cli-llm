@@ -1,3 +1,7 @@
 Flask
 pypdf
 python-dotenv
+Flask-SocketIO
+boto3
+redis
+celery
