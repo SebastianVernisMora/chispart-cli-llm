@@ -14,9 +14,9 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 
 from ui.components import console, create_panel, create_table
 from ui.theme_manager import get_theme
-from core.error_handler import ErrorHandler
+from core.error_handler import ChispartErrorHandler
 from utils import load_conversation_history, format_file_size
-from config import get_available_models, get_default_model, AVAILABLE_APIS
+from config_extended import get_available_models, get_default_model, AVAILABLE_APIS
 
 
 class UtilityCommands:

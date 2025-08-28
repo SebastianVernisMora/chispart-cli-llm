@@ -248,6 +248,72 @@ class SecurityManager:
     def disable_security(self):
         """Deshabilita el sistema de seguridad (no recomendado)"""
         self.enabled = False
+    
+    def display_security_status(self):
+        """Muestra el estado actual de la seguridad"""
+        try:
+            from rich.console import Console
+            from rich.table import Table
+            from rich.panel import Panel
+            
+            console = Console()
+            
+            # Panel principal con estado
+            status_text = "🟢 HABILITADO" if self.enabled else "🔴 DESHABILITADO"
+            status_color = "green" if self.enabled else "red"
+            
+            console.print(Panel(
+                f"[{status_color}]Sistema de Seguridad: {status_text}[/{status_color}]",
+                title="🛡️ Estado de Seguridad",
+                expand=False
+            ))
+            
+            # Tabla de estadísticas
+            stats_table = Table(title="📊 Estadísticas de Seguridad")
+            stats_table.add_column("Categoría", style="cyan")
+            stats_table.add_column("Cantidad", style="white")
+            stats_table.add_column("Descripción", style="dim")
+            
+            stats_table.add_row(
+                "Comandos Permitidos",
+                str(len(self.whitelist)),
+                "Comandos en la lista blanca"
+            )
+            stats_table.add_row(
+                "Comandos Bloqueados", 
+                str(len(self.blacklist)),
+                "Comandos en la lista negra"
+            )
+            stats_table.add_row(
+                "Requieren Confirmación",
+                str(len(self.confirmation_required)),
+                "Comandos que necesitan confirmación"
+            )
+            
+            console.print(stats_table)
+            
+            # Mostrar algunos comandos de ejemplo
+            if self.whitelist:
+                console.print("\n[green]✅ Ejemplos de comandos permitidos:[/green]")
+                allowed_examples = sorted(list(self.whitelist))[:10]
+                for cmd in allowed_examples:
+                    console.print(f"  • {cmd}")
+            
+            if self.blacklist:
+                console.print("\n[red]❌ Ejemplos de comandos bloqueados:[/red]")
+                blocked_examples = sorted(list(self.blacklist))[:5]
+                for cmd in blocked_examples:
+                    console.print(f"  • {cmd}")
+                    
+        except ImportError:
+            # Fallback si Rich no está disponible
+            print("\n🛡️ Estado de Seguridad")
+            print("-" * 30)
+            status = "HABILITADO" if self.enabled else "DESHABILITADO"
+            print(f"Sistema: {status}")
+            print(f"Comandos permitidos: {len(self.whitelist)}")
+            print(f"Comandos bloqueados: {len(self.blacklist)}")
+            print(f"Requieren confirmación: {len(self.confirmation_required)}")
 
 # Instancia global del gestor de seguridad
 security_manager = SecurityManager()

@@ -8,8 +8,8 @@ from pathlib import Path
 
 from ui.components import console, create_panel, create_progress_bar
 from ui.theme_manager import get_theme
-from core.validation import ValidationManager
-from core.error_handler import ErrorHandler
+from core.validation import APIValidator
+from core.error_handler import ChispartErrorHandler
 from utils import (
     is_supported_image, is_supported_pdf, 
     validate_file_size, format_file_size
@@ -21,8 +21,8 @@ class FileCommands:
     
     def __init__(self, command_handler):
         self.command_handler = command_handler
-        self.validator = ValidationManager()
-        self.error_handler = ErrorHandler()
+        self.validator = APIValidator()
+        self.error_handler = ChispartErrorHandler()
         self.colors = get_theme()
     
     def handle_image_analysis(self, api_name: str, file_path: str, 

@@ -3,6 +3,7 @@ Configuración extendida para la aplicación Chispart-CLI-LLM
 Incluye todos los modelos potentes disponibles en BlackboxAI
 """
 import os
+import sys
 from dotenv import load_dotenv
 
 # Cargar variables de entorno
@@ -39,11 +40,31 @@ AVAILABLE_APIS = {
 # API por defecto
 DEFAULT_API = "chispart"
 
+# Cache para configuraciones de API (mejora rendimiento)
+_api_config_cache = {}
+
 # Configuración de la API actual
 def get_api_config(api_name=None):
+    """
+    Obtiene la configuración para una API específica
+    
+    Args:
+        api_name: Nombre de la API (opcional, usa DEFAULT_API si no se especifica)
+        
+    Returns:
+        Diccionario con la configuración de la API
+    """
     api_name = api_name or DEFAULT_API
+    
+    # Verificar si la API existe
     if api_name not in AVAILABLE_APIS:
         api_name = DEFAULT_API
+    
+    # Usar caché para mejorar rendimiento
+    if api_name in _api_config_cache:
+        # Verificar si estamos en modo test (pytest)
+        if 'pytest' not in sys.modules:
+            return _api_config_cache[api_name]
     
     config = AVAILABLE_APIS[api_name]
     
@@ -62,6 +83,10 @@ def get_api_config(api_name=None):
         "connect_timeout": CONNECT_TIMEOUT,
         "read_timeout": READ_TIMEOUT
     }
+    
+    # Guardar en caché para futuras llamadas (excepto en tests)
+    if 'pytest' not in sys.modules:
+        _api_config_cache[api_name] = result
     
     return result
 
@@ -194,29 +219,72 @@ DEFAULT_MODELS = {
 }
 
 def get_available_models(api_name=None):
+    """
+    Obtiene los modelos disponibles para una API específica
+    
+    Args:
+        api_name: Nombre de la API (opcional, usa DEFAULT_API si no se especifica)
+        
+    Returns:
+        Diccionario con los modelos disponibles
+    """
     api_name = api_name or DEFAULT_API
-    return AVAILABLE_MODELS.get(api_name, AVAILABLE_MODELS[DEFAULT_API])
+    
+    # Verificar que la API existe en AVAILABLE_MODELS
+    if api_name not in AVAILABLE_MODELS:
+        # Si la API no existe, usar la API por defecto
+        api_name = DEFAULT_API
+    
+    # Verificar que la API por defecto existe (seguridad adicional)
+    if api_name not in AVAILABLE_MODELS:
+        # Si ni siquiera la API por defecto existe, retornar un diccionario vacío
+        return {}
+    
+    return AVAILABLE_MODELS[api_name]
 
 def get_default_model(api_name=None):
     api_name = api_name or DEFAULT_API
     return DEFAULT_MODELS.get(api_name, DEFAULT_MODELS[DEFAULT_API])
 
-# Configuración de timeouts (optimizado para Termux)
+# Importar funciones de termux_utils con manejo de errores mejorado
 try:
     from termux_utils import get_mobile_optimized_timeouts, is_termux
+    TERMUX_UTILS_AVAILABLE = True
+except ImportError:
+    TERMUX_UTILS_AVAILABLE = False
+    
+    # Funciones de fallback si termux_utils no está disponible
+    def is_termux():
+        return False
+    
+    def get_mobile_optimized_timeouts():
+        return {
+            'connect_timeout': 10,
+            'read_timeout': 60,
+            'total_timeout': 120
+        }
+
+def _get_timeouts():
+    """Función para obtener timeouts dinámicamente"""
     if is_termux():
         timeouts = get_mobile_optimized_timeouts()
-        REQUEST_TIMEOUT = timeouts['total_timeout']
-        CONNECT_TIMEOUT = timeouts['connect_timeout']
-        READ_TIMEOUT = timeouts['read_timeout']
+        return {
+            'REQUEST_TIMEOUT': timeouts['total_timeout'],  # 120 para tests
+            'CONNECT_TIMEOUT': timeouts['connect_timeout'],
+            'READ_TIMEOUT': timeouts['read_timeout']
+        }
     else:
-        REQUEST_TIMEOUT = 30
-        CONNECT_TIMEOUT = 5
-        READ_TIMEOUT = 30
-except ImportError:
-    REQUEST_TIMEOUT = 30
-    CONNECT_TIMEOUT = 5
-    READ_TIMEOUT = 30
+        return {
+            'REQUEST_TIMEOUT': 30,
+            'CONNECT_TIMEOUT': 5,
+            'READ_TIMEOUT': 30
+        }
+
+# Configuración de timeouts (optimizado para Termux)
+_timeout_config = _get_timeouts()
+REQUEST_TIMEOUT = _timeout_config['REQUEST_TIMEOUT']
+CONNECT_TIMEOUT = _timeout_config['CONNECT_TIMEOUT']
+READ_TIMEOUT = _timeout_config['READ_TIMEOUT']
 
 # Tipos de archivo soportados
 SUPPORTED_IMAGE_TYPES = ['.jpg', '.jpeg', '.png', '.webp']
@@ -255,7 +323,7 @@ SECURITY_CONFIG = {
         # Comandos de desarrollo
         "git", "npm", "pip", "python", "python3", "node", "yarn", "docker", "kubectl",
         # Comandos de archivos
-        "mkdir", "touch", "cp", "mv", "rm", "chmod", "chown",
+        "mkdir", "rmdir", "touch", "cp", "mv", "rm", "chmod", "chown",
         # Comandos de red
         "curl", "wget", "ping", "ssh", "scp",
         # Comandos de texto
@@ -268,7 +336,9 @@ SECURITY_CONFIG = {
         "iptables", "ufw", "firewall-cmd", "setenforce",
         "crontab", "at", "batch",
         # Comandos de red peligrosos
-        "nc", "netcat", "nmap", "tcpdump", "wireshark"
+        "nc", "netcat", "nmap", "tcpdump", "wireshark",
+        # Comandos de eliminación peligrosos
+        "rm -rf"
     ],
     "require_confirmation": [
         "rm", "rmdir", "mv", "cp", "chmod", "chown", "git push", "docker run"

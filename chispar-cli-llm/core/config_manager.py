@@ -9,7 +9,7 @@ from typing import Dict, Any, Optional, List
 from pathlib import Path
 from dotenv import load_dotenv, set_key, find_dotenv
 
-from config import AVAILABLE_APIS, DEFAULT_API, DEFAULT_MODELS
+from config_extended import AVAILABLE_APIS, DEFAULT_API, DEFAULT_MODELS
 
 
 class ConfigManager:

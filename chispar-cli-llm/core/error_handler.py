@@ -132,6 +132,25 @@ class ChispartErrorHandler:
         if context:
             self._print_context_info(context)
     
+    def handle_command_error(self, error: Exception, command_name: str) -> Dict[str, Any]:
+        """Maneja errores de comandos y retorna información del error"""
+        self.error_count += 1
+        self.last_error = error
+        
+        console.print(f"[{self.colors['error']}]❌ Error en comando '{command_name}'[/]")
+        console.print(f"[{self.colors['dim']}]{str(error)}[/]")
+        
+        if self.debug_mode:
+            console.print(f"[{self.colors['dim']}]Traceback:[/]")
+            console.print(f"[{self.colors['dim']}]{traceback.format_exc()}[/]")
+        
+        return {
+            "success": False,
+            "error": str(error),
+            "error_type": type(error).__name__,
+            "command": command_name
+        }
+    
     def handle_keyboard_interrupt(self) -> None:
         """Maneja interrupciones del usuario (Ctrl+C)"""
         console.print(f"\n[{self.colors['warning']}]⚠️ Operación cancelada por el usuario[/]")

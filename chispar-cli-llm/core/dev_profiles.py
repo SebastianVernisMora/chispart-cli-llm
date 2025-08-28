@@ -287,6 +287,131 @@ Lideras equipos técnicos hacia el éxito del proyecto.""",
                         self.set_current_profile(profile_name)
         except Exception:
             pass  # Ignorar errores de carga
+    
+    def display_profiles_table(self):
+        """Muestra una tabla con todos los perfiles disponibles"""
+        try:
+            from rich.console import Console
+            from rich.table import Table
+            
+            console = Console()
+            
+            if not self.profiles:
+                console.print("[yellow]No hay perfiles de desarrollo disponibles.[/yellow]")
+                return
+            
+            table = Table(title="🎯 Perfiles de Desarrollo Disponibles")
+            table.add_column("Perfil", style="cyan", no_wrap=True)
+            table.add_column("Descripción", style="white")
+            table.add_column("Modelos Preferidos", style="green")
+            table.add_column("Estado", style="magenta")
+            
+            for name, profile in self.profiles.items():
+                # Determinar estado
+                status = "✅ Activo" if (self.current_profile and self.current_profile.name == profile.name) else "⚪ Disponible"
+                
+                # Formatear modelos preferidos
+                models = ", ".join(profile.preferred_models[:3])  # Mostrar solo los primeros 3
+                if len(profile.preferred_models) > 3:
+                    models += f" (+{len(profile.preferred_models) - 3} más)"
+                
+                table.add_row(
+                    profile.name,
+                    profile.description,
+                    models,
+                    status
+                )
+            
+            console.print(table)
+            
+            # Mostrar información adicional
+            if self.current_profile:
+                console.print(f"\n[green]✅ Perfil actual: {self.current_profile.name}[/green]")
+            else:
+                console.print(f"\n[yellow]💡 Usa 'chispart perfil set <nombre>' para activar un perfil[/yellow]")
+                
+        except ImportError:
+            # Fallback si Rich no está disponible
+            print("\n🎯 Perfiles de Desarrollo Disponibles:")
+            print("-" * 50)
+            for name, profile in self.profiles.items():
+                status = "✅ ACTIVO" if (self.current_profile and self.current_profile.name == profile.name) else "⚪ Disponible"
+                print(f"{status} {profile.name}")
+                print(f"   {profile.description}")
+                print(f"   Modelos: {', '.join(profile.preferred_models[:2])}")
+                print()
+
+    def interactive_profile_selection(self):
+        """Selección interactiva de perfil"""
+        try:
+            from rich.console import Console
+            from rich.prompt import Prompt
+            
+            console = Console()
+            
+            # Mostrar perfiles disponibles
+            self.display_profiles_table()
+            
+            # Lista de perfiles para selección
+            profile_names = list(self.profiles.keys())
+            
+            console.print("\n🔧 Selecciona un perfil:")
+            for i, profile_name in enumerate(profile_names, 1):
+                profile = self.profiles[profile_name]
+                console.print(f"  {i}. {profile.name}")
+            console.print("  0. Cancelar")
+            
+            # Solicitar selección
+            choice = Prompt.ask(
+                "Ingresa el número del perfil",
+                choices=[str(i) for i in range(len(profile_names) + 1)],
+                default="0"
+            )
+            
+            if choice == "0":
+                console.print("❌ Operación cancelada")
+                return
+            
+            # Activar perfil seleccionado
+            selected_profile_key = profile_names[int(choice) - 1]
+            selected_profile = self.profiles[selected_profile_key]
+            self.set_current_profile(selected_profile.name)
+            console.print(f"✅ Perfil '{selected_profile.name}' activado correctamente")
+            
+        except ImportError:
+            # Fallback sin Rich
+            print("\n🔧 Selecciona un perfil:")
+            profile_names = list(self.profiles.keys())
+            
+            for i, profile_name in enumerate(profile_names, 1):
+                profile = self.profiles[profile_name]
+                print(f"  {i}. {profile.name}")
+            print("  0. Cancelar")
+            
+            try:
+                choice = input("Ingresa el número del perfil: ").strip()
+                
+                if choice == "0" or not choice:
+                    print("❌ Operación cancelada")
+                    return
+                
+                choice_num = int(choice)
+                if 1 <= choice_num <= len(profile_names):
+                    selected_profile_key = profile_names[choice_num - 1]
+                    selected_profile = self.profiles[selected_profile_key]
+                    self.set_current_profile(selected_profile.name)
+                    print(f"✅ Perfil '{selected_profile.name}' activado correctamente")
+                else:
+                    print("❌ Selección inválida")
+                    
+            except (ValueError, IndexError):
+                print("❌ Selección inválida")
+        except Exception as e:
+            print(f"❌ Error en selección interactiva: {e}")
+
+    def set_profile(self, profile_name: str) -> bool:
+        """Alias para set_current_profile para compatibilidad"""
+        return self.set_current_profile(profile_name)
 
 # Instancia global del gestor de perfiles
 profile_manager = DevProfileManager()

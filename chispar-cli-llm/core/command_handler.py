@@ -16,6 +16,7 @@ from .validation import validate_complete_request, InputValidator
 from .error_handler import ChispartErrorHandler, handle_errors
 from ui.components import console, create_panel, create_progress_bar
 from ui.theme_manager import get_theme
+from commands.directory_commands import get_directory_commands
 
 class CommandHandler:
     """Manejador centralizado para todos los comandos de Chispart"""
@@ -29,6 +30,8 @@ class CommandHandler:
             "failed_requests": 0,
             "total_tokens_used": 0
         }
+        # Inicializar comandos de directorio
+        self.directory_commands = get_directory_commands(self)
     
     @handle_errors(ChispartErrorHandler(), exit_on_error=False)
     def handle_chat(self, api_name: str, message: str, model: Optional[str] = None, 
@@ -66,7 +69,7 @@ class CommandHandler:
                 messages = [{"role": "user", "content": message}]
                 
                 # Obtener nombre real del modelo
-                from config import get_available_models
+                from config_extended import get_available_models
                 available_models = get_available_models(api_name)
                 model_name = available_models[validated_model]
                 
@@ -163,7 +166,7 @@ class CommandHandler:
                 }]
                 
                 # Obtener nombre real del modelo
-                from config import get_available_models
+                from config_extended import get_available_models
                 available_models = get_available_models(api_name)
                 model_name = available_models[validated_model]
                 
@@ -277,7 +280,7 @@ Por favor, responde a la siguiente pregunta basada en el texto del documento:
                 messages = [{"role": "user", "content": full_prompt}]
                 
                 # Obtener nombre real del modelo
-                from config import get_available_models
+                from config_extended import get_available_models
                 available_models = get_available_models(api_name)
                 model_name = available_models[validated_model]
                 
@@ -406,7 +409,7 @@ Por favor, responde a la siguiente pregunta basada en el texto del documento:
                 # Enviar a la API
                 try:
                     with console.status(f"[{self.colors['primary']}]Pensando con {config['name']}..."):
-                        from config import get_available_models
+                        from config_extended import get_available_models
                         available_models = get_available_models(api_name)
                         model_name = available_models[validated_model]
                         
@@ -514,3 +517,128 @@ Por favor, responde a la siguiente pregunta basada en el texto del documento:
             "failed_requests": 0,
             "total_tokens_used": 0
         }
+    
+    @handle_errors(ChispartErrorHandler(), exit_on_error=False)
+    def handle_directory_analysis(self, api_name: str, directory_path: str,
+                                 prompt: str = "Analiza este directorio y proporciona insights sobre la estructura del proyecto",
+                                 model: Optional[str] = None,
+                                 max_depth: Optional[int] = None,
+                                 include_hidden: bool = False,
+                                 analyze_content: bool = True,
+                                 save_history: bool = True) -> Dict[str, Any]:
+        """
+        Maneja el análisis completo de directorios
+        
+        Args:
+            api_name: API a utilizar para el análisis IA
+            directory_path: Ruta del directorio a analizar
+            prompt: Prompt para el análisis IA
+            model: Modelo específico (opcional)
+            max_depth: Profundidad máxima de análisis
+            include_hidden: Si incluir archivos ocultos
+            analyze_content: Si analizar contenido de archivos
+            save_history: Si guardar en historial
+            
+        Returns:
+            Dict con resultado de la operación
+        """
+        self.stats["commands_executed"] += 1
+        
+        try:
+            result = self.directory_commands.handle_directory_analysis(
+                directory_path=directory_path,
+                api_name=api_name,
+                prompt=prompt,
+                model=model,
+                max_depth=max_depth,
+                include_hidden=include_hidden,
+                analyze_content=analyze_content,
+                save_history=save_history
+            )
+            
+            if result["success"]:
+                self.stats["successful_requests"] += 1
+                if result.get("usage") and "total_tokens" in result["usage"]:
+                    self.stats["total_tokens_used"] += result["usage"]["total_tokens"]
+            else:
+                self.stats["failed_requests"] += 1
+            
+            return result
+            
+        except Exception as e:
+            self.stats["failed_requests"] += 1
+            raise
+    
+    @handle_errors(ChispartErrorHandler(), exit_on_error=False)
+    def handle_codebase_exploration(self, api_name: str, directory_path: str,
+                                   focus_area: str = "general",
+                                   model: Optional[str] = None,
+                                   save_history: bool = True) -> Dict[str, Any]:
+        """
+        Maneja exploración especializada de codebase
+        
+        Args:
+            api_name: API a utilizar
+            directory_path: Ruta del directorio
+            focus_area: Área de enfoque (architecture, security, performance, etc.)
+            model: Modelo específico
+            save_history: Si guardar en historial
+            
+        Returns:
+            Dict con resultado de la operación
+        """
+        self.stats["commands_executed"] += 1
+        
+        try:
+            result = self.directory_commands.handle_codebase_exploration(
+                directory_path=directory_path,
+                api_name=api_name,
+                focus_area=focus_area,
+                model=model,
+                save_history=save_history
+            )
+            
+            if result["success"]:
+                self.stats["successful_requests"] += 1
+            else:
+                self.stats["failed_requests"] += 1
+            
+            return result
+            
+        except Exception as e:
+            self.stats["failed_requests"] += 1
+            raise
+    
+    @handle_errors(ChispartErrorHandler(), exit_on_error=False)
+    def handle_project_patterns_analysis(self, api_name: str, directory_path: str,
+                                        model: Optional[str] = None) -> Dict[str, Any]:
+        """
+        Analiza patrones y arquitectura del proyecto
+        
+        Args:
+            api_name: API a utilizar
+            directory_path: Ruta del directorio
+            model: Modelo específico
+            
+        Returns:
+            Dict con resultado de la operación
+        """
+        self.stats["commands_executed"] += 1
+        
+        try:
+            result = self.directory_commands.handle_project_patterns_analysis(
+                directory_path=directory_path,
+                api_name=api_name,
+                model=model
+            )
+            
+            if result["success"]:
+                self.stats["successful_requests"] += 1
+            else:
+                self.stats["failed_requests"] += 1
+            
+            return result
+            
+        except Exception as e:
+            self.stats["failed_requests"] += 1
+            raise

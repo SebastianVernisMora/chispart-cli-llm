@@ -4,7 +4,7 @@ Comando para interactuar con la API de BlackboxAI
 import click
 from rich.console import Console
 from api_client import UniversalAPIClient, APIError
-from config import get_api_config, get_available_models, get_default_model, AVAILABLE_APIS
+from config_extended import get_api_config, get_available_models, get_default_model, AVAILABLE_APIS
 from utils import save_conversation_history
 
 console = Console()

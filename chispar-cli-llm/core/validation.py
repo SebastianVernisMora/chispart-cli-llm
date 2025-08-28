@@ -7,7 +7,7 @@ import os
 from typing import Dict, Any, Optional, Tuple, List
 from pathlib import Path
 
-from config import AVAILABLE_APIS, get_api_config, get_available_models, VISION_SUPPORTED_APIS, PDF_SUPPORTED_APIS
+from config_extended import AVAILABLE_APIS, get_api_config, get_available_models, VISION_SUPPORTED_APIS, PDF_SUPPORTED_APIS
 from utils import is_supported_image, is_supported_pdf, validate_file_size, format_file_size
 
 class ValidationError(Exception):
@@ -90,7 +90,7 @@ class ModelValidator:
             
             if not model:
                 # Usar modelo por defecto
-                from config import get_default_model
+                from config_extended import get_default_model
                 default_model = get_default_model(api_name)
                 return True, default_model, None
             
@@ -133,7 +133,7 @@ class ModelValidator:
                 return preferred
         
         # Si no hay preferidos, usar el por defecto
-        from config import get_default_model
+        from config_extended import get_default_model
         return get_default_model(api_name)
 
 class FileValidator:

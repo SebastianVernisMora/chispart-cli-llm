@@ -12,9 +12,9 @@ from rich.table import Table
 from ui.components import console, create_panel, create_table
 from ui.theme_manager import ThemeManager, get_theme
 from core.config_manager import ConfigManager
-from core.validation import ValidationManager
-from core.error_handler import ErrorHandler
-from config import AVAILABLE_APIS, DEFAULT_API
+from core.validation import APIValidator
+from core.error_handler import ChispartErrorHandler
+from config_extended import AVAILABLE_APIS, DEFAULT_API
 
 
 class ConfigCommands:
@@ -23,8 +23,8 @@ class ConfigCommands:
     def __init__(self):
         self.config_manager = ConfigManager()
         self.theme_manager = ThemeManager()
-        self.validator = ValidationManager()
-        self.error_handler = ErrorHandler()
+        self.validator = APIValidator()
+        self.error_handler = ChispartErrorHandler()
         self.colors = get_theme()
     
     def handle_configure_api(self, api_name: Optional[str] = None) -> Dict[str, Any]:

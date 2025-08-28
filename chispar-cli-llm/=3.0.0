@@ -1,0 +1,13 @@
+Requirement already satisfied: rich in ./venv/lib/python3.10/site-packages (14.1.0)
+Collecting prompt-toolkit
+  Downloading prompt_toolkit-3.0.52-py3-none-any.whl.metadata (6.4 kB)
+Requirement already satisfied: markdown-it-py>=2.2.0 in ./venv/lib/python3.10/site-packages (from rich) (4.0.0)
+Requirement already satisfied: pygments<3.0.0,>=2.13.0 in ./venv/lib/python3.10/site-packages (from rich) (2.19.2)
+Collecting wcwidth (from prompt-toolkit)
+  Downloading wcwidth-0.2.13-py2.py3-none-any.whl.metadata (14 kB)
+Requirement already satisfied: mdurl~=0.1 in ./venv/lib/python3.10/site-packages (from markdown-it-py>=2.2.0->rich) (0.1.2)
+Downloading prompt_toolkit-3.0.52-py3-none-any.whl (391 kB)
+Downloading wcwidth-0.2.13-py2.py3-none-any.whl (34 kB)
+Installing collected packages: wcwidth, prompt-toolkit
+
+Successfully installed prompt-toolkit-3.0.52 wcwidth-0.2.13

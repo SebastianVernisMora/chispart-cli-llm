@@ -26,15 +26,15 @@
 
 ## 🚀 Instalación Rápida
 
-### Instalación con Un Comando
+### Instalación con Un Comando (Recomendado)
 
 ```bash
 # Clonar repositorio
 git clone https://github.com/tu-usuario/chispar-cli-llm.git
 cd chispar-cli-llm
 
-# Instalar automáticamente
-./install.sh
+# Instalar con playground automático
+./install-enhanced.sh
 ```
 
 ### Instalación Manual
@@ -44,10 +44,13 @@ cd chispar-cli-llm
 pip install -r requirements.txt
 
 # Hacer ejecutables los scripts
-chmod +x chispart chs install.sh
+chmod +x chispart chs install.sh install-enhanced.sh
 
 # Configurar APIs
 ./chispart config
+
+# Iniciar playground de aprendizaje
+python3 chispart_dev_agent_v3.py playground
 ```
 
 ## 📋 Comandos Principales
@@ -110,6 +113,15 @@ chmod +x chispart chs install.sh
 
 # Ver ayuda completa
 ./chispart ayuda
+```
+
+### 🎮 Playground Interactivo
+```bash
+# Iniciar tutorial interactivo completo
+./chispart playground
+
+# O usando Python directamente
+python3 chispart_dev_agent_v3.py playground
 ```
 
 ## 🏗️ Estructura del Proyecto
