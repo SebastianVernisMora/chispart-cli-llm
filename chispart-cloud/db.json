@@ -1,0 +1,21 @@
+{
+    "workflows": [
+        {
+            "name": "test_workflow",
+            "id": 1
+        },
+        {
+            "name": "test_workflow",
+            "id": 2
+        },
+        {
+            "name": "test_workflow",
+            "id": 3
+        },
+        {
+            "name": "test_workflow",
+            "id": 4
+        }
+    ],
+    "runs": []
+}
