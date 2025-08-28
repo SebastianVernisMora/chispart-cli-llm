@@ -1,0 +1,70 @@
+#!/bin/bash
+
+# Script wrapper para CLI Universal LLMs en Termux
+# Facilita el uso del CLI desde cualquier ubicación
+
+# Detectar la ubicación del script
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Si estamos en ~/bin, el proyecto debería estar en ~/cli-universal-llms
+if [[ "$SCRIPT_DIR" == *"/bin" ]]; then
+    PROJECT_DIR="$HOME/cli-universal-llms"
+else
+    # Si estamos en el directorio del proyecto
+    PROJECT_DIR="$SCRIPT_DIR"
+fi
+
+# Verificar que el proyecto existe
+if [ ! -f "$PROJECT_DIR/chispart_cli.py" ]; then
+    echo "❌ Error: No se encontró el proyecto Chispart-CLI-LLM"
+    echo "   Esperado en: $PROJECT_DIR"
+    echo "   Ejecuta el script de instalación primero"
+    exit 1
+fi
+
+# Cambiar al directorio del proyecto
+cd "$PROJECT_DIR"
+
+# Verificar dependencias básicas
+if ! python -c "import requests, click, rich" 2>/dev/null; then
+    echo "❌ Error: Dependencias faltantes"
+    echo "   Ejecuta: pip install -r requirements.txt"
+    exit 1
+fi
+
+# Mostrar información útil si no hay argumentos
+if [ $# -eq 0 ]; then
+    echo "🤖 CLI Universal para LLMs - Termux Edition"
+    echo "=========================================="
+    echo ""
+    echo "📱 Comandos rápidos:"
+    echo "  llm-cli chat 'mensaje'     - Enviar mensaje"
+    echo "  llm-cli interactivo        - Modo chat interactivo"
+    echo "  llm-cli imagen foto.jpg    - Analizar imagen"
+    echo "  llm-cli pdf documento.pdf  - Analizar PDF"
+    echo "  llm-cli modelos            - Ver modelos disponibles"
+    echo "  llm-cli historial          - Ver historial"
+    echo "  llm-cli configure          - Configurar API keys"
+    echo ""
+    echo "🔧 Comandos de sistema:"
+    echo "  llm-cli --help             - Ayuda completa"
+    echo "  llm-status                 - Estado del sistema"
+    echo "  llm-web                    - Interfaz web"
+    echo ""
+    echo "💡 Ejemplo: llm-cli chat '¿Cuál es la capital de Francia?'"
+    echo ""
+    exit 0
+fi
+
+# Comando especial para mostrar estado del sistema
+if [ "$1" = "status" ]; then
+    echo "🔍 Verificando estado del sistema..."
+    python -c "
+from termux_utils import print_termux_status
+print_termux_status()
+"
+    exit 0
+fi
+
+# Ejecutar el CLI con todos los argumentos
+python chispart_cli.py "$@"

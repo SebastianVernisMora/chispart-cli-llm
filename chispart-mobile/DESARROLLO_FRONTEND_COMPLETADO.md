@@ -2,7 +2,7 @@
 
 ## 📋 Resumen Ejecutivo
 
-El desarrollo frontend de Chispart Mobile PWA ha sido **completado exitosamente** por el equipo BLACKBOX. Se ha implementado una aplicación web progresiva (PWA) completamente funcional con todas las características modernas requeridas para dispositivos móviles y desktop.
+El desarrollo frontend de Chispart Mobile PWA ha sido **completado exitosamente** por Sebastian Vernis | Soluciones Digitales. Se ha implementado una aplicación web progresiva (PWA) completamente funcional con todas las características modernas requeridas para dispositivos móviles y desktop.
 
 ### 🎯 Estado del Proyecto
 - ✅ **COMPLETADO**: Arquitectura frontend completa
@@ -258,7 +258,7 @@ El desarrollo frontend de Chispart Mobile PWA está **100% completado** y listo 
 
 ---
 
-**Desarrollado por**: Equipo BLACKBOX  
+**Desarrollado por**: Sebastian Vernis | Soluciones Digitales  
 **Fecha**: Enero 2025  
 **Versión**: 1.0.0  
 **Estado**: ✅ COMPLETADO

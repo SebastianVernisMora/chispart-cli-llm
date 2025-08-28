@@ -1,0 +1,71 @@
+[
+  {
+    "type": "interactive_chat",
+    "api": "chispart",
+    "model": "gpt-4",
+    "message": "Hola",
+    "response": "¡Hola! ¿Cómo puedo ayudarte hoy?",
+    "usage": {
+      "completion_tokens": 10,
+      "prompt_tokens": 8,
+      "total_tokens": 18,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 0,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": 0,
+        "cached_tokens": 0
+      }
+    },
+    "timestamp": "2025-08-27T15:04:36.888317"
+  },
+  {
+    "type": "interactive_chat",
+    "api": "chispart",
+    "model": "gpt-4",
+    "message": "Quiero que me ayudes a analizar el proyecto Yega, lo encontraremos en ~/Yega-Ecosistema",
+    "response": "Lo siento, como asistente de inteligencia artificial, actualmente no tengo la capacidad de acceder o analizar archivos en un sistema local o en la red. Sin embargo, estaré encantado de ayudar a analizar o discutir cualquier problema, suposición o aspecto que pueda compartir conmigo en forma de texto. ¡Por favor comparte más detalles!",
+    "usage": {
+      "completion_tokens": 81,
+      "prompt_tokens": 50,
+      "total_tokens": 131,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 0,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": 0,
+        "cached_tokens": 0
+      }
+    },
+    "timestamp": "2025-08-27T15:05:22.152606"
+  },
+  {
+    "type": "interactive_chat",
+    "api": "chispart",
+    "model": "gpt-4",
+    "message": "Entiendo, enlista tus capacidades",
+    "response": "Claro, ¡me complacerá enumerar algunas de mis capacidades!\n\n1. Generar texto: Ya sea para redacción, autocompletar o generar ideas creativas.\n\n2. Procesamiento de lenguaje natural: puedo entender, interpretar y responder preguntas utilizando el lenguaje humano. Esto incluye traducir idiomas, detectar sentimientos, extraer palabras clave, resumir textos y mucho más.\n\n3. Aprendizaje automático: puedo ayudar a explicar y entender conceptos de aprendizaje automático, desde algoritmos básicos hasta redes neuronales más profundas.\n\n4. Búsqueda de información: puedo buscar información en línea dada una consulta específica.\n\n5. Creación de contenido: puedo ayudar a redactar correos electrónicos, escribir historias, generar ideas para publicaciones en blogs, etc.\n\n6. Tutorías y explicaciones: estoy programado para generar explicaciones claras y comprensibles para una variedad de temas.\n\n7. Asistente de tareas: puedo recordarte tareas pendientes, programar alarmas y coordinar horarios.\n\n8. Chat y conversación: puedo dialogar sobre una variedad de temas y ofrecer interacción en tiempo real.\n\n9. Consulta sobre datos: puedo ayudar a realizar análisis descriptivos básicos o inferencias en un conjunto de datos, si me proporcionas los datos necesarios y su contexto.\n   \n10. Solución de problemas: puedo ayudarte con los problemas de codificación, resolver problemas matemáticos, etc.\n\nPor favor, recuerda que aún tengo limitaciones. No tengo la capacidad de ver ni interactuar con el mundo físico, no tengo acceso a información personal a menos que se me proporcione durante nuestra conversación, y no deberías usar mi asistencia para obtener consejos médicos, legales u otros consejos profesionales.",
+    "usage": {
+      "completion_tokens": 404,
+      "prompt_tokens": 147,
+      "total_tokens": 551,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 0,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": 0,
+        "cached_tokens": 0
+      }
+    },
+    "timestamp": "2025-08-27T15:07:13.195149"
+  }
+]

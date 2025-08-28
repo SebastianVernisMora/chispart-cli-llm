@@ -1,0 +1,89 @@
+{
+  "atc_20250827_150241": {
+    "id": "atc_20250827_150241",
+    "issue_type": "general",
+    "description": "Diagn\u00f3stico general del sistema",
+    "status": "active",
+    "steps_taken": [],
+    "diagnostics": {
+      "system": {
+        "python3 --version": {
+          "success": true,
+          "output": "Python 3.10.12",
+          "error": ""
+        },
+        "pip --version": {
+          "success": true,
+          "output": "pip 25.2 from /home/sebastianvernis/.local/lib/python3.10/site-packages/pip (python 3.10)",
+          "error": ""
+        },
+        "pwd": {
+          "success": true,
+          "output": "/home/sebastianvernis/Agents",
+          "error": ""
+        },
+        "whoami": {
+          "success": true,
+          "output": "sebastianvernis",
+          "error": ""
+        },
+        "df -h": {
+          "success": true,
+          "output": "S.ficheros     Tama\u00f1o Usados  Disp Uso% Montado en\ntmpfs            1.6G   2.5M  1.6G   1% /run\nefivarfs         192K    90K   98K  48% /sys/firmware/efi/efivars\n/dev/sda3        460G   187G  250G  43% /\ntmpfs            7.8G    81M  7.7G   2% /dev/shm\ntmpfs            5.0M      0  5.0M   0% /run/lock\n/dev/sda1       1020M   210M  811M  21% /boot/efi\n/dev/sda2        4.0G   3.0G  1.1G  75% /recovery\ntmpfs            1.6G   6.0M  1.6G   1% /run/user/1000",
+          "error": ""
+        },
+        "free -h": {
+          "success": true,
+          "output": "total       usado       libre  compartido   b\u00faf/cach\u00e9  disponible\nMem:            15Gi       6.6Gi       1.9Gi       528Mi       6.8Gi       7.0Gi\nInter:          68Gi       1.3Gi        66Gi",
+          "error": ""
+        }
+      },
+      "chispart": {
+        "python3 chispart_dev_agent.py --help": {
+          "success": false,
+          "output": "",
+          "error": "/usr/bin/python3: can't open file '/home/sebastianvernis/Agents/chispart_dev_agent.py': [Errno 2] No such file or directory"
+        },
+        "python3 chispart_dev_agent.py version": {
+          "success": false,
+          "output": "",
+          "error": "/usr/bin/python3: can't open file '/home/sebastianvernis/Agents/chispart_dev_agent.py': [Errno 2] No such file or directory"
+        },
+        "python3 chispart_dev_agent.py security": {
+          "success": false,
+          "output": "",
+          "error": "/usr/bin/python3: can't open file '/home/sebastianvernis/Agents/chispart_dev_agent.py': [Errno 2] No such file or directory"
+        },
+        "python3 chispart_dev_agent.py modelos": {
+          "success": false,
+          "output": "",
+          "error": "/usr/bin/python3: can't open file '/home/sebastianvernis/Agents/chispart_dev_agent.py': [Errno 2] No such file or directory"
+        }
+      },
+      "files": {
+        "ls -la": {
+          "success": true,
+          "output": "total 88\ndrwxrwxr-x 11 sebastianvernis sebastianvernis  4096 ago 27 15:02 .\ndrwxr-x--- 62 sebastianvernis sebastianvernis  4096 ago 27 14:59 ..\n-rw-rw-r--  1 sebastianvernis sebastianvernis     0 ago 24 11:28 404.html\n-rw-rw-r--  1 sebastianvernis sebastianvernis     0 ago 24 11:28 500.html\n-rw-rw-r--  1 sebastianvernis sebastianvernis    60 ago 24 11:39 Agents.code-workspace\n-rw-rw-r--  1 sebastianvernis sebastianvernis     0 ago 24 11:28 app.js\n-rw-rw-r--  1 sebastianvernis sebastianvernis  6497 ago 24 10:30 ARCHITECTURE.md\n-rw-rw-r--  1 sebastianvernis sebastianvernis   297 ago 27 15:02 atc_sessions.json\n-rw-rw-r--  1 sebastianvernis sebastianvernis     0 ago 24 11:28 base.html\n-rw-rw-r--  1 sebastianvernis sebastianvernis     0 ago 25 22:58 .blackboxrules\n-rw-rw-r--  1 sebastianvernis sebastianvernis     0 ago 24 11:28 chat.html\ndrwxrwxr-x 17 sebastianvernis sebastianvernis  4096 ago 27 15:00 chispar-cli-llm\ndrwxrwxr-x  2 sebastianvernis sebastianvernis  4096 ago 24 10:22 chispart-cloud\ndrwxrwxr-x  2 sebastianvernis sebastianvernis  4096 ago 24 01:14 chispart-cloud-agents\ndrwxrwxr-x 11 sebastianvernis sebastianvernis  4096 ago 26 00:05 chispart-mobile\n-rw-rw-r--  1 sebastianvernis sebastianvernis     0 ago 24 11:28 config.html\ndrwxrwxr-x  2 sebastianvernis sebastianvernis  4096 ago 24 09:41 demo-web-app\ndrwxrwxr-x  8 sebastianvernis sebastianvernis  4096 ago 27 14:45 .git\n-rw-rw-r--  1 sebastianvernis sebastianvernis     0 ago 24 11:28 index.html\n-rw-rw-r--  1 sebastianvernis sebastianvernis 14283 ago 24 01:58 prompt_de_arranque_chispart_cli_cloud_agents_blackbox_vnc_desde_termux.md\n-rw-rw-r--  1 sebastianvernis sebastianvernis 11129 ago 24 11:16 RESUMEN_CAMBIOS.md\n-rw-rw-r--  1 sebastianvernis sebastianvernis     0 ago 24 11:28 style.css\ndrwxrwxr-x  3 sebastianvernis sebastianvernis  4096 ago 24 09:20 test-git-repo\ndrwxrwxr-x  5 sebastianvernis sebastianvernis  4096 ago 24 12:37 .venv\ndrwxrwxr-x  8 sebastianvernis sebastianvernis  4096 ago 24 09:23 yega-dashboard",
+          "error": ""
+        },
+        "ls -la core/": {
+          "success": false,
+          "output": "",
+          "error": "ls: no se puede acceder a 'core/': No existe el archivo o el directorio"
+        },
+        "cat .env | head -1": {
+          "success": false,
+          "output": "",
+          "error": "cat: opci\u00f3n incorrecta -- \u00ab1\u00bb\nPruebe 'cat --help' para m\u00e1s informaci\u00f3n."
+        },
+        "find . -name '*.py' | head -5": {
+          "success": false,
+          "output": "",
+          "error": "find: Las rutas-de-acceso deben preceder la expresi\u00f3n: `|'"
+        }
+      }
+    },
+    "created_at": "2025-08-27T15:02:41.370760",
+    "resolved_at": null
+  }
+}

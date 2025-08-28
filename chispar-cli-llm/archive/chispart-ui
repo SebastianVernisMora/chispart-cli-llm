@@ -1,0 +1,4 @@
+#!/bin/bash
+# Chispart CLI Modern - Interfaz Web
+cd "$(dirname "$0")"
+python3 app.py

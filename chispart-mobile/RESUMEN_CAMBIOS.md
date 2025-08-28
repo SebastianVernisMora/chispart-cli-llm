@@ -2,7 +2,7 @@
 
 ## 🎉 Estado Final del Proyecto
 
-**DESARROLLO FRONTEND COMPLETADO AL 100%** por el equipo BLACKBOX
+**DESARROLLO FRONTEND COMPLETADO AL 100%** por Sebastian Vernis | Soluciones Digitales
 
 ### ✅ Cambios Implementados y Completados
 
@@ -197,7 +197,7 @@ La aplicación Chispart Mobile PWA está lista para:
 
 ---
 
-**Desarrollado por**: Equipo BLACKBOX  
+**Desarrollado por**: Sebastian Vernis | Soluciones Digitales  
 **Fecha de Finalización**: Enero 2025  
 **Versión**: 1.0.0  
 **Estado**: ✅ COMPLETADO - LISTO PARA SIGUIENTES FASES

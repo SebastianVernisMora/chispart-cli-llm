@@ -1,0 +1,29 @@
+# Requirements optimizados para Termux
+# Versiones específicas que funcionan bien en Android
+
+# Dependencias básicas
+requests>=2.31.0,<3.0.0
+click>=8.1.0,<9.0.0
+rich>=13.0.0,<14.0.0
+python-dotenv>=1.0.0,<2.0.0
+
+# Web framework
+Flask>=2.0.0,<3.0.0
+
+# Procesamiento de imágenes
+Pillow>=10.0.0,<11.0.0
+
+# PDF processing
+# Se usa pypdf por ser una biblioteca pura de Python, compatible con Termux.
+pypdf>=6.0.0
+# Opcional (más rápido, requiere binarios). Descomenta si tu dispositivo lo soporta:
+# PyMuPDF>=1.24.0
+
+# Development & Testing (opcional)
+pytest>=8.0.0,<9.0.0
+pytest-mock>=3.12.0,<4.0.0
+respx>=0.20.0,<1.0.0
+
+# Dependencias adicionales para mejor compatibilidad en Termux
+setuptools>=65.0.0
+wheel>=0.38.0
