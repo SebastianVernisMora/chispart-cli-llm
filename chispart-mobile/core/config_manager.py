@@ -12,7 +12,6 @@ from pathlib import Path
 from dataclasses import dataclass, asdict
 from enum import Enum
 import asyncio
-from cryptography.fernet import Fernet
 
 class ConfigLevel(Enum):
     """Niveles de configuración por prioridad"""
@@ -41,24 +40,20 @@ class ConfigSchema:
     scope: ConfigScope = ConfigScope.GLOBAL
     level: ConfigLevel = ConfigLevel.USER
     validation: Optional[callable] = None
-    sensitive: bool = False  # Para datos sensibles que requieren encriptación
 
 class AdvancedConfigManager:
     """
     Gestor avanzado de configuración con múltiples niveles y validación
     """
     
-    def __init__(self, config_dir: str = None, encryption_key: str = None):
+    def __init__(self, config_dir: str = None):
         """
         Inicializa el gestor de configuración
         
         Args:
             config_dir: Directorio de configuración
-            encryption_key: Clave para encriptar datos sensibles
         """
         self.config_dir = config_dir or self._get_default_config_dir()
-        self.encryption_key = encryption_key
-        self._cipher_suite = None
         
         # Configuraciones por nivel y alcance
         self._configs = {
@@ -230,13 +225,11 @@ class AdvancedConfigManager:
         total_schemas = len(self._schemas)
         configured_values = len([k for k, v in self._compiled_config.items() 
                                if k in self._schemas and v != self._schemas[k].default])
-        sensitive_values = len([s for s in self._schemas.values() if s.sensitive])
         
         return {
             'total_schemas': total_schemas,
             'configured_values': configured_values,
             'default_values': total_schemas - configured_values,
-            'sensitive_values': sensitive_values,
             'last_compile': self._last_compile.isoformat() if self._last_compile else None,
             'config_dir': self.config_dir,
             'scopes': {scope.value: len([s for s in self._schemas.values() if s.scope == scope]) 
