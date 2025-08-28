@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Acerca de - Chispart Mobile{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h2>Acerca de Chispart Mobile</h2>
+        </div>
+        <div class="card-body">
+            <p><strong>Versión:</strong> 1.0.0</p>
+            <p><strong>Descripción:</strong> Terminal de IA Universal optimizado para dispositivos móviles y Termux.</p>
+            <p>Chispart Mobile es una aplicación PWA (Progressive Web App) que te permite interactuar con múltiples APIs de IA desde tu dispositivo móvil.</p>
+            <hr>
+            <h4>Características Principales</h4>
+            <ul>
+                <li>🤖 Múltiples APIs: Blackbox AI, OpenAI, Anthropic, etc.</li>
+                <li>📱 Optimizado para Móviles y Termux</li>
+                <li>🔒 Seguridad Avanzada Opcional para API Keys</li>
+                <li>📴 Modo Offline con PWA</li>
+                <li>🎨 Interfaz Adaptativa con temas</li>
+            </ul>
+        </div>
+        <div class="card-footer">
+            <a href="{{ url_for('index') }}" class="btn btn-primary">Volver al Inicio</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
