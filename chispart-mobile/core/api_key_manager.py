@@ -19,12 +19,16 @@ try:
     from cryptography.fernet import Fernet
     from cryptography.hazmat.primitives import hashes
     from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+
     ENCRYPTION_AVAILABLE = True
 except ImportError:
     ENCRYPTION_AVAILABLE = False
     print("⚠️  Advertencia: La librería 'cryptography' no está instalada.")
     print("   Las claves API se guardarán ofuscadas en base64 en lugar de encriptadas.")
-    print("   Para mayor seguridad, instala 'cryptography' con: pip install cryptography")
+    print(
+        "   Para mayor seguridad, instala 'cryptography' con: pip install cryptography"
+    )
+
 
 class APIKeyManager:
     """
@@ -46,6 +50,7 @@ class APIKeyManager:
         """Obtiene la ruta por defecto para almacenar las claves."""
         try:
             from termux_utils import get_termux_config_dir, is_termux
+
             if is_termux():
                 config_dir = get_termux_config_dir()
             else:
@@ -75,7 +80,7 @@ class APIKeyManager:
         key = base64.urlsafe_b64encode(kdf.derive(password.encode()))
         return key, salt
 
-    def _get_cipher_suite(self) -> Optional['Fernet']:
+    def _get_cipher_suite(self) -> Optional["Fernet"]:
         """Obtiene o crea el conjunto de cifrado."""
         if not ENCRYPTION_AVAILABLE:
             return None
@@ -94,9 +99,13 @@ class APIKeyManager:
         try:
             identifiers = []
             import uuid
+
             identifiers.append(str(uuid.getnode()))
             import platform
-            identifiers.extend([platform.machine(), platform.processor(), platform.system()])
+
+            identifiers.extend(
+                [platform.machine(), platform.processor(), platform.system()]
+            )
             termux_id = os.environ.get("PREFIX", "")
             if termux_id:
                 identifiers.append(termux_id)
@@ -363,6 +372,7 @@ class APIKeyManager:
                 self._save_keys()
 
             return result
+
 
 # Instancia global para uso en la aplicación
 api_key_manager = APIKeyManager()

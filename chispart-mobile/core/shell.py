@@ -7,19 +7,25 @@ from typing import List, Dict, Optional, Tuple
 
 # Comandos seguros permitidos para ejecución directa
 COMMAND_WHITELIST = [
-    'ls', 'pwd', 'echo', 'cat', 'head', 'tail', 'grep', 'find',
-    'git status', 'git diff', 'git log'
+    "ls",
+    "pwd",
+    "echo",
+    "cat",
+    "head",
+    "tail",
+    "grep",
+    "find",
+    "git status",
+    "git diff",
+    "git log",
 ]
+
 
 class InteractiveShell:
     def __init__(self, histmax: int = 300):
         self.current_path = Path.cwd()
         self.history = deque(maxlen=histmax)
-        self.session_vars = {
-            "timeout": 45,
-            "outmax": 10000,
-            "histmax": histmax
-        }
+        self.session_vars = {"timeout": 45, "outmax": 10000, "histmax": histmax}
 
     def execute(self, user_input: str) -> Dict[str, str]:
         """
@@ -30,17 +36,17 @@ class InteractiveShell:
             return {"status": "empty"}
 
         # Añadir al historial (si no es una re-ejecución)
-        if not user_input.startswith(('!!', '!run', '!?')):
-             self.history.append(user_input)
+        if not user_input.startswith(("!!", "!run", "!?")):
+            self.history.append(user_input)
 
         # Manejar comandos especiales
-        if user_input.startswith('!'):
+        if user_input.startswith("!"):
             return self._handle_shell_command(user_input)
-        elif user_input.startswith('cd'):
+        elif user_input.startswith("cd"):
             return self._handle_cd(user_input)
-        elif user_input.startswith('history'):
+        elif user_input.startswith("history"):
             return self._handle_history(user_input)
-        elif user_input.startswith('set '):
+        elif user_input.startswith("set "):
             return self._handle_set(user_input)
 
         # Si no es un comando especial, se tratará como chat o análisis
@@ -48,33 +54,42 @@ class InteractiveShell:
 
     def _handle_shell_command(self, command: str) -> Dict[str, str]:
         """Maneja comandos que empiezan con '!'."""
-        if command == '!!':
+        if command == "!!":
             if len(self.history) > 1:
                 # El comando más reciente es '!!', el anterior es el que queremos
                 last_command = self.history[-2]
-                self.history.append(last_command) # Añadir el comando re-ejecutado
+                self.history.append(last_command)  # Añadir el comando re-ejecutado
                 return self.execute(last_command)
-            return {"status": "error", "output": "No hay comandos en el historial para re-ejecutar."}
+            return {
+                "status": "error",
+                "output": "No hay comandos en el historial para re-ejecutar.",
+            }
 
-        elif command.startswith('!run '):
+        elif command.startswith("!run "):
             try:
-                index = int(command.split(' ')[1])
+                index = int(command.split(" ")[1])
                 if 1 <= index <= len(self.history):
                     # El historial es 0-indexed, el input es 1-indexed
-                    run_command = list(self.history)[index-1]
+                    run_command = list(self.history)[index - 1]
                     self.history.append(run_command)
                     return self.execute(run_command)
-                return {"status": "error", "output": f"Índice de historial inválido: {index}"}
+                return {
+                    "status": "error",
+                    "output": f"Índice de historial inválido: {index}",
+                }
             except (ValueError, IndexError):
                 return {"status": "error", "output": "Uso: !run <número_de_historial>"}
 
-        elif command.startswith('!?'):
-            match = re.match(r'!\?\s*/(.*?)/(i?)\s*$', command)
+        elif command.startswith("!?"):
+            match = re.match(r"!\?\s*/(.*?)/(i?)\s*$", command)
             if not match:
-                return {"status": "error", "output": "Formato de búsqueda inválido. Uso: !? /regex/i"}
+                return {
+                    "status": "error",
+                    "output": "Formato de búsqueda inválido. Uso: !? /regex/i",
+                }
 
             pattern, flags_str = match.groups()
-            flags = re.IGNORECASE if 'i' in flags_str else 0
+            flags = re.IGNORECASE if "i" in flags_str else 0
 
             try:
                 # Buscar hacia atrás en el historial (excluyendo el comando actual)
@@ -82,9 +97,15 @@ class InteractiveShell:
                     if re.search(pattern, cmd, flags):
                         self.history.append(cmd)
                         return self.execute(cmd)
-                return {"status": "error", "output": f"No se encontró comando que coincida con /{pattern}/"}
+                return {
+                    "status": "error",
+                    "output": f"No se encontró comando que coincida con /{pattern}/",
+                }
             except re.error as e:
-                return {"status": "error", "output": f"Error en la expresión regular: {e}"}
+                return {
+                    "status": "error",
+                    "output": f"Error en la expresión regular: {e}",
+                }
 
         # Comando normal: !comando
         actual_command = command[1:]
@@ -95,7 +116,10 @@ class InteractiveShell:
         # Validar contra la whitelist
         command_to_run = command.strip()
         if not any(command_to_run.startswith(prefix) for prefix in COMMAND_WHITELIST):
-            return {"status": "error", "output": f"Comando no permitido: '{command_to_run}'. Solo se permiten comandos en la lista blanca."}
+            return {
+                "status": "error",
+                "output": f"Comando no permitido: '{command_to_run}'. Solo se permiten comandos en la lista blanca.",
+            }
 
         try:
             process = subprocess.run(
@@ -104,7 +128,7 @@ class InteractiveShell:
                 capture_output=True,
                 text=True,
                 cwd=self.current_path,
-                timeout=self.session_vars["timeout"]
+                timeout=self.session_vars["timeout"],
             )
 
             output = process.stdout
@@ -112,18 +136,24 @@ class InteractiveShell:
                 output += f"\n--- STDERR ---\n{process.stderr}"
 
             if len(output) > self.session_vars["outmax"]:
-                output = output[:self.session_vars["outmax"]] + "\n\n[... SALIDA TRUNCADA ...]"
+                output = (
+                    output[: self.session_vars["outmax"]]
+                    + "\n\n[... SALIDA TRUNCADA ...]"
+                )
 
             return {"status": "ok", "output": output}
 
         except subprocess.TimeoutExpired:
-            return {"status": "error", "output": f"Comando '{command_to_run}' excedió el tiempo límite de {self.session_vars['timeout']}s."}
+            return {
+                "status": "error",
+                "output": f"Comando '{command_to_run}' excedió el tiempo límite de {self.session_vars['timeout']}s.",
+            }
         except Exception as e:
             return {"status": "error", "output": f"Error ejecutando comando: {e}"}
 
     def _handle_cd(self, command: str) -> Dict[str, str]:
         """Maneja el comando 'cd'."""
-        parts = command.strip().split(' ', 1)
+        parts = command.strip().split(" ", 1)
         if len(parts) == 1:
             # 'cd' sin argumentos, ir al home del repo (o donde se inició)
             self.current_path = Path.cwd()
@@ -135,9 +165,15 @@ class InteractiveShell:
 
             if new_path.is_dir():
                 self.current_path = new_path.resolve()
-                return {"status": "ok", "output": f"Directorio actual: {self.current_path}"}
+                return {
+                    "status": "ok",
+                    "output": f"Directorio actual: {self.current_path}",
+                }
             else:
-                return {"status": "error", "output": f"Directorio no encontrado: {new_path}"}
+                return {
+                    "status": "error",
+                    "output": f"Directorio no encontrado: {new_path}",
+                }
         except Exception as e:
             return {"status": "error", "output": f"Error en cd: {e}"}
 
@@ -149,15 +185,15 @@ class InteractiveShell:
         pattern = None
 
         # Parsear: history -n 20 /regex/
-        if '-n' in parts:
+        if "-n" in parts:
             try:
-                limit_index = parts.index('-n') + 1
+                limit_index = parts.index("-n") + 1
                 limit = int(parts[limit_index])
             except (ValueError, IndexError):
                 return {"status": "error", "output": "Uso: history -n <número>"}
 
         for part in parts:
-            if part.startswith('/') and part.endswith('/'):
+            if part.startswith("/") and part.endswith("/"):
                 pattern = part[1:-1]
                 break
 
@@ -184,7 +220,7 @@ class InteractiveShell:
             value = int(value_str)
             if var in self.session_vars:
                 self.session_vars[var] = value
-                if var == 'histmax':
+                if var == "histmax":
                     self.history = deque(self.history, maxlen=value)
                 return {"status": "ok", "output": f"{var} actualizado a {value}."}
             return {"status": "error", "output": f"Variable desconocida: {var}"}

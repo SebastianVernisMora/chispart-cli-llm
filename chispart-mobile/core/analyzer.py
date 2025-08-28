@@ -5,23 +5,49 @@ from typing import List, Dict, Tuple
 
 # Directorios a ignorar
 IGNORE_DIRS = {
-    '__pycache__', '.git', '.svn', '.hg', 'node_modules',
-    '.venv', 'venv', 'env', '.env', 'build', 'dist',
-    '.pytest_cache', '.coverage', 'htmlcov', '.tox',
-    '.idea', '.vscode', '.vs', 'target', 'bin', 'obj'
+    "__pycache__",
+    ".git",
+    ".svn",
+    ".hg",
+    "node_modules",
+    ".venv",
+    "venv",
+    "env",
+    ".env",
+    "build",
+    "dist",
+    ".pytest_cache",
+    ".coverage",
+    "htmlcov",
+    ".tox",
+    ".idea",
+    ".vscode",
+    ".vs",
+    "target",
+    "bin",
+    "obj",
 }
 
 # Archivos de documentación priorizados, en orden de importancia
 DOC_FILES_PRIORITY = [
-    "readme.md", "readme.rst", "readme.txt", "readme",
-    "contributing.md", "contributing.rst",
-    "license", "license.md", "license.txt",
-    "changelog.md", "changelog.rst",
-    "changes.md", "changes.rst",
+    "readme.md",
+    "readme.rst",
+    "readme.txt",
+    "readme",
+    "contributing.md",
+    "contributing.rst",
+    "license",
+    "license.md",
+    "license.txt",
+    "changelog.md",
+    "changelog.rst",
+    "changes.md",
+    "changes.rst",
 ]
 
 # Directorios de documentación
 DOC_DIRS = ["docs", "documentation"]
+
 
 class DirectoryAnalyzer:
     def __init__(self, directory_path: str):
@@ -92,22 +118,26 @@ class DirectoryAnalyzer:
         # Prioridad por directorio de documentación
         for part in file_path.parts:
             if part.lower() in DOC_DIRS:
-                return len(DOC_FILES_PRIORITY) + 1 # Menor prioridad que los archivos raíz
+                return (
+                    len(DOC_FILES_PRIORITY) + 1
+                )  # Menor prioridad que los archivos raíz
 
         return None
 
     def _read_file_content(self, file_path: Path) -> str:
         """Lee el contenido de un archivo, manejando PDFs."""
-        if file_path.suffix.lower() == '.pdf':
+        if file_path.suffix.lower() == ".pdf":
             try:
                 reader = pypdf.PdfReader(file_path)
-                return "\n".join(page.extract_text() for page in reader.pages if page.extract_text())
+                return "\n".join(
+                    page.extract_text() for page in reader.pages if page.extract_text()
+                )
             except Exception:
                 # pypdf puede fallar en PDFs corruptos o protegidos
                 return f"[Error al leer el PDF: {file_path.name}]"
         else:
             try:
-                return file_path.read_text(encoding='utf-8', errors='ignore')
+                return file_path.read_text(encoding="utf-8", errors="ignore")
             except Exception:
                 return f"[Error al leer el archivo: {file_path.name}]"
 
@@ -123,7 +153,12 @@ class DirectoryAnalyzer:
 
         return "\n".join(content)
 
-    def _sample_content_bundle(self, files: List[Path], max_total_chars: int = 15000, max_file_chars: int = 2000) -> str:
+    def _sample_content_bundle(
+        self,
+        files: List[Path],
+        max_total_chars: int = 15000,
+        max_file_chars: int = 2000,
+    ) -> str:
         """
         Crea un "bundle" de contenido muestreado de varios archivos.
         """
