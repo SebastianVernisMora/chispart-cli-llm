@@ -10,6 +10,9 @@ import sys
 import subprocess
 import time
 from datetime import datetime
+import pty
+import select
+import termios
 from typing import Dict, List, Optional, Any
 from pathlib import Path
 
@@ -281,77 +284,109 @@ def chat(ctx, mensaje, profile, modelo, api, guardar):
         console.print(f"[red]❌ Error inesperado: {str(e)}[/red]")
         sys.exit(1)
 
-@cli.command()
-@click.argument('comando')
+@cli.command(context_settings=dict(
+    ignore_unknown_options=True,
+))
+@click.argument('comando', nargs=-1, type=click.UNPROCESSED)
 @click.option('--safe', is_flag=True, help='Ejecutar con validación de seguridad')
-@click.option('--timeout', default=30, help='Timeout en segundos')
+@click.option('--timeout', default=60, help='Timeout en segundos')
 def execute(comando, safe, timeout):
-    """⚡ Ejecuta comandos del sistema de forma segura
+    """⚡ Ejecuta comandos del sistema con PTY real
     
-    Ejecuta comandos con validación de seguridad y whitelist.
+    Ejecuta comandos con validación de seguridad, streaming de salida,
+    y manejo de timeouts.
     
     Ejemplos:
     \b
-    chispart-dev execute "git status" --safe
-    chispart-dev execute "ls -la" --safe
-    chispart-dev execute "python3 --version" --safe
+    chispart-dev execute -- "git status"
+    chispart-dev execute -- safe -- "ls -la"
+    chispart-dev execute -- timeout=10 -- "ping 8.8.8.8"
     """
+    if not comando:
+        console.print("[red]❌ No se ha especificado ningún comando para ejecutar.[/red]")
+        return
+
+    full_command = " ".join(comando)
+
     if safe:
-        # Usar el sistema de seguridad
-        validation = security_manager.validate_command(comando)
-        
+        validation = security_manager.validate_command(full_command)
         if not validation.is_allowed:
             console.print(Panel(
                 f"[red]❌ Comando no permitido[/red]\n\n"
                 f"[yellow]Razón:[/yellow] {validation.reason}\n\n"
-                f"[blue]Comando:[/blue] {comando}",
+                f"[blue]Comando:[/blue] {full_command}",
                 title="🛡️ Seguridad",
                 border_style="red"
             ))
             return
     
-    # Ejecutar comando
     console.print(Panel(
-        f"[bold green]Ejecutando:[/bold green] {comando}\n"
+        f"[bold green]Ejecutando:[/bold green] {full_command}\n"
         f"[dim]Timeout: {timeout}s[/dim]",
         title="⚡ Ejecución de Comando",
         border_style="blue"
     ))
-    
+
     try:
-        start_time = time.time()
-        result = subprocess.run(
-            comando,
-            shell=True,
-            capture_output=True,
-            text=True,
-            timeout=timeout,
-            cwd=os.getcwd()
-        )
-        execution_time = time.time() - start_time
-        
-        if result.returncode == 0:
-            console.print(Panel(
-                f"[green]✅ Éxito (código: {result.returncode})[/green]\n"
-                f"[dim]Tiempo: {execution_time:.2f}s[/dim]\n\n"
-                f"{result.stdout}",
-                title="📤 Salida",
-                border_style="green"
-            ))
-        else:
-            console.print(Panel(
-                f"[red]❌ Error (código: {result.returncode})[/red]\n"
-                f"[dim]Tiempo: {execution_time:.2f}s[/dim]\n\n"
-                f"[red]Error:[/red]\n{result.stderr}\n\n"
-                f"[yellow]Salida:[/yellow]\n{result.stdout}",
-                title="📤 Resultado",
-                border_style="red"
-            ))
+        pid, fd = pty.fork()
+    except OSError as e:
+        console.print(f"[red]❌ Error al crear el pty: {e}[/red]")
+        return
+
+    if pid == 0:  # Proceso hijo
+        try:
+            # Si el comando es una sola cadena, usar shell para interpretarlo
+            if len(comando) == 1:
+                os.execv('/bin/sh', ['/bin/sh', '-c', comando[0]])
+            else:
+                os.execvp(comando[0], comando)
+        except FileNotFoundError:
+            print(f"Comando no encontrado: {comando[0]}")
+            os._exit(127)
+        except Exception as e:
+            print(f"Error ejecutando comando: {e}")
+            os._exit(1)
+
+    # Proceso padre
+    start_time = time.time()
+    output_buffer = b''
+
+    try:
+        while True:
+            elapsed_time = time.time() - start_time
+            if elapsed_time > timeout:
+                console.print(f"\n[red]❌ Comando excedió el timeout de {timeout}s[/red]")
+                os.kill(pid, 9)
+                break
+
+            try:
+                r, _, _ = select.select([fd], [], [], 0.1)
+                if r:
+                    data = os.read(fd, 1024)
+                    if not data:
+                        break  # EOF
+
+                    # Escribir directamente a la salida estándar del sistema
+                    sys.stdout.buffer.write(data)
+                    sys.stdout.flush()
+                    output_buffer += data
+            except OSError:
+                break
+    finally:
+        # Esperar al proceso hijo y obtener su código de salida
+        try:
+            wait_pid, exit_status = os.waitpid(pid, 0)
+            exit_code = os.WEXITSTATUS(exit_status) if os.WIFEXITED(exit_status) else 1
             
-    except subprocess.TimeoutExpired:
-        console.print(f"[red]❌ Comando excedió el timeout de {timeout}s[/red]")
-    except Exception as e:
-        console.print(f"[red]❌ Error ejecutando comando: {str(e)}[/red]")
+            console.print(f"\n[bold {'green' if exit_code == 0 else 'red'}]"
+                          f"✅ Proceso finalizado con código de salida: {exit_code}"
+                          f"[/bold {'green' if exit_code == 0 else 'red'}]")
+
+        except ChildProcessError:
+            # Esto puede ocurrir si el proceso fue terminado (ej. por timeout)
+            console.print(f"\n[bold red]✅ Proceso finalizado (terminado a la fuerza)[/bold red]")
+
+        os.close(fd)
 
 @cli.command()
 @click.option('--interactive', '-i', is_flag=True, help='Modo interactivo')
