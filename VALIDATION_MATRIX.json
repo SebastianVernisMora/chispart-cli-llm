@@ -1,0 +1,394 @@
+{
+  "version": "1.0",
+  "generated_at": "2025-08-28T04:43:06Z",
+  "items": [
+    {
+      "id": "CLI-WS-001",
+      "category": "chispart-cli",
+      "title": "WS RPC operativo con auth y pairing",
+      "priority": "P0",
+      "status": "to_do",
+      "owner": "Blackbox",
+      "acceptance_criteria": [
+        "CLI puede iniciar un servidor WebSocket con un token de autenticación.",
+        "Un cliente puede conectarse y realizar un handshake de pairing.",
+        "La comunicación RPC básica (ej. echo) funciona después del pairing.",
+        "Los logs no exponen el token de autenticación."
+      ],
+      "verify_commands": [
+        "python -m chispart.cli ws start --port 8765 --token devtoken",
+        "python websocket_client.py ws://localhost:8765 --token devtoken"
+      ],
+      "expected_artifacts": [
+        "logs/ws-server.log",
+        "artifacts/ws/handshake.ndjson"
+      ],
+      "evidence": { "path": null, "checksum": null },
+      "risk": "Alto",
+      "notes": "La implementación de WS RPC es fundamental para la comunicación con agentes cloud. Se debe verificar la seguridad del handshake."
+    },
+    {
+      "id": "CLI-PTY-002",
+      "category": "chispart-cli",
+      "title": "PTY real con streaming, timeouts y exit codes",
+      "priority": "P0",
+      "status": "to_do",
+      "owner": "Equipo",
+      "acceptance_criteria": [
+        "El comando `exec` crea un PTY real para ejecutar subprocesos.",
+        "La salida del subproceso (stdout y stderr) se transmite en tiempo real.",
+        "Los timeouts configurables finalizan el proceso si excede el límite.",
+        "El exit code del subproceso se captura y reporta correctamente."
+      ],
+      "verify_commands": [
+        "python -m chispart.cli exec --timeout 5 -- 'ping -c 10 localhost'",
+        "python -m chispart.cli exec -- 'echo \"hello\" && exit 42'"
+      ],
+      "expected_artifacts": [
+        "logs/exec-stream.log",
+        "artifacts/exec/exit_code.json"
+      ],
+      "evidence": { "path": null, "checksum": null },
+      "risk": "Medio",
+      "notes": "Probar con comandos de larga duración y comandos que producen mucha salida para evaluar el rendimiento del streaming."
+    },
+    {
+      "id": "SEC-LOG-001",
+      "category": "Security",
+      "title": "Redacción de secretos en logs (CLI y orchestrator)",
+      "priority": "P0",
+      "status": "to_do",
+      "owner": "Equipo",
+      "acceptance_criteria": [
+        "Tokens, claves de API y otras credenciales no aparecen en texto plano en ningún archivo de log.",
+        "Los valores de los secretos son reemplazados por placeholders como 'REDACTED' o '***'."
+      ],
+      "verify_commands": [
+        "grep -r 'devtoken' logs/",
+        "grep -r 'API_KEY' logs/"
+      ],
+      "expected_artifacts": [
+        "logs/cli.log",
+        "logs/orchestrator.log"
+      ],
+      "evidence": { "path": null, "checksum": null },
+      "risk": "Crítico",
+      "notes": "La exposición de secretos en logs es una vulnerabilidad de alta severidad."
+    },
+    {
+      "id": "SEC-E2E-002",
+      "category": "Security",
+      "title": "Cifrado AES-GCM con Argon2id validado",
+      "priority": "P0",
+      "status": "to_do",
+      "owner": "Equipo",
+      "acceptance_criteria": [
+        "Existen pruebas unitarias para el módulo de criptografía.",
+        "Las pruebas validan la derivación de clave con Argon2id.",
+        "Las pruebas validan el cifrado y descifrado con AES-GCM.",
+        "Las pruebas fallan si el tag de autenticación es inválido."
+      ],
+      "verify_commands": [
+        "pytest chispar-cli-llm/tests/test_security.py"
+      ],
+      "expected_artifacts": [
+        "reports/test-coverage.xml"
+      ],
+      "evidence": { "path": null, "checksum": null },
+      "risk": "Crítico",
+      "notes": "El cifrado E2E es una característica de seguridad core. Su correcta implementación debe ser verificada exhaustivamente."
+    },
+    {
+      "id": "ORCH-API-001",
+      "category": "chispart-cloud-agents",
+      "title": "API/WS del orchestrator (/workflows, /runs)",
+      "priority": "P0",
+      "status": "to_do",
+      "owner": "Equipo Cloud",
+      "acceptance_criteria": [
+        "El orchestrator expone un endpoint `/api/workflows` para listar y crear workflows.",
+        "El orchestrator expone un endpoint `/api/runs` para ejecutar y monitorear workflows.",
+        "El orchestrator expone un endpoint WebSocket para streaming de logs en tiempo real."
+      ],
+      "verify_commands": [
+        "curl http://localhost:4000/api/workflows",
+        "curl -X POST -H \"Content-Type: application/json\" -d @workflow.yaml http://localhost:4000/api/workflows"
+      ],
+      "expected_artifacts": [
+        "logs/orchestrator.log",
+        "artifacts/workflows/run-123.json"
+      ],
+      "evidence": { "path": null, "checksum": null },
+      "risk": "Alto",
+      "notes": "Estos endpoints son la interfaz principal para controlar los agentes cloud. Se basan en la especificación del `prompt_de_arranque`."
+    },
+    {
+      "id": "RT-MCP-001",
+      "category": "chispart-cloud-agents",
+      "title": "Runtime MCP estable con adapters (shell.exec, etc.)",
+      "priority": "P0",
+      "status": "to_do",
+      "owner": "Equipo Cloud",
+      "acceptance_criteria": [
+        "El runtime de agentes se comunica con el orchestrator vía MCP (Machine Communication Protocol).",
+        "El runtime puede ejecutar tareas a través de adapters como `shell.exec`, `git.clone`, y `llm.chat`.",
+        "Los resultados de las tareas se reportan de vuelta al orchestrator."
+      ],
+      "verify_commands": [
+        "make test-runtime"
+      ],
+      "expected_artifacts": [
+        "logs/runtime.log",
+        "artifacts/mcp/messages.ndjson"
+      ],
+      "evidence": { "path": null, "checksum": null },
+      "risk": "Alto",
+      "notes": "El MCP es el corazón de la comunicación entre agentes. La especificación se encuentra en `prompt_de_arranque`."
+    },
+    {
+      "id": "INF-DOCKER-001",
+      "category": "Infraestructura",
+      "title": "docker-compose levanta servicios base (DB, Redis)",
+      "priority": "P0",
+      "status": "to_do",
+      "owner": "Equipo DevOps",
+      "acceptance_criteria": [
+        "El comando `docker-compose up` inicia todos los servicios sin errores.",
+        "Los contenedores para Postgres, Redis y MinIO están en estado 'running'.",
+        "Los puertos de los servicios están expuestos correctamente."
+      ],
+      "verify_commands": [
+        "cd chispart-cloud-agents && docker-compose up -d",
+        "docker-compose ps"
+      ],
+      "expected_artifacts": [
+        "logs/docker-compose.log"
+      ],
+      "evidence": { "path": null, "checksum": null },
+      "risk": "Alto",
+      "notes": "La infraestructura local es un prerrequisito para el desarrollo y prueba de los agentes cloud. Usa el `docker-compose.yml` del `prompt_de_arranque`."
+    },
+    {
+      "id": "CLI-AWL-003",
+      "category": "chispart-cli",
+      "title": "Allowlist de comandos activa y logs de auditoría",
+      "priority": "P1",
+      "status": "to_do",
+      "owner": "Equipo",
+      "acceptance_criteria": [
+        "La CLI bloquea la ejecución de comandos que no están en la allowlist.",
+        "Los intentos de ejecución de comandos bloqueados se registran en un log de auditoría.",
+        "La allowlist es configurable."
+      ],
+      "verify_commands": [
+        "python -m chispart.cli exec -- 'rm -rf /'",
+        "grep 'BLOCKED' logs/audit.log"
+      ],
+      "expected_artifacts": [
+        "logs/audit.log"
+      ],
+      "evidence": { "path": null, "checksum": null },
+      "risk": "Medio",
+      "notes": "Verificar que la allowlist no sea fácilmente bypasseable (ej. `echo 'rm -rf /' | bash`)."
+    },
+    {
+      "id": "CLI-LLM-004",
+      "category": "chispart-cli",
+      "title": "Router LLM con Blackbox (BYOK) y fallback",
+      "priority": "P1",
+      "status": "to_do",
+      "owner": "Equipo",
+      "acceptance_criteria": [
+        "La CLI puede enrutar peticiones a diferentes modelos LLM a través de Blackbox.",
+        "Soporta configuración 'Bring Your Own Key' (BYOK).",
+        "Si un modelo primario falla, realiza un fallback a un modelo secundario."
+      ],
+      "verify_commands": [
+        "python -m chispart.cli chat --model 'gemini/gemini-pro' 'Hola'",
+        "python -m chispart.cli chat --model 'non_existent_model' 'Hola'"
+      ],
+      "expected_artifacts": [
+        "logs/llm-router.log"
+      ],
+      "evidence": { "path": null, "checksum": null },
+      "risk": "Medio",
+      "notes": "Requiere configurar claves de API válidas en el entorno."
+    },
+    {
+      "id": "CLI-GIT-005",
+      "category": "chispart-cli",
+      "title": "Integración funcional con PR de GitHub",
+      "priority": "P1",
+      "status": "to_do",
+      "owner": "Equipo",
+      "acceptance_criteria": [
+        "La CLI puede autenticarse con la API de GitHub.",
+        "Puede crear, listar y obtener el estado de Pull Requests.",
+        "Puede aplicar un diff o parche a partir de un PR."
+      ],
+      "verify_commands": [
+        "python -m chispart.cli git pr create --title 'Test PR' --body 'Test'",
+        "python -m chispart.cli git pr list"
+      ],
+      "expected_artifacts": [
+        "logs/github.log"
+      ],
+      "evidence": { "path": null, "checksum": null },
+      "risk": "Bajo",
+      "notes": "Requiere un token de GitHub con los permisos adecuados."
+    },
+    {
+      "id": "WRK-MIN-001",
+      "category": "chispart-cloud-agents",
+      "title": "Workers mínimos operativos (shell, git, llm)",
+      "priority": "P1",
+      "status": "to_do",
+      "owner": "Equipo Cloud",
+      "acceptance_criteria": [
+        "Existen workers contenerizados para `shell`, `git` y `llm`.",
+        "El orchestrator puede asignar tareas a estos workers.",
+        "Los workers ejecutan las tareas y devuelven el resultado."
+      ],
+      "verify_commands": [
+        "make test-workers"
+      ],
+      "expected_artifacts": [
+        "logs/worker-shell.log",
+        "logs/worker-git.log",
+        "logs/worker-llm.log"
+      ],
+      "evidence": { "path": null, "checksum": null },
+      "risk": "Alto",
+      "notes": "Validar la aislación y los recursos asignados a cada worker."
+    },
+    {
+      "id": "RT-DSL-002",
+      "category": "chispart-cloud-agents",
+      "title": "DSL YAML con DAG, if/retries/backoff",
+      "priority": "P1",
+      "status": "to_do",
+      "owner": "Equipo Cloud",
+      "acceptance_criteria": [
+        "El orchestrator puede parsear un workflow definido en YAML.",
+        "Soporta la definición de un grafo acíclico dirigido (DAG) de tareas.",
+        "Implementa lógica condicional (`if`), reintentos (`retries`) y backoff exponencial."
+      ],
+      "verify_commands": [
+        "curl -X POST -d @workflow-complex.yaml http://localhost:4000/api/runs"
+      ],
+      "expected_artifacts": [
+        "artifacts/runs/complex-run.json"
+      ],
+      "evidence": { "path": null, "checksum": null },
+      "risk": "Medio",
+      "notes": "La complejidad del DSL es un factor clave para la potencia de los agentes cloud."
+    },
+    {
+      "id": "UI-CONSOLE-001",
+      "category": "chispart-cloud-agents",
+      "title": "Console UI muestra runs, logs en vivo y artefactos",
+      "priority": "P1",
+      "status": "to_do",
+      "owner": "Equipo Frontend",
+      "acceptance_criteria": [
+        "Una interfaz web (Console UI) se conecta al orchestrator.",
+        "Muestra una lista de los runs de los workflows.",
+        "Para un run seleccionado, muestra los logs en tiempo real.",
+        "Permite descargar los artefactos generados por el run."
+      ],
+      "verify_commands": [
+        "npx playwright test --spec 'console-ui.spec.js'"
+      ],
+      "expected_artifacts": [
+        "screenshots/console-ui.png"
+      ],
+      "evidence": { "path": null, "checksum": null },
+      "risk": "Medio",
+      "notes": "La Console UI es la principal herramienta de observabilidad para los agentes cloud."
+    },
+    {
+      "id": "SEC-EGR-003",
+      "category": "Security",
+      "title": "Egress limitado según allowlist",
+      "priority": "P1",
+      "status": "to_do",
+      "owner": "Equipo",
+      "acceptance_criteria": [
+        "La CLI previene conexiones de red salientes a destinos no autorizados.",
+        "La allowlist de egress es configurable.",
+        "Los intentos de conexión bloqueados son registrados."
+      ],
+      "verify_commands": [
+        "python -m chispart.cli exec -- 'curl http://example.com'"
+      ],
+      "expected_artifacts": [
+        "logs/egress.log"
+      ],
+      "evidence": { "path": null, "checksum": null },
+      "risk": "Alto",
+      "notes": "El control de egress es crítico para prevenir la exfiltración de datos."
+    },
+    {
+      "id": "INF-ENV-002",
+      "category": "Infraestructura",
+      "title": "Scripts y .env cargan variables correctamente",
+      "priority": "P2",
+      "status": "to_do",
+      "owner": "Equipo DevOps",
+      "acceptance_criteria": [
+        "Los scripts de inicio (`dev.sh`, etc.) cargan las variables de entorno desde los archivos `.env`.",
+        "Las variables cargadas están disponibles en los procesos de la aplicación.",
+        "Existe un `.env.example` con todas las variables requeridas."
+      ],
+      "verify_commands": [
+        "env | grep CHISPART"
+      ],
+      "expected_artifacts": [],
+      "evidence": { "path": null, "checksum": null },
+      "risk": "Bajo",
+      "notes": "Una correcta gestión de la configuración simplifica el desarrollo y despliegue."
+    },
+    {
+      "id": "SEC-CONT-004",
+      "category": "chispart-cloud-agents",
+      "title": "Seguridad en contenedores (no-root, cgroups, seccomp)",
+      "priority": "P2",
+      "status": "to_do",
+      "owner": "Equipo Cloud",
+      "acceptance_criteria": [
+        "Los contenedores de los workers no se ejecutan como usuario root.",
+        "Se aplican límites de recursos (CPU, memoria) a través de cgroups.",
+        "Se utiliza un perfil de seccomp para restringir las llamadas al sistema."
+      ],
+      "verify_commands": [
+        "docker inspect --format '{{.Config.User}}' <worker_container_id>",
+        "cat /proc/self/cgroup"
+      ],
+      "expected_artifacts": [],
+      "evidence": { "path": null, "checksum": null },
+      "risk": "Alto",
+      "notes": "El sandboxing de contenedores es esencial para la seguridad de los agentes multi-tenant."
+    },
+    {
+      "id": "VNC-SSH-001",
+      "category": "VNC / Termux",
+      "title": "Túnel SSH y acceso VNC solo en localhost",
+      "priority": "P2",
+      "status": "to_do",
+      "owner": "Equipo",
+      "acceptance_criteria": [
+        "La documentación para el acceso remoto vía VNC especifica el uso de un túnel SSH.",
+        "El servidor VNC está configurado para escuchar solo en la interfaz de loopback (`localhost`).",
+        "No hay puertos de VNC expuestos públicamente."
+      ],
+      "verify_commands": [
+        "ssh -L 5901:localhost:5901 user@host",
+        "netstat -tuln | grep 5901"
+      ],
+      "expected_artifacts": [],
+      "evidence": { "path": null, "checksum": null },
+      "risk": "Medio",
+      "notes": "La exposición de VNC a internet es un riesgo de seguridad significativo."
+    }
+  ]
+}
