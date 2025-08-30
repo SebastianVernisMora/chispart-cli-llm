@@ -5,3 +5,5 @@ Flask-SocketIO
 boto3
 redis
 celery
+PyYAML
+docker

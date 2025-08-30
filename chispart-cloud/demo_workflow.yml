@@ -1,0 +1,39 @@
+# Chispart Cloud Demo Workflow
+#
+# This workflow demonstrates a typical CI/CD pipeline:
+# plan -> build -> qa -> tests -> pr
+
+tasks:
+  - name: plan
+    command: "shell.exec 'echo [PLAN] Starting the planning phase...'"
+
+  - name: build
+    command: "shell.exec 'echo [BUILD] Building the application... && sleep 2 && echo [BUILD] Build successful.'"
+    dependencies:
+      - plan
+
+  - name: qa-gate
+    command: "shell.exec 'echo [QA] Running automated QA checks... && exit 0'" # exit 0 to simulate success
+    dependencies:
+      - build
+
+  - name: run-integration-tests
+    command: "shell.exec 'echo [TESTS] Running integration tests... && sleep 3 && echo [TESTS] All tests passed.'"
+    dependencies:
+      - qa-gate
+    if: "tasks.qa-gate.status == 'succeeded'"
+    retries: 2
+    timeout: 30
+
+  - name: run-security-scan
+    command: "shell.exec 'echo [TESTS] Running security scan... && sleep 2 && exit 1'" # exit 1 to simulate failure
+    dependencies:
+      - qa-gate
+    if: "tasks.qa-gate.status == 'succeeded'"
+
+  - name: create-pull-request
+    command: "shell.exec 'echo [PR] Creating pull request...'"
+    dependencies:
+      - run-integration-tests
+      # This task will be skipped because run-security-scan is expected to fail
+      - run-security-scan

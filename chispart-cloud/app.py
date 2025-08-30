@@ -1,17 +1,33 @@
 from flask import Flask, jsonify, request
 from flask_socketio import SocketIO, join_room
-from core.models import Run, Workflow # Workflow might be used later
-from tasks import execute_run
+from core.models import Run, Workflow, Task
+from tasks import execute_run, celery
 import os
 
 app = Flask(__name__)
-# Make sure to configure the message queue for SocketIO
 app.config['SECRET_KEY'] = 'secret!'
-socketio = SocketIO(app, message_queue=os.environ.get('REDIS_URL', 'redis://127.0.0.1:6379/0'))
+app.config['TESTING'] = os.environ.get('FLASK_TESTING', 'False') == 'True'
 
-# Using a simple in-memory model for now, as in the original code
+# Celery configuration
+app.config.update(
+    broker_url=os.environ.get('REDIS_URL', 'redis://127.0.0.1:6379/0'),
+    result_backend=os.environ.get('REDIS_URL', 'redis://127.0.0.1:6379/0')
+)
+
+if app.config['TESTING']:
+    socketio = SocketIO(app)
+    app.config.update(task_always_eager=True)
+else:
+    socketio = SocketIO(app, message_queue=os.environ.get('REDIS_URL', 'redis://127.0.0.1:6379/0'))
+
+celery.conf.update(app.config)
+# Attach the socketio instance to the celery app
+celery.socketio = socketio
+
+
 workflow_model = Workflow()
 run_model = Run()
+task_model = Task()
 
 @app.route('/')
 def index():
@@ -22,34 +38,37 @@ def health():
     return jsonify({"status": "ok"})
 
 @app.route('/api/execute', methods=['POST'])
-def execute_command():
+def execute():
     data = request.json
-    if not data or 'command' not in data:
-        return jsonify({"error": "Invalid input, 'command' field is required"}), 400
+    if not data:
+        return jsonify({"error": "Invalid input"}), 400
 
-    command_string = data['command']
+    command_string = data.get('command')
+    workflow_yaml = data.get('workflow')
 
-    # Create a new run record
-    # In a real app, this might be associated with a workflow
+    if not command_string and not workflow_yaml:
+        return jsonify({"error": "Either 'command' or 'workflow' field is required"}), 400
+
     run_data = {
-        'workflow_id': data.get('workflow_id', None),
+        'workflow_id': data.get('workflow_id'),
         'status': 'queued',
-        'command': command_string
+        'command': command_string,
+        'workflow_yaml': workflow_yaml
     }
     new_run = run_model.create(run_data)
 
-    # Trigger the background task
-    execute_run.delay(new_run['id'], command_string)
+    execute_run.delay(new_run['id'], command_string, workflow_yaml)
 
-    # Return the run ID so the client can listen for updates
-    return jsonify(new_run), 202 # 202 Accepted
+    return jsonify(new_run), 202
 
 @app.route('/runs/<int:run_id>', methods=['GET'])
 def get_run(run_id):
     run = run_model.get_by_id(run_id)
-    if run:
-        return jsonify(run)
-    return jsonify({"error": "Run not found"}), 404
+    if not run:
+        return jsonify({"error": "Run not found"}), 404
+
+    run['tasks'] = task_model.find_by_run_id(run_id)
+    return jsonify(run)
 
 @app.route('/runs', methods=['GET'])
 def list_runs():
@@ -71,7 +90,6 @@ def handle_subscribe_to_run(data):
         room = f'run_{run_id}'
         join_room(room)
         print(f'Client {request.sid} subscribed to room {room}')
-        # Optionally send back a confirmation
         socketio.emit('subscribed', {'run_id': run_id}, room=request.sid)
 
 if __name__ == '__main__':
