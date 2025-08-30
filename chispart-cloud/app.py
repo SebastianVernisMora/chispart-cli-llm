@@ -1,15 +1,19 @@
+import os
+import redis
 from flask import Flask, jsonify, request
 from flask_socketio import SocketIO, join_room
-from core.models import Run, Workflow # Workflow might be used later
-from tasks import execute_run
-import os
+from core.models import Run, Workflow
+from celery_config import celery_app, task_routes
 
+# Initialize Flask app and SocketIO
 app = Flask(__name__)
-# Make sure to configure the message queue for SocketIO
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app, message_queue=os.environ.get('REDIS_URL', 'redis://127.0.0.1:6379/0'))
 
-# Using a simple in-memory model for now, as in the original code
+# Initialize Redis client for metrics
+redis_client = redis.from_url(os.environ.get('REDIS_URL', 'redis://127.0.0.1:6379/0'))
+
+# Initialize models
 workflow_model = Workflow()
 run_model = Run()
 
@@ -28,21 +32,34 @@ def execute_command():
         return jsonify({"error": "Invalid input, 'command' field is required"}), 400
 
     command_string = data['command']
+    # Default to 'shell' queue if not specified
+    queue = data.get('queue', 'shell')
 
-    # Create a new run record
-    # In a real app, this might be associated with a workflow
+    # Basic validation to ensure the queue exists
+    if queue not in [q.name for q in celery_app.conf.task_queues]:
+        return jsonify({"error": f"Invalid queue: {queue}"}), 400
+
+    task_name = 'tasks.execute_command'
+
     run_data = {
         'workflow_id': data.get('workflow_id', None),
         'status': 'queued',
-        'command': command_string
+        'command': command_string,
+        'queue': queue
     }
     new_run = run_model.create(run_data)
 
-    # Trigger the background task
-    execute_run.delay(new_run['id'], command_string)
+    # Increment the 'submitted' metric for the queue
+    redis_client.incr(f"metrics:queue:{queue}:submitted")
 
-    # Return the run ID so the client can listen for updates
-    return jsonify(new_run), 202 # 202 Accepted
+    # Trigger the background task in the specified queue
+    celery_app.send_task(
+        task_name,
+        args=[new_run['id'], command_string],
+        queue=queue
+    )
+
+    return jsonify(new_run), 202
 
 @app.route('/runs/<int:run_id>', methods=['GET'])
 def get_run(run_id):
@@ -55,6 +72,19 @@ def get_run(run_id):
 def list_runs():
     runs = run_model.get_all()
     return jsonify(runs)
+
+@app.route('/api/metrics', methods=['GET'])
+def get_metrics():
+    """Returns metrics for each queue."""
+    metrics = {}
+    # Find all keys related to queue metrics
+    for key in redis_client.scan_iter("metrics:queue:*"):
+        queue_name = key.decode('utf-8').split(':')[2]
+        metric_type = key.decode('utf-8').split(':')[3]
+        if queue_name not in metrics:
+            metrics[queue_name] = {}
+        metrics[queue_name][metric_type] = int(redis_client.get(key))
+    return jsonify(metrics)
 
 @socketio.on('connect')
 def handle_connect():
