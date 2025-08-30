@@ -1,0 +1,11 @@
+FROM ubuntu:latest
+
+# Create a non-root user for security
+RUN useradd -ms /bin/bash user
+RUN mkdir /app && chown user:user /app
+
+USER user
+WORKDIR /app
+
+# You can add more tools here in the future
+# RUN apt-get update && apt-get install -y git curl ...

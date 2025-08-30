@@ -1,7 +1,11 @@
 import unittest
 import json
+import sys
+import os
 from unittest.mock import patch
-from app import app, socketio, workflow_model, run_model
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from app import app, run_model
 
 class TestAPI(unittest.TestCase):
     def setUp(self):
@@ -13,36 +17,31 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json, {"status": "ok"})
 
-    def test_create_workflow(self):
-        response = self.app.post('/workflows',
-                                 data=json.dumps({'name': 'test_workflow'}),
-                                 content_type='application/json')
-        self.assertEqual(response.status_code, 201)
-        self.assertEqual(response.json['name'], 'test_workflow')
-
-    def test_get_workflows(self):
-        response = self.app.get('/workflows')
-        self.assertEqual(response.status_code, 200)
-        self.assertIsInstance(response.json, list)
-
     @patch('app.execute_run.delay')
-    def test_create_run(self, mock_delay):
-        # First create a workflow
-        workflow = workflow_model.create({'name': 'test_workflow'})
-
-        response = self.app.post('/runs',
-                                 data=json.dumps({'workflow_id': workflow['id']}),
+    def test_execute_command(self, mock_delay):
+        command = "shell.exec 'ls -la'"
+        response = self.app.post('/api/execute',
+                                 data=json.dumps({'command': command}),
                                  content_type='application/json')
 
-        self.assertEqual(response.status_code, 201)
-        self.assertEqual(response.json['workflow_id'], workflow['id'])
+        self.assertEqual(response.status_code, 202)
+        self.assertEqual(response.json['command'], command)
         self.assertEqual(response.json['status'], 'queued')
-        mock_delay.assert_called_once_with(response.json['id'], workflow['id'])
+        mock_delay.assert_called_once_with(response.json['id'], command)
 
     def test_get_runs(self):
+        # Create a run first to ensure there's something to get
+        run = run_model.create({'command': 'test.command', 'status': 'succeeded'})
         response = self.app.get('/runs')
         self.assertEqual(response.status_code, 200)
         self.assertIsInstance(response.json, list)
+        self.assertIn(run, response.json)
+
+    def test_get_run_by_id(self):
+        run = run_model.create({'command': 'test.command', 'status': 'succeeded'})
+        response = self.app.get(f'/runs/{run["id"]}')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json, run)
 
 if __name__ == '__main__':
     unittest.main()

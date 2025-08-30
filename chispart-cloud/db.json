@@ -17,5 +17,66 @@
             "id": 4
         }
     ],
-    "runs": []
+    "runs": [
+        {
+            "workflow_id": null,
+            "status": "queued",
+            "command": "shell.exec 'ls -la'",
+            "id": 1
+        },
+        {
+            "command": "test.command",
+            "status": "succeeded",
+            "id": 2
+        },
+        {
+            "command": "test.command",
+            "status": "succeeded",
+            "id": 3
+        },
+        {
+            "workflow_id": null,
+            "status": "queued",
+            "command": "shell.exec 'ls -la'",
+            "id": 4
+        },
+        {
+            "command": "test.command",
+            "status": "succeeded",
+            "id": 5
+        },
+        {
+            "command": "test.command",
+            "status": "succeeded",
+            "id": 6
+        },
+        {
+            "workflow_id": null,
+            "status": "queued",
+            "command": "file.write 'test.txt' 'hello from file'",
+            "id": 7
+        },
+        {
+            "workflow_id": null,
+            "status": "queued",
+            "command": "shell.exec 'echo hello world'",
+            "id": 8
+        },
+        {
+            "workflow_id": null,
+            "status": "queued",
+            "command": "shell.exec 'ls -la'",
+            "id": 9
+        },
+        {
+            "command": "test.command",
+            "status": "succeeded",
+            "id": 10
+        },
+        {
+            "command": "test.command",
+            "status": "succeeded",
+            "id": 11
+        }
+    ]
 }
