@@ -5,3 +5,4 @@ Flask-SocketIO
 boto3
 redis
 celery
+requests
